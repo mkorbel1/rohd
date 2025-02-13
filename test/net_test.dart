@@ -685,8 +685,9 @@ void main() {
   test('build fails with missing inout port', () async {
     final mod = MissingPortTop(LogicNet());
 
-    expect(
-        () async => mod.build(), throwsA(isA<PortRulesViolationException>()));
+    expect(() async {
+      await mod.build();
+    }, throwsA(isA<PortRulesViolationException>()));
   });
 
   test('double connected port mod', () async {

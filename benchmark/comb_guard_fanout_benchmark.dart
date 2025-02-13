@@ -49,7 +49,7 @@ class CombGuardFanoutBenchmark extends AsyncBenchmarkBase {
       : super('CombGuardFanoutBenchmark');
 
   CombGuardFanout? mod;
-  final Logic a = Logic(width: 8);
+  final a = Logic(width: 8);
 
   @override
   Future<void> setup() async {
