@@ -24,8 +24,8 @@ class _$MyModule extends MyBaseModule {
     required Logic? condInp,
     required MyStruct st,
   }) {
-    this.a = addInput('a', a);
-    this.b = addInput('b', b);
+    this.a = addInput('a', a, width: aWidth);
+    this.b = addInput('b', b, width: 3);
     this.condInp = condInp == null ? null : addInput('condInp', condInp);
     c = addOutput('c', width: 3);
     this.st = st.clone()..gets(addInput('st', st));

@@ -1,4 +1,5 @@
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/builder/annotations.dart';
 import 'package:rohd/src/interfaces/interfaces.dart';
 
 part 'my_interface.manual.dart';
@@ -7,39 +8,17 @@ part 'my_interface.manual.dart';
 // - width based on other arguments
 // - conditional/optional ports
 // - extend another intf base class
-// - hierarchical interfaces
-// - structure ports
+// - hierarchical interfaces << let them do it manually?
+// - structure ports << let them do it manually?
 
-class GenIntfPort {
-  const GenIntfPort(String name);
-}
-
-class GenInterface<T> {
-  const GenInterface(Map<T, List<GenIntfPort>> ports);
-}
-
-@GenInterface({
+@GenInterface(extendsModule: PairInterface, {
   PairDirection.fromProvider: [
-    GenIntfPort('a'),
-    GenIntfPort('b'),
+    IntfPort('a', isConditional: true),
+    IntfPort('b', width: null),
   ],
 })
-class MyInterface extends _$MyInterface {}
-
-class MyOtherInterface extends Interface {
-  @GenIntfPort('a')
-  final Logic a = Logic(name: 'a', width: 8);
-  //then we can just call setPorts on all of them?
-
-  late final Logic b = setPort(Logic(name: 'b'));
-
-  Logic setPort(Logic p) {
-    setPorts([p]);
-    return port(p.name);
+class MyInterface extends _$MyInterface {
+  MyInterface(int w) : super(bWidth: w, aPresent: w > 3) {
+    setPorts([Logic.port('c', 2 * w)]);
   }
-}
-
-abstract class _YetAnotherInterface extends Interface {
-  @GenIntfPort('asdf')
-  Logic get a;
 }

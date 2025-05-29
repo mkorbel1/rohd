@@ -21,6 +21,16 @@ class Output extends GenLogic {
 
 class GenModule {
   final List<GenLogic>? outputs;
-  final Type? extendsModule;
+  final Type? extendsModule; // TODO: add custom constructor?
   const GenModule({this.outputs, this.extendsModule});
+}
+
+class IntfPort extends GenLogic {
+  const IntfPort(String super.name,
+      {super.width, super.description, super.isConditional = false});
+}
+
+class GenInterface<T> {
+  final Type? extendsModule; // TODO: add custom constructor?
+  const GenInterface(Map<T, List<IntfPort>> ports, {this.extendsModule});
 }

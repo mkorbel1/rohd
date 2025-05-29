@@ -13,7 +13,7 @@ part 'my_module.manual.dart';
 // - fixed width or matching width
 // - width based on some other argument? >> (exception?)
 // - conditional ports  >> (nullable + exception?)
-// - extension of another child class of module
+// - extension of another child class of module (non default constructor?)
 // - struct ports
 // - array ports
 // - list of things ports
