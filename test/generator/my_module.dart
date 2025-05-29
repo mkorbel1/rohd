@@ -1,4 +1,8 @@
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/builder/annotations.dart';
+
+import '../logic_structure_test.dart';
 
 part 'my_module.manual.dart';
 
@@ -14,31 +18,23 @@ part 'my_module.manual.dart';
 // - array ports
 // - list of things ports
 
-class Input {
-  const Input();
+class MyBaseModule extends Module {
+  final bool myFlag;
+  MyBaseModule({required this.myFlag});
 }
 
-class GenModule {
-  final List<GenLogic>? outputs;
-  const GenModule({this.outputs});
-}
-
-class GenLogic {
-  final String name;
-  final int? width;
-  const GenLogic(this.name, {this.width});
-}
-
-@GenModule(outputs: [
-  GenLogic('c', width: 3),
+@GenModule(extendsModule: MyBaseModule, outputs: [
+  Output('c', width: 3),
 ])
 class MyModule extends _$MyModule {
-  // late final Logic c = addOutput('c');
-
   MyModule(
-    @Input() super.b, {
-    @Input() required Logic super.a,
-  }) {
-    a & b;
+    @Input(width: 3, description: 'This is input b') super.b, {
+    @Input(width: null) required Logic super.a,
+    int aw = 3,
+    @Input() Logic? super.condInp,
+    @Input() required MyStruct super.st,
+    required super.myFlag,
+  }) : super(aWidth: aw) {
+    c <= a & b;
   }
 }
