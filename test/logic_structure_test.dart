@@ -25,7 +25,7 @@ class MyStruct extends LogicStructure {
   MyStruct._(this.ready, this.valid) : super([ready, valid], name: 'myStruct');
 
   @override
-  LogicStructure clone({String? name}) => MyStruct();
+  MyStruct clone({String? name}) => MyStruct();
 }
 
 class MyFancyStruct extends LogicStructure {
@@ -93,6 +93,7 @@ class StructModuleWithInstrumentation extends Module {
       ..isOutput
       ..changed
       ..glitch
+      // ignore: discarded_futures
       ..nextChanged
       // ignore: deprecated_member_use_from_same_package
       ..hasValidValue()
