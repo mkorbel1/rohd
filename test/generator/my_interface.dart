@@ -10,6 +10,7 @@ part 'my_interface.manual.dart';
 // - extend another intf base class
 // - hierarchical interfaces << let them do it manually?
 // - structure ports << let them do it manually?
+// - implement clone
 
 @GenInterface(extendsModule: PairInterface, {
   PairDirection.fromProvider: [

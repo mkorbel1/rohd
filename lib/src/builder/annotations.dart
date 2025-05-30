@@ -1,3 +1,5 @@
+import 'package:rohd/rohd.dart';
+
 class GenLogic {
   final String? name;
   final int? width;
@@ -33,4 +35,19 @@ class IntfPort extends GenLogic {
 class GenInterface<T> {
   final Type? extendsModule; // TODO: add custom constructor?
   const GenInterface(Map<T, List<IntfPort>> ports, {this.extendsModule});
+}
+
+class StructField extends GenLogic {
+  final Logic Function()? constructor;
+  final Type? type;
+  const StructField(String super.name,
+      {super.width,
+      super.description,
+      super.isConditional = false,
+      this.constructor,
+      this.type = Logic});
+}
+
+class GenStruct {
+  const GenStruct({required List<StructField> fields});
 }

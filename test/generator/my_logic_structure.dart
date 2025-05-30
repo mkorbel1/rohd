@@ -1,4 +1,7 @@
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/builder/annotations.dart';
+
+import '../logic_structure_test.dart';
 
 part 'my_logic_structure.manual.dart';
 
@@ -9,27 +12,12 @@ part 'my_logic_structure.manual.dart';
 // - nested structures
 // - implement clone
 
-class GenStruct<T extends LogicStructure> {
-  const GenStruct(List<GenStructField<T>> x);
-}
-
-class GenStructField<T extends LogicStructure> {
-  final String name;
-  final int? width;
-  final bool isConditional;
-
-  final int Function(T)? widthCalc;
-  // also calcPresence
-
-  const GenStructField(this.name,
-      {this.width, this.widthCalc, this.isConditional = false});
-}
-
 // yes this looks good!
 @GenStruct(
-  [
-    GenStructField('a', width: null),
-    GenStructField('b', width: 8, isConditional: true),
+  fields: [
+    StructField('a', width: null),
+    StructField('b', width: 8, isConditional: true),
+    StructField('rv', constructor: MyStruct.new, type: MyStruct)
   ],
 )
 class MyLogicStructure extends _$MyLogicStructure {
