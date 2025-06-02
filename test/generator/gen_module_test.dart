@@ -9,7 +9,7 @@ class ExampleModule extends Module {
   Logic get b => output('b');
   ExampleModule(Logic a) {
     a = addInput('a', a);
-    addOutput('b', width: 3);
+    addOutput('b');
     b <= ~a;
   }
 }
@@ -21,15 +21,26 @@ class ExampleModuleWithGen extends _$ExampleModuleWithGen {
   }
 }
 
+//TODO: test with Logic instead of super
+
 void main() {
   group('simple module', () {
     for (final modBuilder in [ExampleModule.new, ExampleModuleWithGen.new]) {
-      test('builds and generates code $modBuilder', () async {
-        final mod = modBuilder(Logic());
-        await mod.build();
-        expect(mod.outputs['b']!.width, 3);
-        final svCode = mod.generateSynth();
-        expect(svCode, contains('module simple_module'));
+      group(modBuilder.toString(), () {
+        test('builds, simple test, and generates code', () async {
+          final a = Logic();
+          final mod = modBuilder(a);
+          await mod.build();
+          a.put(0);
+          expect(mod.output('b').value.toBool(), true);
+
+          final svCode = mod.generateSynth();
+
+          expect(svCode, contains('input logic a'));
+          expect(svCode, contains('output logic b'));
+          expect(svCode, contains('b = ~a;'));
+          expect(svCode, contains('module ExampleModule'));
+        });
       });
     }
   });
