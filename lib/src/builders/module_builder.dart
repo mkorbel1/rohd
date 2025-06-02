@@ -23,25 +23,63 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
       final oConst = ConstantReader(o);
       return Output(
         oConst.read('name').stringValue,
-        // width: o.getField('width')?.toIntValue(),
-        // description: o.getField('description')?.toStringValue(),
-        // isConditional: o.getField('isConditional')?.toBoolValue() ?? false,
+        width:
+            oConst.read('width').isNull ? null : oConst.read('width').intValue,
+        description: oConst.read('description').isNull
+            ? null
+            : oConst.read('description').stringValue,
+        isConditional: oConst.read('isConditional').isNull
+            ? false
+            : oConst.read('isConditional').boolValue,
       );
-    });
+    }).toList();
+
+    // Find constructor and look for @Input annotations
+    final classElement = element as ClassElement;
+    final constructor = classElement.constructors.firstWhere(
+      (c) => !c.isFactory && !c.isSynthetic,
+      orElse: () =>
+          throw Exception('No valid constructor found for $sourceClassName'),
+    );
+
+    final inputParams = <String>[];
+    for (final param in constructor.parameters) {
+      final hasInputAnnotation = param.metadata.any(
+        (meta) => meta.element?.displayName == 'Input',
+      );
+      if (hasInputAnnotation) {
+        inputParams.add(param.name);
+      }
+    }
 
     final buffer = StringBuffer();
     buffer.writeln('class $genClassName extends $baseClassName {');
 
+    // Generate output getters
     for (final o in outputs) {
-      buffer.write("Logic get ${o.name} => output('${o.name}');\n");
+      buffer.write("  Logic get ${o.name} => output('${o.name}');\n");
     }
 
-    buffer.writeln('$genClassName(Logic a){');
-    buffer.writeln('a = addInput(\'a\', a);');
-    for (final o in outputs) {
-      buffer.writeln("addOutput('${o.name}', width: ${o.width ?? 1});");
+    // Generate constructor
+    buffer.writeln('  $genClassName(');
+
+    // Generate constructor parameters
+    final paramList = inputParams.map((name) => 'Logic $name').join(', ');
+    buffer.writeln('    $paramList,');
+    buffer.writeln('  ) : super(name: "simple_module") {');
+
+    // Generate addInput calls for annotated parameters
+    for (final param in inputParams) {
+      buffer.writeln('    $param = addInput(\'$param\', $param);');
     }
-    buffer.writeln('}');
+
+    // Generate addOutput calls
+    for (final o in outputs) {
+      final width = o.width ?? 1;
+      buffer.writeln("    addOutput('${o.name}', width: $width);");
+    }
+
+    buffer.writeln('  }');
     buffer.writeln('}');
 
     return buffer.toString();

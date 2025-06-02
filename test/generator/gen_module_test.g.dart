@@ -8,7 +8,9 @@ part of 'gen_module_test.dart';
 
 class _$ExampleModuleWithGen extends Module {
   Logic get b => output('b');
-  _$ExampleModuleWithGen(Logic a) {
+  _$ExampleModuleWithGen(
+    Logic a,
+  ) : super(name: "simple_module") {
     a = addInput('a', a);
     addOutput('b', width: 1);
   }
