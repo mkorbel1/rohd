@@ -2,7 +2,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd/src/builders/annotations.dart';
 import 'package:test/test.dart';
 
-part 'gen_module_test.rohd.g.dart';
+part 'gen_module_test.g.dart';
 
 class ExampleModule extends Module {
   Logic get b => output('b');
@@ -15,8 +15,8 @@ class ExampleModule extends Module {
 
 @GenModule(outputs: [Output('b')])
 class ExampleModuleWithGen extends Module {
-  ExampleModuleWithGen(@Input() super.a) : super(name: 'simple_module') {
-    b <= ~a;
+  ExampleModuleWithGen(@Input() Logic a) : super(name: 'simple_module') {
+    // b <= ~a;
   }
 }
 

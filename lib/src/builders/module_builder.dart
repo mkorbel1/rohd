@@ -4,7 +4,7 @@ import 'package:rohd/src/builders/annotations.dart';
 import 'package:source_gen/source_gen.dart';
 
 Builder rohdBuilder(BuilderOptions options) {
-  return SharedPartBuilder([ModuleGenerator()], 'rohd');
+  return LibraryBuilder(ModuleGenerator());
 }
 
 class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
@@ -12,7 +12,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
   String generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) {
     final sourceClassName = element.name!;
-    final genClassName = '_\$$sourceClassName';
+    final genClassName = 'X_\$$sourceClassName';
 
     final baseClassName = 'Module'; //TODO
 
