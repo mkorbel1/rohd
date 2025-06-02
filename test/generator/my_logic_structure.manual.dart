@@ -4,7 +4,8 @@ class _$MyLogicStructure extends LogicStructure {
   late final Logic a = elements[0];
   late final Logic b = elements[1];
 
-  _$MyLogicStructure({required int aWidth, required bool bPresent})
+  _$MyLogicStructure(
+      {required int aWidth, required bool bPresent, required MyStruct rv2})
       : super([
           Logic(name: 'a', width: aWidth),
           if (bPresent) Logic(name: 'b', width: 8),

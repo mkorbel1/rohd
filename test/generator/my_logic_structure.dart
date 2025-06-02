@@ -9,7 +9,7 @@ part 'my_logic_structure.manual.dart';
 // - fixed width
 // - widths based on some other argument
 // - conditional presence of a signal
-// - nested structures
+// - nested structures (nullable for optional?)
 // - implement clone
 
 // yes this looks good!
@@ -17,9 +17,11 @@ part 'my_logic_structure.manual.dart';
   fields: [
     StructField('a', width: null),
     StructField('b', width: 8, isConditional: true),
-    StructField('rv', constructor: MyStruct.new, type: MyStruct)
+    StructField('rv', constructor: MyStruct.new, type: MyStruct),
+    StructField('rv2', type: MyStruct) // TODO: .struct?
   ],
 )
 class MyLogicStructure extends _$MyLogicStructure {
-  MyLogicStructure({required super.aWidth, required super.bPresent});
+  MyLogicStructure(int x, {required super.aWidth, required super.bPresent})
+      : super(rv2: MyStruct());
 }

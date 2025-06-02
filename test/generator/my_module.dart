@@ -17,6 +17,7 @@ part 'my_module.manual.dart';
 // - struct ports
 // - array ports
 // - list of things ports
+// - interfaces (normal and pair)
 
 class MyBaseModule extends Module {
   final bool myFlag;

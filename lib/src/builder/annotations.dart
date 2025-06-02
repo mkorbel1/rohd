@@ -38,7 +38,7 @@ class GenInterface<T> {
 }
 
 class StructField extends GenLogic {
-  final Logic Function()? constructor;
+  final Logic Function()? constructor; //TODO: ditch constructor?
   final Type? type;
   const StructField(String super.name,
       {super.width,
