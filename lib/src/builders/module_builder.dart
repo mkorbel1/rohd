@@ -1,8 +1,71 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
+import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:build/build.dart';
 import 'package:rohd/src/builders/annotations.dart';
 import 'package:rohd/src/builders/interface_builder.dart';
 import 'package:source_gen/source_gen.dart';
+
+/// Metadata about an input port collected during code generation
+class InputPortInfo {
+  /// Name of the parameter in the constructor
+  final String paramName;
+
+  /// Name of the input port (may be different from paramName if specified in @Input)
+  final String inputName;
+
+  /// Width specified in @Input annotation, if any
+  final int? width;
+
+  /// Description specified in @Input annotation, if any
+  final String? description;
+
+  /// Whether this Logic input is nullable
+  final bool isNullable;
+
+  /// Whether this is a named parameter
+  final bool isNamed;
+
+  /// Whether this is an optional positional parameter
+  final bool isOptionalPositional;
+
+  String get portDeclaration {
+    final nullableSuffix = isNullable ? '?' : '';
+    return 'Logic$nullableSuffix $paramName';
+  }
+
+  const InputPortInfo({
+    required this.paramName,
+    required this.inputName,
+    this.width,
+    this.description,
+    this.isNullable = false,
+    this.isNamed = false,
+    this.isOptionalPositional = false,
+  });
+}
+
+/// Metadata about an output port collected during code generation
+class OutputPortInfo {
+  /// Name of the output port
+  final String name;
+
+  /// Width specified in @Output annotation, if any
+  final int? width;
+
+  /// Description specified in @Output annotation, if any
+  final String? description;
+
+  /// Whether this is a conditional output
+  final bool isConditional;
+
+  const OutputPortInfo({
+    required this.name,
+    this.width,
+    this.description,
+    this.isConditional = false,
+  });
+}
 
 Builder rohdBuilder(BuilderOptions options) {
   // return LibraryBuilder(ModuleGenerator());
@@ -21,8 +84,8 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     // Extract outputs from the annotation
     final outputs = annotation.read('outputs').listValue.map((o) {
       final oConst = ConstantReader(o);
-      return Output(
-        oConst.read('name').stringValue,
+      return OutputPortInfo(
+        name: oConst.read('name').stringValue,
         width:
             oConst.read('width').isNull ? null : oConst.read('width').intValue,
         description: oConst.read('description').isNull
@@ -42,7 +105,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
           throw Exception('No valid constructor found for $sourceClassName'),
     );
 
-    final inputParams = <Map<String, dynamic>>[];
+    final inputParams = <InputPortInfo>[];
     for (final param in constructor.parameters) {
       final inputAnnotation = param.metadata
           .where(
@@ -64,12 +127,19 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
             ?.getField('description')
             ?.toStringValue();
 
-        inputParams.add({
-          'paramName': param.name,
-          'inputName': inputName ?? param.name,
-          'width': inputWidth,
-          'description': inputDesc,
-        });
+        // Check if parameter type is nullable
+        final isNullable =
+            param.type.nullabilitySuffix == NullabilitySuffix.question;
+
+        inputParams.add(InputPortInfo(
+          paramName: param.name,
+          inputName: inputName ?? param.name,
+          width: inputWidth,
+          description: inputDesc,
+          isNullable: isNullable,
+          isNamed: param.isNamed,
+          isOptionalPositional: param.isOptionalPositional,
+        ));
       }
     }
 
@@ -79,7 +149,8 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     // Generate protected fields for inputs
     for (final input in inputParams) {
       buffer.writeln('  @protected');
-      buffer.writeln('  late final Logic ${input['paramName']};');
+      final nullableSuffix = input.isNullable ? '?' : '';
+      buffer.writeln('  late final Logic$nullableSuffix ${input.paramName};');
     }
 
     // Generate output getters
@@ -91,23 +162,51 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     buffer.writeln('  $genClassName(');
 
     // Generate constructor parameters
-    final paramList =
-        inputParams.map((input) => 'Logic ${input['paramName']}').join(', ');
-    buffer.writeln('    $paramList,');
+    final requiredPositionalParams = inputParams
+        .where((p) => !p.isNamed && !p.isOptionalPositional)
+        .map((p) => p.portDeclaration)
+        .join(', ');
+
+    final optionalPositionalParams = inputParams
+        .where((p) => !p.isNamed && p.isOptionalPositional)
+        .map((p) => p.portDeclaration)
+        .join(', ');
+
+    final requiredNamedParams = inputParams
+        .where((p) => p.isNamed)
+        .map((p) => p.portDeclaration)
+        .join(', ');
+
+    if (optionalPositionalParams.isNotEmpty &&
+        requiredPositionalParams.isNotEmpty) {
+      throw Exception(
+          'Cannot have both optional positional and named arguments both');
+    }
+
+    final paramList = [
+      requiredPositionalParams,
+      if (optionalPositionalParams.isNotEmpty) ',[$optionalPositionalParams]',
+      if (requiredNamedParams.isNotEmpty) ',{$requiredNamedParams}',
+    ].join(' ');
+
+    buffer.writeln(paramList);
     buffer.writeln('  ) : super(name: "simple_module") {');
 
     // Generate addInput calls for annotated parameters
     for (final input in inputParams) {
-      final paramName = input['paramName'];
-      final inputName = input['inputName'];
+      final paramName = input.paramName;
+      final inputName = input.inputName;
+      final widthParam = input.width != null ? ', width: ${input.width}' : '';
       buffer.writeln(
-          '    this.$paramName = addInput(\'$inputName\', $paramName);');
+          '    this.$paramName = addInput(\'$inputName\', $paramName$widthParam);');
     }
 
     // Generate addOutput calls
     for (final o in outputs) {
       final width = o.width ?? 1;
-      buffer.writeln("    addOutput('${o.name}', width: $width);");
+      final conditionalParam = o.isConditional ? ', isConditional: true' : '';
+      buffer.writeln(
+          "    addOutput('${o.name}', width: $width$conditionalParam);");
     }
 
     buffer.writeln('  }');
