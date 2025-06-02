@@ -42,18 +42,45 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
           throw Exception('No valid constructor found for $sourceClassName'),
     );
 
-    final inputParams = <String>[];
+    final inputParams = <Map<String, dynamic>>[];
     for (final param in constructor.parameters) {
-      final hasInputAnnotation = param.metadata.any(
-        (meta) => meta.element?.displayName == 'Input',
-      );
-      if (hasInputAnnotation) {
-        inputParams.add(param.name);
+      final inputAnnotation = param.metadata
+          .where(
+            (meta) => meta.element?.displayName == 'Input',
+          )
+          .firstOrNull;
+
+      if (inputAnnotation != null) {
+        final inputName = inputAnnotation
+            .computeConstantValue()
+            ?.getField('name')
+            ?.toStringValue();
+        final inputWidth = inputAnnotation
+            .computeConstantValue()
+            ?.getField('width')
+            ?.toIntValue();
+        final inputDesc = inputAnnotation
+            .computeConstantValue()
+            ?.getField('description')
+            ?.toStringValue();
+
+        inputParams.add({
+          'paramName': param.name,
+          'inputName': inputName ?? param.name,
+          'width': inputWidth,
+          'description': inputDesc,
+        });
       }
     }
 
     final buffer = StringBuffer();
     buffer.writeln('class $genClassName extends $baseClassName {');
+
+    // Generate protected fields for inputs
+    for (final input in inputParams) {
+      buffer.writeln('  @protected');
+      buffer.writeln('  late final Logic ${input['paramName']};');
+    }
 
     // Generate output getters
     for (final o in outputs) {
@@ -64,13 +91,17 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     buffer.writeln('  $genClassName(');
 
     // Generate constructor parameters
-    final paramList = inputParams.map((name) => 'Logic $name').join(', ');
+    final paramList =
+        inputParams.map((input) => 'Logic ${input['paramName']}').join(', ');
     buffer.writeln('    $paramList,');
     buffer.writeln('  ) : super(name: "simple_module") {');
 
     // Generate addInput calls for annotated parameters
-    for (final param in inputParams) {
-      buffer.writeln('    $param = addInput(\'$param\', $param);');
+    for (final input in inputParams) {
+      final paramName = input['paramName'];
+      final inputName = input['inputName'];
+      buffer.writeln(
+          '    this.$paramName = addInput(\'$inputName\', $paramName);');
     }
 
     // Generate addOutput calls
