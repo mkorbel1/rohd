@@ -1,8 +1,26 @@
 builders:
   rohd_builder:
     import: "package:rohd/builder.dart"
-    builder_factories: ["RohdBuilder"]
-    build_extensions: {".dart": [".rohd.dart"]}
+    builder_factories: ["rohdBuilder"]
+    build_extensions: {".dart": [".rohd.g.dart"]}
     auto_apply: dependents
-    build_to: source
-    default_build_mode: release
+    build_to: cache
+    applies_builders: ["source_gen:combining_builder"]
+
+targets:
+  $default:
+    sources:
+      - $package$
+      - lib/**
+      - test/**
+    builders:
+      rohd|rohd_builder:
+        generate_for:
+          - lib/**
+          - test/**
+        enabled: true
+      # source_gen|combining_builder:
+      #   generate_for:
+      #     - lib/**
+      #     - test/**
+      #   enabled: true
