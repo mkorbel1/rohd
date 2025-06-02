@@ -1,5 +1,6 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'gen_module_test.dart';
 
 // **************************************************************************
 // ModuleGenerator

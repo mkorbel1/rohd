@@ -1,8 +1,9 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+part of 'my_interface.dart';
+
 // **************************************************************************
-// ModuleGenerator
+// Generator: InterfaceBuilder
 // **************************************************************************
 
-class X_$MyModule extends Module {}
+// this will be intf builder stuff
