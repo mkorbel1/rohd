@@ -6,7 +6,7 @@ part 'gen_module_test.g.dart';
 
 class ExampleModule extends Module {
   Logic get b => output('b');
-  ExampleModule(Logic a) : super(name: 'simple_module') {
+  ExampleModule(Logic a) {
     a = addInput('a', a);
     addOutput('b', width: 3);
     b <= ~a;
@@ -14,9 +14,9 @@ class ExampleModule extends Module {
 }
 
 @GenModule(outputs: [Output('b')])
-class ExampleModuleWithGen extends Module {
-  ExampleModuleWithGen(@Input() Logic a) : super(name: 'simple_module') {
-    // b <= ~a;
+class ExampleModuleWithGen extends _$ExampleModuleWithGen {
+  ExampleModuleWithGen(@Input() super.a) {
+    b <= ~a;
   }
 }
 

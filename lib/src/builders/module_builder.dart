@@ -13,18 +13,36 @@ Builder rohdBuilder(BuilderOptions options) {
 class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
   @override
   String generateForAnnotatedElement(
-      // ignore: deprecated_member_use
-      Element element,
-      ConstantReader annotation,
-      BuildStep buildStep) {
+      Element element, ConstantReader annotation, BuildStep buildStep) {
     final sourceClassName = element.name!;
-    final genClassName = 'X_\$$sourceClassName';
+    final genClassName = '_\$$sourceClassName';
+    final baseClassName = 'Module';
 
-    final baseClassName = 'Module'; //TODO
+    // Extract outputs from the annotation
+    final outputs = annotation.read('outputs').listValue.map((o) {
+      final oConst = ConstantReader(o);
+      return Output(
+        oConst.read('name').stringValue,
+        // width: o.getField('width')?.toIntValue(),
+        // description: o.getField('description')?.toStringValue(),
+        // isConditional: o.getField('isConditional')?.toBoolValue() ?? false,
+      );
+    });
 
     final buffer = StringBuffer();
+    buffer.writeln('class $genClassName extends $baseClassName {');
 
-    buffer.writeln('class $genClassName extends $baseClassName {}');
+    for (final o in outputs) {
+      buffer.write("Logic get ${o.name} => output('${o.name}');\n");
+    }
+
+    buffer.writeln('$genClassName(Logic a){');
+    buffer.writeln('a = addInput(\'a\', a);');
+    for (final o in outputs) {
+      buffer.writeln("addOutput('${o.name}', width: ${o.width ?? 1});");
+    }
+    buffer.writeln('}');
+    buffer.writeln('}');
 
     return buffer.toString();
   }
