@@ -18,6 +18,7 @@ part 'my_module.manual.dart';
 // - array ports
 // - list of things ports
 // - interfaces (normal and pair)
+// - allow even outputs as arguments to the constructor
 
 class MyBaseModule extends Module {
   final bool myFlag;

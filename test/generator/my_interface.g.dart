@@ -3,7 +3,7 @@
 part of 'my_interface.dart';
 
 // **************************************************************************
-// Generator: InterfaceBuilder
+// InterfaceGenerator
 // **************************************************************************
 
 // this will be intf builder stuff

@@ -21,6 +21,12 @@ class ExampleModuleWithGen extends _$ExampleModuleWithGen {
   }
 }
 
+@GenModule() // no outputs specified
+class NonSuperInputMod extends _$NonSuperInputMod {
+  // input is not calling super, but passes it up to the parent class
+  NonSuperInputMod(@Input() Logic a) : super(a);
+}
+
 //TODO: test with Logic instead of super
 
 void main() {
@@ -43,5 +49,12 @@ void main() {
         });
       });
     }
+  });
+
+  test('non-super input arg still generates input', () async {
+    final mod = NonSuperInputMod(Logic());
+    await mod.build();
+
+    expect(mod.a.isInput, isTrue);
   });
 }

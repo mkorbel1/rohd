@@ -4,7 +4,7 @@ import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:build/build.dart';
 
 import 'package:rohd/src/builders/annotations.dart';
-import 'package:rohd/src/builders/interface_builder.dart';
+import 'package:rohd/src/builders/interface_generator.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Metadata about an input port collected during code generation
@@ -77,20 +77,22 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     final baseClassName = 'Module';
 
     // Extract outputs from the annotation
-    final outputs = annotation.read('outputs').listValue.map((o) {
-      final oConst = ConstantReader(o);
-      return OutputPortInfo(
-        name: oConst.read('name').stringValue,
-        width:
-            oConst.read('width').isNull ? null : oConst.read('width').intValue,
-        description: oConst.read('description').isNull
-            ? null
-            : oConst.read('description').stringValue,
-        isConditional: oConst.read('isConditional').isNull
-            ? false
-            : oConst.read('isConditional').boolValue,
-      );
-    }).toList();
+    final outputs = annotation.peek('outputs')?.listValue.map((o) {
+          final oConst = ConstantReader(o);
+          return OutputPortInfo(
+            name: oConst.read('name').stringValue,
+            width: oConst.read('width').isNull
+                ? null
+                : oConst.read('width').intValue,
+            description: oConst.read('description').isNull
+                ? null
+                : oConst.read('description').stringValue,
+            isConditional: oConst.read('isConditional').isNull
+                ? false
+                : oConst.read('isConditional').boolValue,
+          );
+        }).toList() ??
+        [];
 
     // Find constructor and look for @Input annotations
     final classElement = element as ClassElement;
@@ -159,18 +161,14 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     // Generate constructor parameters
     final requiredPositionalParams = inputParams
         .where((p) => !p.isNamed && !p.isOptionalPositional)
-        .map((p) => p.portDeclaration)
-        .join(', ');
+        .map((p) => p.portDeclaration);
 
     final optionalPositionalParams = inputParams
         .where((p) => !p.isNamed && p.isOptionalPositional)
-        .map((p) => p.portDeclaration)
-        .join(', ');
+        .map((p) => p.portDeclaration);
 
-    final requiredNamedParams = inputParams
-        .where((p) => p.isNamed)
-        .map((p) => p.portDeclaration)
-        .join(', ');
+    final requiredNamedParams =
+        inputParams.where((p) => p.isNamed).map((p) => p.portDeclaration);
 
     if (optionalPositionalParams.isNotEmpty &&
         requiredPositionalParams.isNotEmpty) {
@@ -178,14 +176,34 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
           'Cannot have both optional positional and named arguments both');
     }
 
+    const defaultModuleNamedParams = [
+      'name',
+      'reserveName',
+      'definitionName',
+      'reserveDefinitionName',
+    ];
+
+    if (inputParams
+        .any((ip) => defaultModuleNamedParams.contains(ip.paramName))) {
+      //TODO: test this
+      throw Exception('Cannot have input port args with the same names'
+          ' as super module parameters: $defaultModuleNamedParams');
+    }
+
+    final namedParams = [
+      ...requiredNamedParams,
+      ...defaultModuleNamedParams.map((e) => 'super.$e'),
+    ];
+
     final paramList = [
-      requiredPositionalParams,
-      if (optionalPositionalParams.isNotEmpty) ',[$optionalPositionalParams]',
-      if (requiredNamedParams.isNotEmpty) ',{$requiredNamedParams}',
+      requiredPositionalParams.join(', '),
+      if (optionalPositionalParams.isNotEmpty)
+        ',[${optionalPositionalParams.join(', ')}]',
+      if (namedParams.isNotEmpty) ',{${namedParams.join(', ')}}',
     ].join(' ');
 
     buffer.writeln(paramList);
-    buffer.writeln('  ) : super(name: "simple_module") {');
+    buffer.writeln('  ) {');
 
     // Generate addInput calls for annotated parameters
     for (final input in inputParams) {
