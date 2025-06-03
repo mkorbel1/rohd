@@ -68,12 +68,6 @@ class OutputPortInfo {
   });
 }
 
-Builder rohdBuilder(BuilderOptions options) {
-  // return LibraryBuilder(ModuleGenerator());
-  return SharedPartBuilder(
-      [ModuleGenerator(), InterfaceBuilder()], 'rohd_builder');
-}
-
 class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
   @override
   String generateForAnnotatedElement(
