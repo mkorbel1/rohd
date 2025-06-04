@@ -1,6 +1,6 @@
 import 'package:rohd/rohd.dart';
 
-class GenLogic {
+class _GenLogic {
   final String? name;
 
   /// The name to use for the [Logic], if different from the variable [name].
@@ -18,7 +18,7 @@ class GenLogic {
 
   final bool isNet;
 
-  const GenLogic._({
+  const _GenLogic({
     this.name,
     this.logicName,
     this.width,
@@ -28,46 +28,45 @@ class GenLogic {
     this.isConditional = false,
     this.isNet = false,
   });
-
-  const GenLogic(
-    String this.name, {
-    this.width = 1,
-    this.description,
-    this.isConditional = false,
-    this.logicName,
-    this.isNet = false,
-  })  : dimensions = null,
-        type = null;
-
-  const GenLogic.array(
-    String this.name, {
-    int? elementWidth = 1,
-    this.dimensions = const [1],
-    this.description,
-    this.isConditional = false,
-    this.logicName,
-    this.isNet = false,
-  })  : width = elementWidth,
-        type = null;
-
-  const GenLogic.struct(
-    String this.name, {
-    required Type this.type,
-    this.description,
-    this.isConditional = false,
-    this.logicName,
-    this.isNet = false,
-  })  : width = null,
-        dimensions = null;
 }
 
-class Input extends GenLogic {
+class GenLogic extends _GenLogic {
+  const GenLogic(
+    String name, {
+    super.width = 1,
+    super.description,
+    super.isConditional = false,
+    super.logicName,
+    super.isNet = false,
+  }) : super(dimensions: null, type: null, name: name);
+
+  const GenLogic.array(
+    String name, {
+    int? elementWidth = 1,
+    super.dimensions = const [1],
+    super.description,
+    super.isConditional = false,
+    super.logicName,
+    super.isNet = false,
+  }) : super(width: elementWidth, type: null, name: name);
+
+  const GenLogic.struct(
+    String name, {
+    required Type super.type,
+    super.description,
+    super.isConditional = false,
+    super.logicName,
+    super.isNet = false,
+  }) : super(dimensions: null, name: name);
+}
+
+class Input extends _GenLogic {
   const Input({
     super.logicName,
     super.width,
     super.description,
     super.isNet,
-  }) : super._();
+  });
 
   const Input.array({
     super.logicName,
@@ -76,7 +75,7 @@ class Input extends GenLogic {
     super.description,
     super.isConditional = false,
     super.isNet,
-  }) : super._(width: elementWidth);
+  }) : super(width: elementWidth);
 
   const Input.struct({
     required Type super.type,
@@ -84,16 +83,16 @@ class Input extends GenLogic {
     super.isConditional = false,
     super.logicName,
     super.isNet,
-  }) : super._();
+  });
 }
 
-class Output extends GenLogic {
+class Output extends _GenLogic {
   const Output({
     super.logicName,
     super.width,
     super.description,
     super.isNet,
-  }) : super._();
+  });
 
   const Output.array({
     super.logicName,
@@ -102,7 +101,7 @@ class Output extends GenLogic {
     super.description,
     super.isConditional = false,
     super.isNet,
-  }) : super._(width: elementWidth);
+  }) : super(width: elementWidth);
 
   const Output.struct({
     required Type super.type,
@@ -110,16 +109,16 @@ class Output extends GenLogic {
     super.isConditional = false,
     super.logicName,
     super.isNet,
-  }) : super._();
+  });
 }
 
-class InOut extends GenLogic {
+class InOut extends _GenLogic {
   const InOut({
     super.logicName,
     super.width,
     super.description,
     super.isNet = true,
-  }) : super._();
+  });
 
   const InOut.array({
     super.logicName,
@@ -128,7 +127,7 @@ class InOut extends GenLogic {
     super.description,
     super.isConditional = false,
     super.isNet = true,
-  }) : super._(width: elementWidth);
+  }) : super(width: elementWidth);
 
   const InOut.struct({
     required Type super.type,
@@ -136,15 +135,15 @@ class InOut extends GenLogic {
     super.isConditional = false,
     super.logicName,
     super.isNet = true,
-  }) : super._();
+  });
 }
 
 //TODO: InOut
 
-class GenModule {
+class GenModule<BaseModuleType extends Module> {
   final List<GenLogic>? outputs;
-  final Type? extendsModule; // TODO: add custom constructor?
-  const GenModule({this.outputs, this.extendsModule});
+  // final Type? extendsModule; // TODO: add custom constructor?
+  const GenModule({this.outputs});
 }
 
 class GenInterface<T> {

@@ -27,6 +27,14 @@ class NonSuperInputMod extends _$NonSuperInputMod {
   NonSuperInputMod(@Input() Logic a) : super(a);
 }
 
+class GenBaseMod extends Module {
+  final bool myFlag;
+  GenBaseMod({required this.myFlag});
+}
+
+@GenModule<GenBaseMod>(outputs: [GenLogic('b')])
+class GenSubMod extends _$GenSubMod {}
+
 //TODO: test with Logic instead of super
 
 void main() {
