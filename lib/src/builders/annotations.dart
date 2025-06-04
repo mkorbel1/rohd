@@ -140,10 +140,17 @@ class InOut extends _GenLogic {
 
 //TODO: InOut
 
-class GenModule<BaseModuleType extends Module> {
+class GenModule {
   final List<GenLogic>? outputs;
   // final Type? extendsModule; // TODO: add custom constructor?
-  const GenModule({this.outputs});
+
+  /// If specified, this constructor will be used as the base constructor
+  /// for the generated module and it will extend the return type of this
+  /// constructor.  This must be a non-factory constructor and the base class
+  /// must be a [Module].
+  final Function? baseConstructor;
+
+  const GenModule({this.outputs, this.baseConstructor});
 }
 
 class GenInterface<T> {

@@ -2,6 +2,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:build/build.dart';
+import 'package:collection/collection.dart';
 
 import 'package:rohd/src/builders/annotations.dart';
 import 'package:rohd/src/builders/interface_generator.dart';
@@ -74,7 +75,6 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
       Element element, ConstantReader annotation, BuildStep buildStep) {
     final sourceClassName = element.name!;
     final genClassName = '_\$$sourceClassName';
-    final baseClassName = 'Module';
 
     // Extract outputs from the annotation
     final outputs = annotation.peek('outputs')?.listValue.map((o) {
@@ -96,47 +96,81 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
 
     // Find constructor and look for @Input annotations
     final classElement = element as ClassElement;
-    final constructor = classElement.constructors.firstWhere(
+    // TODO: what do we do if there are *multiple* constructors??
+    final constructor = classElement.constructors.firstWhereOrNull(
       (c) => !c.isFactory && !c.isSynthetic,
-      orElse: () =>
-          throw Exception('No valid constructor found for $sourceClassName'),
     );
 
     final inputParams = <InputPortInfo>[];
-    for (final param in constructor.parameters) {
-      final inputAnnotation = param.metadata
-          .where(
-            (meta) => meta.element?.displayName == 'Input',
-          )
-          .firstOrNull;
+    if (constructor != null) {
+      for (final param in constructor.parameters) {
+        final inputAnnotation = param.metadata
+            .where(
+              (meta) => meta.element?.displayName == 'Input',
+            )
+            .firstOrNull;
 
-      if (inputAnnotation != null) {
-        final inputName = inputAnnotation
-            .computeConstantValue()
-            ?.getField('name')
-            ?.toStringValue();
-        final inputWidth = inputAnnotation
-            .computeConstantValue()
-            ?.getField('width')
-            ?.toIntValue();
-        final inputDesc = inputAnnotation
-            .computeConstantValue()
-            ?.getField('description')
-            ?.toStringValue();
+        if (inputAnnotation != null) {
+          final inputName = inputAnnotation
+              .computeConstantValue()
+              ?.getField('name')
+              ?.toStringValue();
+          final inputWidth = inputAnnotation
+              .computeConstantValue()
+              ?.getField('width')
+              ?.toIntValue();
+          final inputDesc = inputAnnotation
+              .computeConstantValue()
+              ?.getField('description')
+              ?.toStringValue();
 
-        // Check if parameter type is nullable
-        final isNullable =
-            param.type.nullabilitySuffix == NullabilitySuffix.question;
+          // Check if parameter type is nullable
+          final isNullable =
+              param.type.nullabilitySuffix == NullabilitySuffix.question;
 
-        inputParams.add(InputPortInfo(
-          paramName: param.name,
-          inputName: inputName ?? param.name,
-          width: inputWidth,
-          description: inputDesc,
-          isNullable: isNullable,
-          isNamed: param.isNamed,
-          isOptionalPositional: param.isOptionalPositional,
-        ));
+          inputParams.add(InputPortInfo(
+            paramName: param.name,
+            inputName: inputName ?? param.name,
+            width: inputWidth,
+            description: inputDesc,
+            isNullable: isNullable,
+            isNamed: param.isNamed,
+            isOptionalPositional: param.isOptionalPositional,
+          ));
+        }
+      }
+    }
+
+    // Extract baseConstructor from the annotation
+    final baseConstructor = annotation.peek('baseConstructor')?.objectValue;
+    String baseClassName = 'Module';
+    List<String> baseConstructorParams = [];
+
+    List<String> baseClassParams = [
+      'name',
+      'reserveName',
+      'definitionName',
+      'reserveDefinitionName',
+    ];
+
+    if (baseConstructor != null) {
+      if (baseConstructor.type is FunctionType) {
+        final func = baseConstructor.type as FunctionType;
+        final returnType = func.returnType;
+        final parameters = func.formalParameters;
+
+        baseClassName = returnType.getDisplayString();
+
+        baseClassParams.clear();
+
+        for (final param in parameters) {
+          final paramName = param.displayName;
+          final paramType = param.type.getDisplayString();
+
+          baseClassParams.add(paramName);
+        }
+      } else {
+        throw Exception('`baseConstructor` must be a function type.');
       }
     }
 
@@ -176,23 +210,15 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
           'Cannot have both optional positional and named arguments both');
     }
 
-    const defaultModuleNamedParams = [
-      'name',
-      'reserveName',
-      'definitionName',
-      'reserveDefinitionName',
-    ];
-
-    if (inputParams
-        .any((ip) => defaultModuleNamedParams.contains(ip.paramName))) {
+    if (inputParams.any((ip) => baseClassParams.contains(ip.paramName))) {
       //TODO: test this
       throw Exception('Cannot have input port args with the same names'
-          ' as super module parameters: $defaultModuleNamedParams');
+          ' as super module parameters: $baseClassParams');
     }
 
     final namedParams = [
       ...requiredNamedParams,
-      ...defaultModuleNamedParams.map((e) => 'super.$e'),
+      ...baseClassParams.map((e) => 'super.$e'),
     ];
 
     final paramList = [
@@ -203,7 +229,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     ].join(' ');
 
     buffer.writeln(paramList);
-    buffer.writeln('  ) {');
+    buffer.writeln('  ) : super(${baseConstructorParams.join(', ')}) {');
 
     // Generate addInput calls for annotated parameters
     for (final input in inputParams) {

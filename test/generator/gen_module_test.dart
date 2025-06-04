@@ -32,8 +32,10 @@ class GenBaseMod extends Module {
   GenBaseMod({required this.myFlag});
 }
 
-@GenModule<GenBaseMod>(outputs: [GenLogic('b')])
-class GenSubMod extends _$GenSubMod {}
+@GenModule(outputs: [GenLogic('b')], baseConstructor: GenBaseMod.new)
+class GenSubMod extends _$GenSubMod {
+  GenSubMod(@Input() super.a);
+}
 
 //TODO: test with Logic instead of super
 

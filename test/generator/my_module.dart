@@ -26,9 +26,9 @@ class MyBaseModule extends Module {
   MyBaseModule({required this.myFlag});
 }
 
-@GenModule(extendsModule: MyBaseModule, outputs: [
-  GenLogic('c', width: 3),
-])
+// @GenModule(extendsModule: MyBaseModule, outputs: [
+//   GenLogic('c', width: 3),
+// ])
 class MyModule extends _$MyModule {
   MyModule(
     @Input(width: 3, description: 'This is input b') super.b, {
