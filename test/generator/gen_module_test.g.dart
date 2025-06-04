@@ -10,12 +10,13 @@ class _$ExampleModuleWithGen extends Module {
   @protected
   late final Logic a;
   Logic get b => output('b');
-  _$ExampleModuleWithGen(Logic a,
-      {super.name,
-      super.reserveName,
-      super.definitionName,
-      super.reserveDefinitionName})
-      : super() {
+  _$ExampleModuleWithGen(
+    this.a, {
+    super.name,
+    super.reserveName,
+    super.definitionName,
+    super.reserveDefinitionName,
+  }) : super() {
     this.a = addInput('a', a);
     addOutput('b', width: 1);
   }
@@ -24,12 +25,13 @@ class _$ExampleModuleWithGen extends Module {
 class _$NonSuperInputMod extends Module {
   @protected
   late final Logic a;
-  _$NonSuperInputMod(Logic a,
-      {super.name,
-      super.reserveName,
-      super.definitionName,
-      super.reserveDefinitionName})
-      : super() {
+  _$NonSuperInputMod(
+    this.a, {
+    super.name,
+    super.reserveName,
+    super.definitionName,
+    super.reserveDefinitionName,
+  }) : super() {
     this.a = addInput('a', a);
   }
 }
@@ -38,7 +40,9 @@ class _$GenSubMod extends GenBaseMod {
   @protected
   late final Logic a;
   Logic get b => output('b');
-  _$GenSubMod(Logic a, {super.myFlag}) : super() {
+  _$GenSubMod({
+    super.myFlag,
+  }) : super.new() {
     this.a = addInput('a', a);
     addOutput('b', width: 1);
   }
