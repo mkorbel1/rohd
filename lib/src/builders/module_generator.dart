@@ -3,70 +3,176 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:build/build.dart';
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 
 import 'package:rohd/src/builders/annotations.dart';
 import 'package:rohd/src/builders/interface_generator.dart';
 import 'package:source_gen/source_gen.dart';
 
-/// Metadata about an input port collected during code generation
-class InputPortInfo {
-  /// Name of the parameter in the constructor
-  final String paramName;
+enum _ParamType {
+  requiredPositional(isRequired: true, isPositional: true),
+  optionalPositional(isPositional: true),
+  namedOptional,
+  namedRequired(isRequired: true);
 
-  /// Name of the input port (may be different from paramName if specified in @Input)
-  final String inputName;
+  final bool isRequired;
+  final bool isPositional;
+  bool get isNamed => !isPositional;
+  const _ParamType({this.isRequired = false, this.isPositional = false});
+}
 
-  /// Width specified in @Input annotation, if any
+class _FormalParameter {
+  _ParamType type;
+
+  String name;
+
+  bool isNullable;
+
+  String? defaultValue;
+
+  bool isSuper;
+
+  _FormalParameter({
+    required this.type,
+    required this.name,
+    this.isNullable = false,
+    this.defaultValue,
+    this.isSuper = false,
+  }) {
+    if (type.isRequired && defaultValue != null) {
+      throw ArgumentError(
+          'Required positional parameters cannot have a default value');
+    }
+  }
+
+  @override
+  String toString() {
+    if (isSuper) {
+      return 'super.$name';
+    }
+
+    final nullableSuffix = isNullable ? '?' : '';
+    final defaultSuffix = defaultValue != null ? ' = $defaultValue' : '';
+    return '$type$nullableSuffix $name$defaultSuffix';
+  }
+}
+
+class _SuperParameter {
+  String name;
+  _ParamType type;
+
+  _SuperParameter({required this.name, required this.type});
+
+  @override
+  String toString() {
+    if (type.isPositional) {
+      return name;
+    } else {
+      return '$name: $name';
+    }
+  }
+}
+
+enum _PortDirection {
+  input,
+  output,
+  inout,
+}
+
+/// Metadata about a port collected during code generation
+class _PortInfo {
+  /// Name of the variable
+  final String name;
+
+  /// Name of the Logic
+  final String logicName;
+
+  /// Width
   final int? width;
 
-  /// Description specified in @Input annotation, if any
+  /// Description
   final String? description;
 
-  /// Whether this Logic input is nullable
+  /// Whether this Logic is nullable/conditional
   final bool isNullable;
 
-  /// Whether this is a named parameter
-  final bool isNamed;
+  /// Type of parameter, or null if it is not an argument to the constructor.
+  final _ParamType? paramType;
 
-  /// Whether this is an optional positional parameter
-  final bool isOptionalPositional;
+  final _PortDirection direction;
+
+  final List<int>? dimensions;
+
+  final String type;
 
   String get portDeclaration {
     final nullableSuffix = isNullable ? '?' : '';
-    return 'Logic$nullableSuffix $paramName';
+    return '$type$nullableSuffix $name';
   }
 
-  const InputPortInfo({
-    required this.paramName,
-    required this.inputName,
+  const _PortInfo({
+    required this.name,
+    required this.logicName,
+    required this.paramType,
+    required this.direction,
     this.width,
     this.description,
     this.isNullable = false,
-    this.isNamed = false,
-    this.isOptionalPositional = false,
+    this.dimensions,
+    this.type = 'Logic',
   });
-}
 
-/// Metadata about an output port collected during code generation
-class OutputPortInfo {
-  /// Name of the output port
-  final String name;
+  /// Returns `null` if the parameter does not have any port annotation.
+  static _PortInfo? ofAnnotatedParameter(ParameterElement param) {
+    final name = param.name;
+  }
 
-  /// Width specified in @Output annotation, if any
-  final int? width;
+  factory _PortInfo.ofGenLogicConstReader(
+      ConstantReader oConst, _PortDirection direction) {
+    final name =
+        oConst.read('name').isNull ? null : oConst.read('name').stringValue;
 
-  /// Description specified in @Output annotation, if any
-  final String? description;
+    if (name == null) {
+      throw ArgumentError('Port name cannot be null');
+    }
 
-  /// Whether this is a conditional output
-  final bool isConditional;
+    final logicName = oConst.read('logicName').isNull
+        ? name
+        : oConst.read('logicName').stringValue;
 
-  const OutputPortInfo({
-    required this.name,
-    this.width,
-    this.description,
-    this.isConditional = false,
-  });
+    final width =
+        oConst.read('width').isNull ? null : oConst.read('width').intValue;
+    final description = oConst.read('description').isNull
+        ? null
+        : oConst.read('description').stringValue;
+    final isConditional = oConst.read('isConditional').boolValue;
+    final isNullable = oConst.read('isNullable').boolValue;
+    final dimensions = oConst.read('dimensions').isNull
+        ? null
+        : oConst
+            .read('dimensions')
+            .listValue
+            .map((e) => e.toIntValue()!)
+            .toList();
+
+    var type =
+        oConst.read('type').isNull ? 'Logic' : oConst.read('type').stringValue;
+    if (dimensions != null) {
+      type = 'LogicArray';
+    }
+
+    return _PortInfo(
+      name: name,
+      logicName: logicName,
+      width: width,
+      description: description,
+      isNullable: isNullable,
+      paramType: null, // Not a constructor parameter
+      direction: direction,
+      dimensions: dimensions,
+      type: type,
+    );
+  }
 }
 
 class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
@@ -76,10 +182,14 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     final sourceClassName = element.name!;
     final genClassName = '_\$$sourceClassName';
 
+    final superParams = <_SuperParameter>[];
+
+    final constructorParams = <_FormalParameter>[];
+
     // Extract outputs from the annotation
     final outputs = annotation.peek('outputs')?.listValue.map((o) {
           final oConst = ConstantReader(o);
-          return OutputPortInfo(
+          return _PortInfo(
             name: oConst.read('name').stringValue,
             width: oConst.read('width').isNull
                 ? null
@@ -101,7 +211,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
       (c) => !c.isFactory && !c.isSynthetic,
     );
 
-    final inputParams = <InputPortInfo>[];
+    final inputParams = <_PortInfo>[];
     if (constructor != null) {
       for (final param in constructor.parameters) {
         final inputAnnotation = param.metadata
@@ -128,9 +238,9 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
           final isNullable =
               param.type.nullabilitySuffix == NullabilitySuffix.question;
 
-          inputParams.add(InputPortInfo(
-            paramName: param.name,
-            inputName: inputName ?? param.name,
+          inputParams.add(_PortInfo(
+            name: param.name,
+            logicName: inputName ?? param.name,
             width: inputWidth,
             description: inputDesc,
             isNullable: isNullable,
@@ -146,28 +256,70 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     String baseClassName = 'Module';
     List<String> baseConstructorParams = [];
 
-    List<String> baseClassParams = [
-      'name',
-      'reserveName',
-      'definitionName',
-      'reserveDefinitionName',
-    ];
-
-    if (baseConstructor != null) {
+    if (baseConstructor == null) {
+      const moduleBaseParams = [
+        'name',
+        'reserveName',
+        'definitionName',
+        'reserveDefinitionName',
+      ];
+      constructorParams.addAll(moduleBaseParams.map(
+        (name) => _FormalParameter(
+          type: _ParamType.namedOptional,
+          name: name,
+          isSuper: true,
+        ),
+      ));
+    } else {
       if (baseConstructor.type is FunctionType) {
-        final func = baseConstructor.type as FunctionType;
+        final func = baseConstructor.type! as FunctionType;
         final returnType = func.returnType;
         final parameters = func.formalParameters;
 
         baseClassName = returnType.getDisplayString();
 
-        baseClassParams.clear();
+        superParams.clear();
+        constructorParams.clear();
 
         for (final param in parameters) {
           final paramName = param.displayName;
           final paramType = param.type.getDisplayString();
+          final paramDefault = param.defaultValueCode;
+          final paramIsNullable =
+              param.type.nullabilitySuffix == NullabilitySuffix.question;
 
-          baseClassParams.add(paramName);
+          if (param.isPositional) {
+            // for positional arguments, we need to transform them into named
+            // arguments
+
+            // keep the order the same
+            superParams.add(
+              _SuperParameter(
+                  name: paramName, type: _ParamType.requiredPositional),
+            );
+
+            constructorParams.add(
+              _FormalParameter(
+                type: paramDefault == null
+                    ? _ParamType.namedRequired
+                    : _ParamType.namedOptional,
+                name: paramName,
+                isNullable: paramIsNullable,
+                defaultValue: paramDefault,
+              ),
+            );
+          } else {
+            constructorParams.add(
+              _FormalParameter(
+                type: param.isRequired
+                    ? _ParamType.namedRequired
+                    : _ParamType.namedOptional,
+                name: paramName,
+                isNullable: paramIsNullable,
+                isSuper: true,
+              ),
+            );
+          }
         }
       } else {
         throw Exception('`baseConstructor` must be a function type.');
@@ -181,7 +333,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     for (final input in inputParams) {
       buffer.writeln('  @protected');
       final nullableSuffix = input.isNullable ? '?' : '';
-      buffer.writeln('  late final Logic$nullableSuffix ${input.paramName};');
+      buffer.writeln('  late final Logic$nullableSuffix ${input.name};');
     }
 
     // Generate output getters
@@ -210,7 +362,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
           'Cannot have both optional positional and named arguments both');
     }
 
-    if (inputParams.any((ip) => baseClassParams.contains(ip.paramName))) {
+    if (inputParams.any((ip) => baseClassParams.contains(ip.name))) {
       //TODO: test this
       throw Exception('Cannot have input port args with the same names'
           ' as super module parameters: $baseClassParams');
@@ -233,8 +385,8 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
 
     // Generate addInput calls for annotated parameters
     for (final input in inputParams) {
-      final paramName = input.paramName;
-      final inputName = input.inputName;
+      final paramName = input.name;
+      final inputName = input.logicName;
       final widthParam = input.width != null ? ', width: ${input.width}' : '';
       buffer.writeln(
           '    this.$paramName = addInput(\'$inputName\', $paramName$widthParam);');
@@ -252,5 +404,50 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     buffer.writeln('}');
 
     return buffer.toString();
+  }
+
+  @visibleForTesting
+  static String constructorArguments(List<_FormalParameter> params) {
+    if (params.map((e) => e.name).toSet().length != params.length) {
+      throw ArgumentError('Duplicate parameter names found in constructor');
+    }
+
+    final requiredPositionalArgs = params
+        .where((p) => p.type == _ParamType.requiredPositional)
+        .map((p) => '$p,');
+
+    final optionalPositionalArgs = params
+        .where((p) => p.type == _ParamType.optionalPositional)
+        .map((p) => '$p,');
+
+    final namedArgs = params.where((p) => p.type.isNamed).map((p) => '$p,');
+
+    if (namedArgs.isNotEmpty && optionalPositionalArgs.isNotEmpty) {
+      throw ArgumentError(
+          'Cannot have both optional positional and named arguments');
+    }
+
+    return [
+      requiredPositionalArgs,
+      if (optionalPositionalArgs.isNotEmpty) '[$optionalPositionalArgs]',
+      if (namedArgs.isNotEmpty) '{${namedArgs.join()}}',
+    ].join();
+  }
+
+  @visibleForTesting
+  static String superArguments(List<_SuperParameter> params) {
+    if (params.map((e) => e.name).toSet().length != params.length) {
+      throw ArgumentError('Duplicate parameter names found in constructor');
+    }
+
+    final positionalArgs =
+        params.where((p) => p.type.isPositional).map((p) => '$p,');
+
+    final namedArgs = params.where((p) => p.type.isNamed).map((p) => '$p,');
+
+    return [
+      if (positionalArgs.isNotEmpty) '$positionalArgs',
+      if (namedArgs.isNotEmpty) '{${namedArgs.join()}}',
+    ].join();
   }
 }
