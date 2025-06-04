@@ -28,6 +28,6 @@ class _$MyModule extends MyBaseModule {
     this.b = addInput('b', b, width: 3);
     this.condInp = condInp == null ? null : addInput('condInp', condInp);
     c = addOutput('c', width: 3);
-    this.st = st.clone()..gets(addInput('st', st));
+    this.st = st.clone()..gets(addInput('st', st, width: st.width));
   }
 }

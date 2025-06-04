@@ -15,10 +15,10 @@ part 'my_logic_structure.manual.dart';
 // yes this looks good!
 @GenStruct(
   fields: [
-    StructField('a', width: null),
-    StructField('b', width: 8, isConditional: true),
-    StructField('rv', constructor: MyStruct.new, type: MyStruct),
-    StructField('rv2', type: MyStruct) // TODO: .struct?
+    GenLogic('a', width: null),
+    GenLogic('b', width: 8, isConditional: true),
+    GenLogic.struct('rv', type: MyStruct),
+    GenLogic.struct('rv2', type: MyStruct)
   ],
 )
 class MyLogicStructure extends _$MyLogicStructure {

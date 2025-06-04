@@ -14,7 +14,7 @@ class ExampleModule extends Module {
   }
 }
 
-@GenModule(outputs: [Output('b')])
+@GenModule(outputs: [GenLogic('b')])
 class ExampleModuleWithGen extends _$ExampleModuleWithGen {
   ExampleModuleWithGen(@Input() super.a) {
     b <= ~a;

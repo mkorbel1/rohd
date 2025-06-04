@@ -19,6 +19,7 @@ part 'my_module.manual.dart';
 // - list of things ports
 // - interfaces (normal and pair)
 // - allow even outputs as arguments to the constructor
+// - allow inputs/inouts/outputs in either top or as args, why not?
 
 class MyBaseModule extends Module {
   final bool myFlag;
@@ -26,7 +27,7 @@ class MyBaseModule extends Module {
 }
 
 @GenModule(extendsModule: MyBaseModule, outputs: [
-  Output('c', width: 3),
+  GenLogic('c', width: 3),
 ])
 class MyModule extends _$MyModule {
   MyModule(

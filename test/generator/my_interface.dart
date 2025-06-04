@@ -15,8 +15,8 @@ part 'my_interface.g.dart';
 
 @GenInterface(extendsModule: PairInterface, {
   PairDirection.fromProvider: [
-    IntfPort('a', isConditional: true),
-    IntfPort('b', width: null),
+    GenLogic('a', isConditional: true),
+    GenLogic('b', width: null),
   ],
 })
 class MyInterface extends _$MyInterface {
