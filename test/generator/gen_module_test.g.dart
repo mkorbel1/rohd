@@ -11,7 +11,7 @@ class _$ExampleModuleWithGen extends Module {
   late final Logic a;
   Logic get b => output('b');
   _$ExampleModuleWithGen(
-    this.a, {
+    Logic a, {
     super.name,
     super.reserveName,
     super.definitionName,
@@ -26,7 +26,7 @@ class _$NonSuperInputMod extends Module {
   @protected
   late final Logic a;
   _$NonSuperInputMod(
-    this.a, {
+    Logic a, {
     super.name,
     super.reserveName,
     super.definitionName,
@@ -40,8 +40,9 @@ class _$GenSubMod extends GenBaseMod {
   @protected
   late final Logic a;
   Logic get b => output('b');
-  _$GenSubMod({
-    super.myFlag,
+  _$GenSubMod(
+    Logic a, {
+    required super.myFlag,
   }) : super.new() {
     this.a = addInput('a', a);
     addOutput('b', width: 1);

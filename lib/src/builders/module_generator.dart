@@ -28,9 +28,11 @@ enum _ParamVarLocation {
 }
 
 class _FormalParameter {
-  _ParamType type;
+  _ParamType paramType;
 
   String name;
+
+  String? type;
 
   bool isNullable;
 
@@ -39,29 +41,38 @@ class _FormalParameter {
   _ParamVarLocation varLocation;
 
   _FormalParameter({
-    required this.type,
+    required this.paramType,
     required this.name,
     required this.varLocation,
+    required this.type,
     this.isNullable = false,
     this.defaultValue,
   }) {
-    if (type.isRequired && defaultValue != null) {
+    if (paramType.isRequired && defaultValue != null) {
       throw ArgumentError(
           'Required positional parameters cannot have a default value');
+    }
+    if (varLocation == _ParamVarLocation.constructor && type == null) {
+      throw ArgumentError('Constructor parameters must have a type specified');
     }
   }
 
   @override
   String toString() {
+    final requiredPrefix =
+        paramType == _ParamType.namedRequired ? 'required ' : '';
+
     switch (varLocation) {
       case _ParamVarLocation.super_:
-        return 'super.$name';
+        return '${requiredPrefix}super.$name';
+
       case _ParamVarLocation.this_:
         return 'this.$name';
+
       case _ParamVarLocation.constructor:
         final nullableSuffix = isNullable ? '?' : '';
         final defaultSuffix = defaultValue != null ? ' = $defaultValue' : '';
-        return '$type$nullableSuffix $name$defaultSuffix';
+        return '$requiredPrefix $type $nullableSuffix $name$defaultSuffix';
     }
   }
 }
@@ -265,9 +276,11 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
           inputParams.add(portInfo);
 
           constructorParams.add(_FormalParameter(
-            type: portInfo.paramType!,
+            paramType: portInfo.paramType!,
             name: portInfo.name,
-            varLocation: _ParamVarLocation.this_,
+            varLocation: _ParamVarLocation.constructor,
+            type: portInfo.type,
+            isNullable: portInfo.isNullable,
           ));
         }
       }
@@ -277,7 +290,6 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     final baseConstructor = annotation.peek('baseConstructor')?.objectValue;
     final String baseClassName;
     final String superConstructor;
-    List<String> baseConstructorParams = [];
 
     if (baseConstructor == null) {
       baseClassName = 'Module';
@@ -290,9 +302,10 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
       ];
       constructorParams.addAll(moduleBaseParams.map(
         (name) => _FormalParameter(
-          type: _ParamType.namedOptional,
+          paramType: _ParamType.namedOptional,
           name: name,
           varLocation: _ParamVarLocation.super_,
+          type: null,
         ),
       ));
     } else {
@@ -315,9 +328,6 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
         }
         superConstructor = 'super.$namedConstructor';
 
-        superParams.clear();
-        constructorParams.clear();
-
         for (final param in parameters) {
           final paramName = param.displayName;
           final paramType = param.type.getDisplayString();
@@ -337,24 +347,26 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
 
             constructorParams.add(
               _FormalParameter(
-                type: paramDefault == null
+                paramType: paramDefault == null
                     ? _ParamType.namedRequired
                     : _ParamType.namedOptional,
                 name: paramName,
                 isNullable: paramIsNullable,
                 defaultValue: paramDefault,
                 varLocation: _ParamVarLocation.constructor,
+                type: paramType,
               ),
             );
           } else {
             constructorParams.add(
               _FormalParameter(
-                type: param.isRequired
+                paramType: param.isRequired
                     ? _ParamType.namedRequired
                     : _ParamType.namedOptional,
                 name: paramName,
                 isNullable: paramIsNullable,
                 varLocation: _ParamVarLocation.super_,
+                type: null,
               ),
             );
           }
@@ -417,17 +429,17 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     }
 
     final requiredPositionalArgs = params
-        .where((p) => p.type == _ParamType.requiredPositional)
+        .where((p) => p.paramType == _ParamType.requiredPositional)
         .map((p) => '$p,')
         .join();
 
     final optionalPositionalArgs = params
-        .where((p) => p.type == _ParamType.optionalPositional)
+        .where((p) => p.paramType == _ParamType.optionalPositional)
         .map((p) => '$p,')
         .join();
 
     final namedArgs =
-        params.where((p) => p.type.isNamed).map((p) => '$p,').join();
+        params.where((p) => p.paramType.isNamed).map((p) => '$p,').join();
 
     if (namedArgs.isNotEmpty && optionalPositionalArgs.isNotEmpty) {
       throw ArgumentError(
