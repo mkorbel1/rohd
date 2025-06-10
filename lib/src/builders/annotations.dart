@@ -13,20 +13,23 @@ class _GenLogic {
   final List<int>? dimensions;
   bool get isArray => dimensions != null;
 
+  final int? numUnpackedDimensions;
+
   final Type? type;
   bool get isStruct => type != null;
 
-  final bool isNet;
+  // final bool isNet;
 
   const _GenLogic({
     this.name,
     this.logicName,
     this.width,
     this.dimensions,
+    this.numUnpackedDimensions,
     this.description,
     this.type,
     this.isConditional = false,
-    this.isNet = false,
+    // this.isNet = false,
   });
 }
 
@@ -37,17 +40,18 @@ class GenLogic extends _GenLogic {
     super.description,
     super.isConditional = false,
     super.logicName,
-    super.isNet = false,
+    // super.isNet = false,
   }) : super(dimensions: null, type: null, name: name);
 
   const GenLogic.array(
     String name, {
     int? elementWidth = 1,
-    super.dimensions = const [1],
+    List<int> super.dimensions = const [1],
+    int super.numUnpackedDimensions = 0,
     super.description,
     super.isConditional = false,
     super.logicName,
-    super.isNet = false,
+    // super.isNet = false,
   }) : super(width: elementWidth, type: null, name: name);
 
   const GenLogic.struct(
@@ -56,7 +60,7 @@ class GenLogic extends _GenLogic {
     super.description,
     super.isConditional = false,
     super.logicName,
-    super.isNet = false,
+    // super.isNet = false,
   }) : super(dimensions: null, name: name);
 }
 
@@ -65,7 +69,7 @@ class Input extends _GenLogic {
     super.logicName,
     super.width,
     super.description,
-    super.isNet,
+    // super.isNet,
   });
 
   const Input.array({
@@ -74,7 +78,7 @@ class Input extends _GenLogic {
     super.dimensions = const [1],
     super.description,
     super.isConditional = false,
-    super.isNet,
+    // super.isNet,
   }) : super(width: elementWidth);
 
   const Input.struct({
@@ -82,7 +86,7 @@ class Input extends _GenLogic {
     super.description,
     super.isConditional = false,
     super.logicName,
-    super.isNet,
+    // super.isNet,
   });
 }
 
@@ -91,7 +95,7 @@ class Output extends _GenLogic {
     super.logicName,
     super.width,
     super.description,
-    super.isNet,
+    // super.isNet,
   });
 
   const Output.array({
@@ -100,7 +104,7 @@ class Output extends _GenLogic {
     super.dimensions = const [1],
     super.description,
     super.isConditional = false,
-    super.isNet,
+    // super.isNet,
   }) : super(width: elementWidth);
 
   const Output.struct({
@@ -108,7 +112,7 @@ class Output extends _GenLogic {
     super.description,
     super.isConditional = false,
     super.logicName,
-    super.isNet,
+    // super.isNet,
   });
 }
 
@@ -117,7 +121,7 @@ class InOut extends _GenLogic {
     super.logicName,
     super.width,
     super.description,
-    super.isNet = true,
+    // super.isNet = true,
   });
 
   const InOut.array({
@@ -126,7 +130,7 @@ class InOut extends _GenLogic {
     super.dimensions = const [1],
     super.description,
     super.isConditional = false,
-    super.isNet = true,
+    // super.isNet = true,
   }) : super(width: elementWidth);
 
   const InOut.struct({
@@ -134,14 +138,17 @@ class InOut extends _GenLogic {
     super.description,
     super.isConditional = false,
     super.logicName,
-    super.isNet = true,
+    // super.isNet = true,
   });
 }
 
 //TODO: InOut
 
 class GenModule {
+  final List<GenLogic>? inputs;
   final List<GenLogic>? outputs;
+  final List<GenLogic>? inOuts;
+
   // final Type? extendsModule; // TODO: add custom constructor?
 
   /// If specified, this constructor will be used as the base constructor
@@ -150,7 +157,10 @@ class GenModule {
   /// must be a [Module].
   final Function? baseConstructor;
 
-  const GenModule({this.outputs, this.baseConstructor});
+  //TODO: do we need interfaces in here too?
+
+  const GenModule(
+      {this.inputs, this.outputs, this.inOuts, this.baseConstructor});
 }
 
 class GenInterface<T> {

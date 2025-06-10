@@ -48,3 +48,35 @@ class _$GenSubMod extends GenBaseMod {
     addOutput('b', width: 1);
   }
 }
+
+class _$KitchenGenSinkModule extends Module {
+  @protected
+  late final Logic botInPos;
+  @protected
+  late final Logic botInNamed;
+  Logic get topOut => output('topOut');
+  Logic get topOutCond => output('topOutCond');
+  Logic get topOutWider => output('topOutWider');
+  Logic get topOutDynWidth => output('topOutDynWidth');
+  Logic get topOutNewName => output('topOutNewName');
+  Logic get topOutNet => output('topOutNet');
+  Logic get topOutArray => output('topOutArray');
+  _$KitchenGenSinkModule(
+    Logic botInPos, {
+    required Logic botInNamed,
+    super.name,
+    super.reserveName,
+    super.definitionName,
+    super.reserveDefinitionName,
+  }) : super() {
+    this.botInPos = addInput('botInPos', botInPos);
+    this.botInNamed = addInput('botInNamed', botInNamed);
+    addOutput('topOut', width: 1);
+    addOutput('topOutCond', width: 1);
+    addOutput('topOutWider', width: 8);
+    addOutput('topOutDynWidth', width: 1);
+    addOutput('topOutNewName', width: 1);
+    addOutput('topOutNet', width: 1);
+    addOutput('topOutArray', width: 4);
+  }
+}

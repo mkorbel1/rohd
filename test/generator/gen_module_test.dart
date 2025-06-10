@@ -37,6 +37,32 @@ class GenSubMod extends _$GenSubMod {
   GenSubMod(@Input() super.a, {required super.myFlag});
 }
 
+@GenModule(
+  inputs: [GenLogic('topIn')],
+  outputs: [
+    GenLogic('topOut', description: 'This is the top output'),
+    GenLogic('topOutCond', isConditional: true),
+    GenLogic('topOutWider', width: 8),
+    GenLogic('topOutDynWidth', width: null),
+    GenLogic('topOutNewName', logicName: 'top_out_new_name'),
+    GenLogic('topOutNet'),
+    GenLogic.array('topOutArray',
+        dimensions: [2, 3], elementWidth: 4, numUnpackedDimensions: 1),
+  ],
+  inOuts: [GenLogic('topInOut')],
+)
+class KitchenGenSinkModule extends _$KitchenGenSinkModule {
+  KitchenGenSinkModule(
+    @Input() super.botInPos,
+    // @Input() Logic? super.botInPosNullable,
+    {
+    @Input() required super.botInNamed,
+    // @Input() Logic? super.botInNamedOptional,
+  });
+
+  //TODO: also need to test positional optional inputs
+}
+
 //TODO: test with Logic instead of super
 
 void main() {
@@ -66,5 +92,13 @@ void main() {
     await mod.build();
 
     expect(mod.a.isInput, isTrue);
+  });
+
+  test('kitchen sink gen module', () async {
+    final dut = KitchenGenSinkModule(Logic(), botInNamed: Logic());
+
+    await dut.build();
+
+    expect(dut.topOut.isOutput, isTrue);
   });
 }

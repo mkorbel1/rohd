@@ -54,6 +54,8 @@ jobs:
       - name: Check project documentation
         run: tool/gh_actions/generate_documentation.sh
 
+      #TODO: make sure we run codegen and no git diff!
+
       - name: Install software - Icarus Verilog
         run: tool/gh_actions/install_iverilog.sh
 
