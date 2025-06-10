@@ -232,4 +232,17 @@ class Interface<TagType> {
               MapEntry(portName, thisPort < other.port(portName)))
           .values
           .toList(growable: false));
+
+  /// Creates a new [Interface] with the same ports as `this`.
+  ///
+  /// It is expected that any implementation will override this in a way that
+  /// returns the same type as itself.
+  @mustBeOverridden
+  Interface<TagType> clone() {
+    final newIntf = Interface<TagType>();
+    _portToTagMap.forEach((portName, tags) {
+      newIntf.setPorts([port(portName).clone()], tags);
+    });
+    return newIntf;
+  }
 }

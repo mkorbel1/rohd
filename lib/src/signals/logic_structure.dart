@@ -61,7 +61,11 @@ class LogicStructure implements Logic {
 
   /// Creates a new [LogicStructure] with the same structure as `this` and
   /// [clone]d [elements], optionally with the provided [name].
+  ///
+  /// It is expected that any implementation will override this in a way that
+  /// returns the same type as itself.
   @override
+  @mustBeOverridden
   LogicStructure clone({String? name}) => _clone(name: name);
 
   /// Makes a [clone], optionally with the specified [name], then assigns it to

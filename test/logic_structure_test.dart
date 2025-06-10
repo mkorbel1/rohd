@@ -33,6 +33,8 @@ class MyFancyStruct extends LogicStructure {
   final Logic bus;
   final LogicStructure subStruct;
 
+  final int busWidth;
+
   factory MyFancyStruct({int busWidth = 12}) => MyFancyStruct._(
         LogicArray([3, 3], 8, name: 'arr'),
         Logic(name: 'bus', width: busWidth),
@@ -40,7 +42,11 @@ class MyFancyStruct extends LogicStructure {
       );
 
   MyFancyStruct._(this.arr, this.bus, this.subStruct)
-      : super([arr, bus, subStruct], name: 'myFancyStruct');
+      : busWidth = bus.width,
+        super([arr, bus, subStruct], name: 'myFancyStruct');
+
+  @override
+  MyFancyStruct clone({String? name}) => MyFancyStruct(busWidth: busWidth);
 }
 
 class StructPortModule extends Module {

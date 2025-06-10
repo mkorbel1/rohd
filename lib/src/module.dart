@@ -876,6 +876,8 @@ abstract class Module {
     return inOutArr;
   }
 
+  //TODO: add an `addInterface` which takes care of cloning and connectIO
+
   @override
   String toString() => [
         '"$name" ($definitionName)  : ',

@@ -238,6 +238,9 @@ class NetfulLogicStructure extends LogicStructure {
           LogicNet(name: 'structnet', width: 4),
           Logic(name: 'structlogic', width: 4)
         ]);
+
+  @override
+  NetfulLogicStructure clone({String? name}) => NetfulLogicStructure();
 }
 
 class NetsStructsArraysDriving extends Module {
@@ -397,6 +400,12 @@ void main() {
     expect(a.value, LogicValue.z);
     expect(b.value.toInt(), 0);
     expect(n.value.toInt(), 0);
+  });
+
+  test('clone of a net is a net', () {
+    final net = LogicNet(name: 'net', width: 8);
+    final clone = net.clone();
+    expect(clone, isA<LogicNet>());
   });
 
   test('simple tristate', () async {

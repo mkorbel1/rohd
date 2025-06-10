@@ -96,8 +96,15 @@ class PairInterface extends Interface<PairDirection> {
           })
           .toList(growable: false);
 
+  // TODO: should this be match? and clone is a function instead like struct?
+  //  Yes, also we should add an `addInterface` method for `Module` which
+  //  assumes that the added interface has implemented its
+  //  clone/match/mirror/copy method appropriately and returns the same type,
+  //  having called connectIO.  Similarly, we should do addInputStruct/etc.
+
   /// Creates a new instance of a [PairInterface] with the same ports and other
   /// characteristics.
+  @Deprecated('Use `clone()` on an instance instead')
   PairInterface.clone(PairInterface otherInterface)
       : this(
           portsFromConsumer:
@@ -110,6 +117,11 @@ class PairInterface extends Interface<PairDirection> {
               _getMatchPorts(otherInterface, PairDirection.commonInOuts),
           modify: otherInterface.modify,
         );
+
+  @override
+  @mustBeOverridden
+  // ignore: deprecated_member_use_from_same_package
+  PairInterface clone() => PairInterface.clone(this);
 
   /// A simplified version of [connectIO] for [PairInterface]s where by only
   /// specifying the [role], the input and output tags can be inferred.

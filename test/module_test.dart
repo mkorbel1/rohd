@@ -110,6 +110,12 @@ class SubModWithArray extends Module {
 class SimpleLogicStructure extends LogicStructure {
   SimpleLogicStructure([Logic? a, Logic? b])
       : super([a ?? Logic(), b ?? Logic()], name: 'simple_logic_structure');
+
+  @override
+  SimpleLogicStructure clone({String? name}) => SimpleLogicStructure(
+        elements[0].clone(),
+        elements[1].clone(),
+      );
 }
 
 class StructWithOutputAsElementMod extends Module {
