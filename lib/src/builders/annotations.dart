@@ -1,39 +1,7 @@
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/builders/gen_info.dart';
 
-class _GenLogic {
-  final String? name;
-
-  /// The name to use for the [Logic], if different from the variable [name].
-  final String? logicName;
-
-  final int? width;
-  final String? description; //TODO: test multi-line descriptions
-  final bool isConditional;
-
-  final List<int>? dimensions;
-  bool get isArray => dimensions != null;
-
-  final int? numUnpackedDimensions;
-
-  final Type? type;
-  bool get isStruct => type != null;
-
-  // final bool isNet;
-
-  const _GenLogic({
-    this.name,
-    this.logicName,
-    this.width,
-    this.dimensions,
-    this.numUnpackedDimensions,
-    this.description,
-    this.type,
-    this.isConditional = false,
-    // this.isNet = false,
-  });
-}
-
-class GenLogic extends _GenLogic {
+class GenLogic extends GenInfo {
   const GenLogic(
     String name, {
     super.width = 1,
@@ -64,7 +32,7 @@ class GenLogic extends _GenLogic {
   }) : super(dimensions: null, name: name);
 }
 
-class Input extends _GenLogic {
+class Input extends GenInfo {
   const Input({
     super.logicName,
     super.width,
@@ -90,7 +58,7 @@ class Input extends _GenLogic {
   });
 }
 
-class Output extends _GenLogic {
+class Output extends GenInfo {
   const Output({
     super.logicName,
     super.width,
@@ -116,7 +84,7 @@ class Output extends _GenLogic {
   });
 }
 
-class InOut extends _GenLogic {
+class InOut extends GenInfo {
   const InOut({
     super.logicName,
     super.width,
@@ -169,5 +137,9 @@ class GenInterface<T> {
 }
 
 class GenStruct {
-  const GenStruct({required List<GenLogic> fields});
+  //TODO name?
+
+  final List<GenLogic> fields;
+
+  const GenStruct({required this.fields});
 }

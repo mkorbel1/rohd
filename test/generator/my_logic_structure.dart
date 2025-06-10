@@ -13,14 +13,14 @@ part 'my_logic_structure.manual.dart';
 // - implement clone
 
 // yes this looks good!
-@GenStruct(
-  fields: [
-    GenLogic('a', width: null),
-    GenLogic('b', width: 8, isConditional: true),
-    GenLogic.struct('rv', type: MyStruct),
-    GenLogic.struct('rv2', type: MyStruct)
-  ],
-)
+// @GenStruct(
+//   fields: [
+//     GenLogic('a', width: null),
+//     GenLogic('b', width: 8, isConditional: true),
+//     GenLogic.struct('rv', type: MyStruct),
+//     GenLogic.struct('rv2', type: MyStruct)
+//   ],
+// )
 class MyLogicStructure extends _$MyLogicStructure {
   MyLogicStructure(int x, {required super.aWidth, required super.bPresent})
       : super(rv2: MyStruct());
