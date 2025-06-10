@@ -4,19 +4,14 @@ import 'package:rohd/builder.dart';
 import 'package:rohd/src/builders/gen_info.dart';
 import 'package:source_gen/source_gen.dart';
 
-Builder logicStructureBuilder(BuilderOptions options) {
-  return LibraryBuilder(LogicStructureGenerator());
-}
-
 class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
   @override
   String generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) {
-    // TODO: implement generateForAnnotatedElement
     final sourceClassName = element.name!;
     final genClassName = '_\$$sourceClassName';
 
-    const baseClassName = 'LogicStructure'; //TODO: grab from constructor
+    const baseClassName = 'LogicStructure';
 
     final fields = annotation.peek('fields')?.listValue.map((o) {
           final oConst = ConstantReader(o);

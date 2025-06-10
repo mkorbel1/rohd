@@ -15,13 +15,13 @@ import 'package:rohd/rohd.dart';
 
 /// Deprecated: use [FiniteStateMachine] instead.
 @Deprecated('Use FiniteStateMachine instead')
-typedef StateMachine<T> = FiniteStateMachine<T>;
+typedef StateMachine<T extends Enum> = FiniteStateMachine<T>;
 
 /// Simple class for FSM [FiniteStateMachine].
 ///
 /// Abstraction for representing Finite state machines (FSM).
 /// Contains the logic for performing the state transitions.
-class FiniteStateMachine<StateIdentifier> {
+class FiniteStateMachine<StateIdentifier extends Enum> {
   /// List of all the [State]s in this machine.
   List<State<StateIdentifier>> get states => UnmodifiableListView(_states);
   final List<State<StateIdentifier>> _states;

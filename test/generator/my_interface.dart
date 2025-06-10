@@ -3,7 +3,7 @@ import 'package:rohd/src/builders/annotations.dart';
 import 'package:rohd/src/interfaces/interfaces.dart';
 
 part 'my_interface.manual.dart';
-part 'my_interface.g.dart';
+// part 'my_interface.g.dart';
 
 // Things to support:
 // - width based on other arguments
@@ -13,12 +13,12 @@ part 'my_interface.g.dart';
 // - structure ports << let them do it manually?
 // - implement clone?
 
-@GenInterface(extendsModule: PairInterface, {
-  PairDirection.fromProvider: [
-    GenLogic('a', isConditional: true),
-    GenLogic('b', width: null),
-  ],
-})
+// @GenInterface(extendsModule: PairInterface, {
+//   PairDirection.fromProvider: [
+//     GenLogic('a', isConditional: true),
+//     GenLogic('b', width: null),
+//   ],
+// })
 class MyInterface extends _$MyInterface {
   MyInterface(int w) : super(bWidth: w, aPresent: w > 3) {
     setPorts([Logic.port('c', 2 * w)]);

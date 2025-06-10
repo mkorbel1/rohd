@@ -131,9 +131,12 @@ class GenModule {
       {this.inputs, this.outputs, this.inOuts, this.baseConstructor});
 }
 
-class GenInterface<T> {
-  final Type? extendsModule; // TODO: add custom constructor?
-  const GenInterface(Map<T, List<GenLogic>> ports, {this.extendsModule});
+class GenInterface<T extends Enum> {
+  // final Type? extendsModule; // TODO: add custom constructor?
+
+  final Map<T, List<GenLogic>>? ports;
+
+  const GenInterface(this.ports);
 }
 
 class GenStruct {
