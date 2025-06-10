@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/builders/annotations.dart';
@@ -99,6 +101,10 @@ void main() {
 
     await dut.build();
 
+    final genFileContents =
+        File('test/generator/gen_module_test.g.dart').readAsStringSync();
+
     expect(dut.topOut.isOutput, isTrue);
+    expect(genFileContents, contains('/// This is the top output'));
   });
 }

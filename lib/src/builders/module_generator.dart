@@ -381,6 +381,9 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
 
     // Generate protected fields for inputs
     for (final input in inputParams) {
+      if (input.description != null) {
+        buffer.writeln('  /// ${input.description}');
+      }
       buffer.writeln('  @protected');
       final nullableSuffix = input.isNullable ? '?' : '';
       buffer.writeln('  late final Logic$nullableSuffix ${input.name};');
@@ -388,6 +391,9 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
 
     // Generate output getters
     for (final o in outputs) {
+      if (o.description != null) {
+        buffer.writeln('  /// ${o.description}');
+      }
       buffer.write("  Logic get ${o.name} => output('${o.name}');\n");
     }
 

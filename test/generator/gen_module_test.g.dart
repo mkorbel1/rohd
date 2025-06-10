@@ -54,6 +54,8 @@ class _$KitchenGenSinkModule extends Module {
   late final Logic botInPos;
   @protected
   late final Logic botInNamed;
+
+  /// This is the top output
   Logic get topOut => output('topOut');
   Logic get topOutCond => output('topOutCond');
   Logic get topOutWider => output('topOutWider');
