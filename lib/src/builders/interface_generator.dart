@@ -74,7 +74,9 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
 
     ports.forEach((group, genLogics) {
       for (final genLogic in genLogics) {
-        buffer.writeln("setPorts([Logic.port('${genLogic.name}')],[$group]);");
+        buffer.writeln(
+            "setPorts([Logic.port('${genLogic.name}', ${genLogic.width})] "
+            ',[$group]);');
       }
     });
 

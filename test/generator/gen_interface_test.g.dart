@@ -10,7 +10,7 @@ class _$ExampleIntfWithGen extends Interface<ExampleDir> {
   Logic get a => port('a');
   Logic get b => port('b');
   _$ExampleIntfWithGen() {
-    setPorts([Logic.port('a')], [ExampleDir.dir1]);
-    setPorts([Logic.port('b')], [ExampleDir.dir2]);
+    setPorts([Logic.port('a', 1)], [ExampleDir.dir1]);
+    setPorts([Logic.port('b', 1)], [ExampleDir.dir2]);
   }
 }

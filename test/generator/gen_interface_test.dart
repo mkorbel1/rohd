@@ -31,7 +31,7 @@ void main() {
     for (final intfBuilder in [ExampleIntf.new, ExampleIntfWithGen.new]) {
       group(intfBuilder.toString(), () {
         test('constructs, ports available', () {
-          final intf = intfBuilder() as Interface<ExampleDir>;
+          final intf = intfBuilder();
 
           expect(intf.port('a').width, 1);
           expect(intf.port('b').width, 1);
