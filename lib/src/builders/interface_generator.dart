@@ -15,8 +15,6 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     final sourceClassName = element.name!;
     final genClassName = '_\$$sourceClassName';
 
-    const baseClassName = 'Interface'; //TODO: grab from constructor
-
     final ports = annotation.peek('ports')?.mapValue.map((key, value) {
           final genLogics = value?.toListValue()?.map((o) {
                 final oConst = ConstantReader(o);
@@ -31,6 +29,19 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
           return MapEntry('$keyTypeName.$keyValueName', genLogics);
         }) ??
         {};
+
+    // for example: "GenInterface<ExampleDir>"
+    final annotationTypeString =
+        annotation.objectValue.type!.getDisplayString();
+
+    final typeArgMatch = RegExp(r'GenInterface<([A-Za-z0-9_<>., ]+)>')
+        .firstMatch(annotationTypeString);
+    final extractedTypeArg = typeArgMatch?.group(1);
+
+    final baseClassName = [
+      'Interface',
+      if (extractedTypeArg != null) '<$extractedTypeArg>'
+    ].join(); //TODO: grab from constructor
 
     final buffer = StringBuffer();
     buffer.writeln('class $genClassName extends $baseClassName {');

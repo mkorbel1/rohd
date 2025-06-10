@@ -6,7 +6,7 @@ part of 'gen_interface_test.dart';
 // InterfaceGenerator
 // **************************************************************************
 
-class _$ExampleIntfWithGen extends Interface {
+class _$ExampleIntfWithGen extends Interface<ExampleDir> {
   Logic get a => port('a');
   Logic get b => port('b');
   _$ExampleIntfWithGen() {

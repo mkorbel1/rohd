@@ -1,6 +1,7 @@
 import 'package:rohd/builder.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/interfaces/interfaces.dart';
+import 'package:test/test.dart';
 
 part 'gen_interface_test.g.dart';
 
@@ -25,4 +26,17 @@ class ExampleIntf extends Interface<ExampleDir> {
 })
 class ExampleIntfWithGen extends _$ExampleIntfWithGen {}
 
-void main() {}
+void main() {
+  group('simple interface', () {
+    for (final intfBuilder in [ExampleIntf.new, ExampleIntfWithGen.new]) {
+      group(intfBuilder.toString(), () {
+        test('constructs, ports available', () {
+          final intf = intfBuilder() as Interface<ExampleDir>;
+
+          expect(intf.port('a').width, 1);
+          expect(intf.port('b').width, 1);
+        });
+      });
+    }
+  });
+}
