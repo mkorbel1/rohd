@@ -26,6 +26,9 @@ class ExampleIntf extends Interface<ExampleDir> {
 })
 class ExampleIntfWithGen extends _$ExampleIntfWithGen {}
 
+// @GenInterface({PairDir})
+// class GenPairIntf extends _$GenPairIntf {}
+
 void main() {
   group('simple interface', () {
     for (final intfBuilder in [ExampleIntf.new, ExampleIntfWithGen.new]) {

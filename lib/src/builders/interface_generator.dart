@@ -6,6 +6,22 @@ import 'package:rohd/src/builders/gen_info.dart';
 import 'package:source_gen/source_gen.dart';
 
 class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
+  static Map<String, List<GenInfoExtracted>> _extractPortsFromAnnotation(
+          ConstantReader annotation) =>
+      annotation.peek('ports')?.mapValue.map((key, value) {
+        final genLogics = value?.toListValue()?.map((o) {
+              final oConst = ConstantReader(o);
+              return GenInfoExtracted.ofGenLogicConstReader(oConst);
+            }).toList() ??
+            [];
+
+        final keyTypeName = key!.type!.getDisplayString();
+        final keyValueName = ConstantReader(key.getField('_name')).stringValue;
+
+        return MapEntry('$keyTypeName.$keyValueName', genLogics);
+      }) ??
+      {};
+
   @override
   String generateForAnnotatedElement(
       // ignore: deprecated_member_use
@@ -15,20 +31,7 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     final sourceClassName = element.name!;
     final genClassName = '_\$$sourceClassName';
 
-    final ports = annotation.peek('ports')?.mapValue.map((key, value) {
-          final genLogics = value?.toListValue()?.map((o) {
-                final oConst = ConstantReader(o);
-                return GenInfoExtracted.ofGenLogicConstReader(oConst);
-              }).toList() ??
-              [];
-
-          final keyTypeName = key!.type!.getDisplayString();
-          final keyValueName =
-              ConstantReader(key.getField('_name')).stringValue;
-
-          return MapEntry('$keyTypeName.$keyValueName', genLogics);
-        }) ??
-        {};
+    final ports = _extractPortsFromAnnotation(annotation);
 
     // for example: "GenInterface<ExampleDir>"
     final annotationTypeString =

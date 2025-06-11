@@ -16,5 +16,6 @@ class ExampleStruct extends LogicStructure {
 
 @GenStruct(fields: [GenLogic('a'), GenLogic('b')])
 class ExampleStructWithGen extends _$ExampleStructWithGen {}
+//TODO: name in super
 
 void main() {}

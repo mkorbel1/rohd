@@ -5,6 +5,14 @@ import 'package:rohd/src/builders/gen_info.dart';
 import 'package:source_gen/source_gen.dart';
 
 class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
+  static List<GenInfoExtracted> _extractFieldsFromAnnotation(
+          ConstantReader annotation) =>
+      annotation.peek('fields')?.listValue.map((o) {
+        final oConst = ConstantReader(o);
+        return GenInfoExtracted.ofGenLogicConstReader(oConst);
+      }).toList() ??
+      [];
+
   @override
   String generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) {
@@ -13,11 +21,7 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
 
     const baseClassName = 'LogicStructure';
 
-    final fields = annotation.peek('fields')?.listValue.map((o) {
-          final oConst = ConstantReader(o);
-          return GenInfoExtracted.ofGenLogicConstReader(oConst);
-        }).toList() ??
-        [];
+    final fields = _extractFieldsFromAnnotation(annotation);
 
     final buffer = StringBuffer();
     buffer.writeln('class $genClassName extends $baseClassName {');
