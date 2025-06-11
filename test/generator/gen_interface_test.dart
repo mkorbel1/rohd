@@ -65,4 +65,10 @@ void main() {
     expect(intf.fc.width, 1);
     expect(intf.port('si').width, 1);
   });
+
+  test('interface with struct', () {
+    final intf = GenIntfWithStruct();
+
+    expect(intf.a, isA<MyStruct>());
+  });
 }
