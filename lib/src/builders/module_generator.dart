@@ -118,7 +118,6 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     final genClassName = '_\$$sourceClassName';
 
     final superParams = <SuperParameter>[];
-
     final constructorParams = <FormalParameter>[];
 
     final portInfos = <_PortInfo>[
@@ -150,6 +149,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     final String superConstructor;
 
     if (baseConstructor == null) {
+      // can't tear-off `Module.new` since it's abstract, so set up manually
       baseClassName = 'Module';
       superConstructor = 'super';
       const moduleBaseParams = [

@@ -3,6 +3,8 @@ import 'package:build/build.dart';
 import 'package:collection/collection.dart';
 import 'package:rohd/builder.dart';
 import 'package:rohd/src/builders/gen_info.dart';
+import 'package:rohd/src/builders/generator_utils.dart';
+import 'package:rohd/src/builders/parameters.dart';
 import 'package:source_gen/source_gen.dart';
 
 class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
@@ -31,6 +33,9 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     final sourceClassName = element.name!;
     final genClassName = '_\$$sourceClassName';
 
+    final superParams = <SuperParameter>[];
+    final constructorParams = <FormalParameter>[];
+
     final ports = _extractPortsFromAnnotation(annotation);
 
     // for example: "GenInterface<ExampleDir>"
@@ -41,17 +46,37 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
         .firstMatch(annotationTypeString);
     final extractedTypeArg = typeArgMatch?.group(1);
 
-    final baseClassName = [
-      'Interface',
-      if (extractedTypeArg != null) '<$extractedTypeArg>'
-    ].join(); //TODO: grab from constructor
+    final baseConstructor = annotation.peek('baseConstructor')?.objectValue;
+    final String baseClassName;
+    final String superConstructor;
+
+    if (baseConstructor == null) {
+      // no need to tear off Interface.new since it has no args
+      baseClassName = [
+        'Interface',
+        if (extractedTypeArg != null) '<$extractedTypeArg>'
+      ].join();
+      superConstructor = 'super';
+    } else {
+      final parsedBaseConstructor = parseBaseConstructor(baseConstructor);
+      baseClassName = parsedBaseConstructor.baseClassName;
+      superConstructor = parsedBaseConstructor.superConstructor;
+      superParams.addAll(parsedBaseConstructor.superParams);
+      constructorParams.addAll(parsedBaseConstructor.constructorParams);
+    }
 
     final buffer = StringBuffer();
     buffer.writeln('class $genClassName extends $baseClassName {');
 
     buffer.write(_genAccessors(ports));
 
-    buffer.write(_genConstructor(ports, constructorName: genClassName));
+    final constructorContents = _genConstructorContents(ports);
+    buffer.write(genConstructor(
+        constructorName: genClassName,
+        superConstructor: superConstructor,
+        constructorParams: constructorParams,
+        superParams: superParams,
+        contents: constructorContents));
 
     buffer.writeln('}');
 
@@ -70,11 +95,9 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     return buffer.toString();
   }
 
-  static String _genConstructor(Map<String, List<GenInfoExtracted>> ports,
-      {required String constructorName}) {
+  static String _genConstructorContents(
+      Map<String, List<GenInfoExtracted>> ports) {
     final buffer = StringBuffer();
-
-    buffer.writeln('$constructorName() {');
 
     ports.forEach((group, genLogics) {
       for (final genLogic in genLogics) {
@@ -83,8 +106,6 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
             ',[$group]);');
       }
     });
-
-    buffer.writeln('}');
 
     return buffer.toString();
   }
