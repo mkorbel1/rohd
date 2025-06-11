@@ -139,23 +139,6 @@ class GenInterface<T extends Enum> {
   final Function? baseConstructor;
 
   const GenInterface(this.ports, {this.baseConstructor});
-
-  static GenInterface<PairDirection> pair({
-    List<GenLogic>? portsFromConsumer,
-    List<GenLogic>? portsFromProvider,
-    List<GenLogic>? sharedInputPorts,
-    List<GenLogic>? commonInOutPorts,
-    Function? baseConstructor = PairInterface.new,
-  }) =>
-      GenInterface(
-        <PairDirection, List<GenLogic>>{
-          PairDirection.fromConsumer: portsFromConsumer ?? const [],
-          PairDirection.fromProvider: portsFromProvider ?? const [],
-          PairDirection.sharedInputs: sharedInputPorts ?? const [],
-          PairDirection.commonInOuts: commonInOutPorts ?? const [],
-        },
-        baseConstructor: baseConstructor,
-      );
 }
 
 class GenStruct {

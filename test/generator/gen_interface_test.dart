@@ -26,8 +26,13 @@ class ExampleIntf extends Interface<ExampleDir> {
 })
 class ExampleIntfWithGen extends _$ExampleIntfWithGen {}
 
-// @GenInterface({PairDir})
-// class GenPairIntf extends _$GenPairIntf {}
+@GenInterface({
+  PairDirection.fromProvider: [GenLogic('fp')],
+  PairDirection.fromConsumer: [GenLogic('fc')],
+}, baseConstructor: PairInterface.new)
+class GenPairIntf extends _$GenPairIntf {
+  GenPairIntf() : super(sharedInputPorts: [Logic.port('si')]);
+}
 
 void main() {
   group('simple interface', () {
@@ -41,5 +46,14 @@ void main() {
         });
       });
     }
+  });
+
+  test('pair intf', () {
+    final intf = GenPairIntf();
+
+    expect(intf, isA<PairInterface>());
+    expect(intf.fp.width, 1);
+    expect(intf.fc.width, 1);
+    expect(intf.port('si').width, 1);
   });
 }
