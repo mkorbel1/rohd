@@ -51,9 +51,13 @@ class _$GenSubMod extends GenBaseMod {
 
 class _$KitchenGenSinkModule extends Module {
   @protected
+  late final Logic topIn;
+  @protected
   late final Logic botInPos;
   @protected
   late final Logic botInNamed;
+  @protected
+  late final Logic topInOut;
 
   /// This is the top output
   Logic get topOut => output('topOut');
@@ -71,8 +75,10 @@ class _$KitchenGenSinkModule extends Module {
     super.definitionName,
     super.reserveDefinitionName,
   }) : super() {
+    this.topIn = addInput('topIn', topIn, width: 1);
     this.botInPos = addInput('botInPos', botInPos);
     this.botInNamed = addInput('botInNamed', botInNamed);
+    this.topInOut = addInput('topInOut', topInOut, width: 1);
     addOutput('topOut', width: 1);
     addOutput('topOutCond', width: 1);
     addOutput('topOutWider', width: 8);

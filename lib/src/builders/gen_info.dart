@@ -5,6 +5,8 @@ import 'package:rohd/src/builders/parameters.dart';
 import 'package:source_gen/source_gen.dart';
 
 class GenInfo {
+  //TODO: should run sanitizer on the name?
+
   final String? name;
 
   /// The name to use for the [Logic], if different from the variable [name].
@@ -22,7 +24,7 @@ class GenInfo {
   final Type? type;
   bool get isStruct => type != null;
 
-  // final bool isNet;
+  // final bool isNet; //TODO: need this?
 
   const GenInfo({
     this.name,

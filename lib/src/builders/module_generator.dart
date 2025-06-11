@@ -14,7 +14,7 @@ import 'package:source_gen/source_gen.dart';
 enum _PortDirection {
   input,
   output,
-  inout;
+  inOut;
 
   static _PortDirection ofAnnotationName(String annotationName) {
     switch (annotationName) {
@@ -22,8 +22,8 @@ enum _PortDirection {
         return _PortDirection.input;
       case 'Output':
         return _PortDirection.output;
-      case 'Inout':
-        return _PortDirection.inout;
+      case 'InOut':
+        return _PortDirection.inOut;
       default:
         throw ArgumentError(
             'Unknown port direction annotation name: $annotationName');
@@ -31,13 +31,20 @@ enum _PortDirection {
   }
 }
 
+enum _PortInfoOrigin {
+  constructorArgAnnotation,
+  classAnnotation,
+}
+
 class _PortInfo {
   final _PortDirection direction;
+  final _PortInfoOrigin origin;
   final GenInfoExtracted genInfo;
 
   _PortInfo({
     required this.genInfo,
     required this.direction,
+    required this.origin,
   });
 
   static _PortInfo? ofAnnotatedParameter(ParameterElement param) {
@@ -49,6 +56,7 @@ class _PortInfo {
     return _PortInfo(
       genInfo: genInfo,
       direction: _PortDirection.ofAnnotationName(genInfo.annotationName!),
+      origin: _PortInfoOrigin.constructorArgAnnotation,
     );
   }
 
@@ -59,11 +67,48 @@ class _PortInfo {
     return _PortInfo(
       genInfo: genInfo,
       direction: direction,
+      origin: _PortInfoOrigin.classAnnotation,
     );
   }
 }
 
 class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
+  static List<_PortInfo> _extractPortsFromConstructor(
+      ConstructorElement constructor) {
+    final portInfos = <_PortInfo>[];
+    for (final param in constructor.parameters) {
+      final portInfo = _PortInfo.ofAnnotatedParameter(param);
+      if (portInfo != null) {
+        portInfos.add(portInfo);
+      }
+    }
+    return portInfos;
+  }
+
+  static List<_PortInfo> _extractPortsFromAnnotation(
+      ConstantReader annotation) {
+    final portInfos = <_PortInfo>[];
+
+    final annotationFieldToDirection = {
+      'inputs': _PortDirection.input,
+      'outputs': _PortDirection.output,
+      'inOuts': _PortDirection.inOut,
+    };
+
+    for (final MapEntry(key: field, value: direction)
+        in annotationFieldToDirection.entries) {
+      final dirPortInfos = annotation.peek(field)?.listValue.map((o) {
+            final oConst = ConstantReader(o);
+            return _PortInfo.ofGenLogicConstReader(oConst, direction);
+          }).toList() ??
+          [];
+
+      portInfos.addAll(dirPortInfos);
+    }
+
+    return portInfos;
+  }
+
   @override
   String generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) {
@@ -74,36 +119,27 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
 
     final constructorParams = <FormalParameter>[];
 
-    // Extract outputs from the annotation
-    final outputs = annotation.peek('outputs')?.listValue.map((o) {
-          final oConst = ConstantReader(o);
-          return _PortInfo.ofGenLogicConstReader(oConst, _PortDirection.output);
-        }).toList() ??
-        [];
+    final portInfos = <_PortInfo>[
+      ..._extractPortsFromAnnotation(annotation),
+    ];
 
-    // Find constructor and look for @Input annotations
     final classElement = element as ClassElement;
-    // TODO: what do we do if there are *multiple* constructors?? do them all!
-    final constructor = classElement.constructors.firstWhereOrNull(
-      (c) => !c.isFactory && !c.isSynthetic,
-    );
 
-    final inputParams = <_PortInfo>[];
-    if (constructor != null) {
-      for (final param in constructor.parameters) {
-        final portInfo = _PortInfo.ofAnnotatedParameter(param);
-        if (portInfo != null) {
-          inputParams.add(portInfo);
+    for (final constructor in classElement.constructors
+        .where((c) => !c.isFactory && !c.isSynthetic)) {
+      portInfos.addAll(_extractPortsFromConstructor(constructor));
+    }
 
-          constructorParams.add(FormalParameter(
-            paramType: portInfo.genInfo.paramType!,
-            name: portInfo.genInfo.name,
-            varLocation: ParamVarLocation.constructor,
-            type: portInfo.genInfo.typeName,
-            isNullable: portInfo.genInfo.isConditional,
-          ));
-        }
-      }
+    // any constructor args need to be listed as parameters in the constructor
+    for (final portInfo in portInfos
+        .where((p) => p.origin == _PortInfoOrigin.constructorArgAnnotation)) {
+      constructorParams.add(FormalParameter(
+        paramType: portInfo.genInfo.paramType!,
+        name: portInfo.genInfo.name,
+        varLocation: ParamVarLocation.constructor,
+        type: portInfo.genInfo.typeName,
+        isNullable: portInfo.genInfo.isConditional,
+      ));
     }
 
     // Extract baseConstructor from the annotation
@@ -196,11 +232,16 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
       }
     }
 
+    final inputs = portInfos.where((p) => p.direction == _PortDirection.input);
+    final inOuts = portInfos.where((p) => p.direction == _PortDirection.inOut);
+    final outputs =
+        portInfos.where((p) => p.direction == _PortDirection.output);
+
     final buffer = StringBuffer();
     buffer.writeln('class $genClassName extends $baseClassName {');
 
     // Generate protected fields for inputs
-    for (final input in inputParams) {
+    for (final input in [...inputs, ...inOuts]) {
       if (input.genInfo.description != null) {
         buffer.writeln('  /// ${input.genInfo.description}');
       }
@@ -229,7 +270,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     buffer.writeln(' : $superConstructor(${superArguments(superParams)}) {');
 
     // Generate addInput calls for annotated parameters
-    for (final input in inputParams) {
+    for (final input in [...inputs, ...inOuts]) {
       final paramName = input.genInfo.name;
       final inputName = input.genInfo.logicName;
       final widthParam =
