@@ -16,6 +16,7 @@ enum ParamVarLocation {
   this_,
 }
 
+/// A parameter of the generated class's constructor.
 class FormalParameter {
   ParamType paramType;
 
@@ -66,6 +67,7 @@ class FormalParameter {
   }
 }
 
+/// A parameter passed to the generated class's super constructor.
 class SuperParameter {
   String name;
   ParamType type;

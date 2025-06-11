@@ -62,8 +62,9 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     final buffer = StringBuffer();
 
     for (final genLogic in ports.values.flattened) {
-      buffer.writeln('Logic get ${genLogic.name} => '
-          "port('${genLogic.name}');");
+      final type = genLogic.type ?? 'Logic';
+      buffer.writeln('$type get ${genLogic.name} => '
+          "port('${genLogic.name}') as $type;");
     }
 
     return buffer.toString();

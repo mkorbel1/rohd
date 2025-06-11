@@ -7,8 +7,8 @@ part of 'gen_interface_test.dart';
 // **************************************************************************
 
 class _$ExampleIntfWithGen extends Interface<ExampleDir> {
-  Logic get a => port('a');
-  Logic get b => port('b');
+  Logic get a => port('a') as Logic;
+  Logic get b => port('b') as Logic;
   _$ExampleIntfWithGen() {
     setPorts([Logic.port('a', 1)], [ExampleDir.dir1]);
     setPorts([Logic.port('b', 1)], [ExampleDir.dir2]);
