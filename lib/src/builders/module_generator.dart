@@ -189,6 +189,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
       }
       buffer.writeln('  @protected');
       final nullableSuffix = input.genInfo.isConditional ? '?' : '';
+      //TODO: handle inouts
       buffer
           .writeln('  late final Logic$nullableSuffix ${input.genInfo.name};');
     }
@@ -202,17 +203,31 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
           "  Logic get ${o.genInfo.name} => output('${o.genInfo.name}');\n");
     }
 
-    // Generate constructor
-    buffer.writeln('  $genClassName(');
+    final constructorContents = _genConstructorContents(portInfos);
 
-    buffer.writeln(constructorArguments(constructorParams));
+    buffer.writeln(genConstructor(
+      constructorName: genClassName,
+      contents: constructorContents,
+      superConstructor: superConstructor,
+      constructorParams: constructorParams,
+      superParams: superParams,
+    ));
 
-    buffer.writeln(')');
+    buffer.writeln('}');
 
-    buffer.writeln(' : $superConstructor(${superArguments(superParams)}) {');
+    return buffer.toString();
+  }
+
+  static String _genConstructorContents(List<_PortInfo> portInfos) {
+    final inputs = portInfos.where((p) => p.direction == _PortDirection.input);
+    final inOuts = portInfos.where((p) => p.direction == _PortDirection.inOut);
+    final outputs =
+        portInfos.where((p) => p.direction == _PortDirection.output);
+
+    final buffer = StringBuffer();
 
     // Generate addInput calls for annotated parameters
-    for (final input in [...inputs, ...inOuts]) {
+    for (final input in inputs) {
       final paramName = input.genInfo.name;
       final inputName = input.genInfo.logicName;
       final widthParam =
@@ -221,6 +236,8 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
           '    this.$paramName = addInput(\'$inputName\', $paramName$widthParam);');
     }
 
+    //TODO: inouts
+
     // Generate addOutput calls
     for (final o in outputs) {
       final width = o.genInfo.width ?? 1;
@@ -228,57 +245,6 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
       buffer.writeln("    addOutput('${o.genInfo.name}', width: $width);");
     }
 
-    buffer.writeln('  }');
-    buffer.writeln('}');
-
     return buffer.toString();
-  }
-
-  @visibleForTesting
-  static String constructorArguments(List<FormalParameter> params) {
-    if (params.map((e) => e.name).toSet().length != params.length) {
-      throw ArgumentError('Duplicate parameter names found in constructor');
-    }
-
-    final requiredPositionalArgs = params
-        .where((p) => p.paramType == ParamType.requiredPositional)
-        .map((p) => '$p,')
-        .join();
-
-    final optionalPositionalArgs = params
-        .where((p) => p.paramType == ParamType.optionalPositional)
-        .map((p) => '$p,')
-        .join();
-
-    final namedArgs =
-        params.where((p) => p.paramType.isNamed).map((p) => '$p,').join();
-
-    if (namedArgs.isNotEmpty && optionalPositionalArgs.isNotEmpty) {
-      throw ArgumentError(
-          'Cannot have both optional positional and named arguments');
-    }
-
-    return [
-      requiredPositionalArgs,
-      if (optionalPositionalArgs.isNotEmpty) '[$optionalPositionalArgs]',
-      if (namedArgs.isNotEmpty) '{$namedArgs}',
-    ].join();
-  }
-
-  @visibleForTesting
-  static String superArguments(List<SuperParameter> params) {
-    if (params.map((e) => e.name).toSet().length != params.length) {
-      throw ArgumentError('Duplicate parameter names found in constructor');
-    }
-
-    final positionalArgs =
-        params.where((p) => p.type.isPositional).map((p) => '$p,');
-
-    final namedArgs = params.where((p) => p.type.isNamed).map((p) => '$p,');
-
-    return [
-      if (positionalArgs.isNotEmpty) '$positionalArgs',
-      if (namedArgs.isNotEmpty) '{${namedArgs.join()}}',
-    ].join();
   }
 }

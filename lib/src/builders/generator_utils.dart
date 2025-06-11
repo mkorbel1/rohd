@@ -86,3 +86,74 @@ import 'package:rohd/src/builders/parameters.dart';
     constructorParams: constructorParams,
   );
 }
+
+/// Creates a string to put into the constructor args.
+String _constructorArguments(List<FormalParameter> params) {
+  if (params.map((e) => e.name).toSet().length != params.length) {
+    throw ArgumentError('Duplicate parameter names found in constructor');
+  }
+
+  final requiredPositionalArgs = params
+      .where((p) => p.paramType == ParamType.requiredPositional)
+      .map((p) => '$p,')
+      .join();
+
+  final optionalPositionalArgs = params
+      .where((p) => p.paramType == ParamType.optionalPositional)
+      .map((p) => '$p,')
+      .join();
+
+  final namedArgs =
+      params.where((p) => p.paramType.isNamed).map((p) => '$p,').join();
+
+  if (namedArgs.isNotEmpty && optionalPositionalArgs.isNotEmpty) {
+    throw ArgumentError(
+        'Cannot have both optional positional and named arguments');
+  }
+
+  return [
+    requiredPositionalArgs,
+    if (optionalPositionalArgs.isNotEmpty) '[$optionalPositionalArgs]',
+    if (namedArgs.isNotEmpty) '{$namedArgs}',
+  ].join();
+}
+
+/// Creates a string to put into the super call.
+String _superArguments(List<SuperParameter> params) {
+  if (params.map((e) => e.name).toSet().length != params.length) {
+    throw ArgumentError('Duplicate parameter names found in constructor');
+  }
+
+  final positionalArgs =
+      params.where((p) => p.type.isPositional).map((p) => '$p,');
+
+  final namedArgs = params.where((p) => p.type.isNamed).map((p) => '$p,');
+
+  return [
+    if (positionalArgs.isNotEmpty) '$positionalArgs',
+    if (namedArgs.isNotEmpty) '{${namedArgs.join()}}',
+  ].join();
+}
+
+/// Creates the constructor with given [contents].
+String genConstructor({
+  required String constructorName,
+  required String superConstructor,
+  required List<FormalParameter> constructorParams,
+  required List<SuperParameter> superParams,
+  required String contents,
+}) {
+  final buffer = StringBuffer();
+  buffer.writeln('  $constructorName(');
+
+  buffer.writeln(_constructorArguments(constructorParams));
+
+  buffer.writeln(')');
+
+  buffer.writeln(' : $superConstructor(${_superArguments(superParams)}) {');
+
+  buffer.writeln(contents);
+
+  buffer.writeln('  }');
+  return buffer.toString();
+}
