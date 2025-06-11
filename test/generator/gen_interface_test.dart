@@ -3,6 +3,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd/src/interfaces/interfaces.dart';
 import 'package:test/test.dart';
 
+import '../logic_structure_test.dart';
+
 part 'gen_interface_test.g.dart';
 
 enum ExampleDir {
@@ -32,6 +34,13 @@ class ExampleIntfWithGen extends _$ExampleIntfWithGen {}
 }, baseConstructor: PairInterface.new)
 class GenPairIntf extends _$GenPairIntf {
   GenPairIntf() : super(sharedInputPorts: [Logic.port('si')]);
+}
+
+@GenInterface({
+  ExampleDir.dir1: [GenLogic.struct('a', type: MyStruct)],
+})
+class GenIntfWithStruct extends _$GenIntfWithStruct {
+  GenIntfWithStruct() : super(a: MyStruct());
 }
 
 void main() {

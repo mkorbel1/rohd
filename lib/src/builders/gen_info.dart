@@ -1,6 +1,7 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:collection/collection.dart';
+import 'package:rohd/rohd.dart';
 import 'package:rohd/src/builders/parameters.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -143,10 +144,12 @@ class GenInfoExtracted extends GenInfo {
             .map((e) => e.toIntValue()!)
             .toList();
 
-    var type =
-        oConst.read('type').isNull ? 'Logic' : oConst.read('type').stringValue;
+    var typeName = oConst.read('type').isNull
+        ? 'Logic'
+        : oConst.read('type').typeValue.getDisplayString();
+
     if (dimensions != null) {
-      type = 'LogicArray';
+      typeName = 'LogicArray';
     }
 
     return GenInfoExtracted(
@@ -157,7 +160,13 @@ class GenInfoExtracted extends GenInfo {
       isConditional: isConditional,
       paramType: null, // Not a constructor parameter
       dimensions: dimensions,
-      typeName: type,
+      typeName: typeName,
     );
   }
+
+  @override
+  bool get isStruct => typeName != 'Logic' && typeName != 'LogicArray';
+
+  @override
+  bool get isArray => dimensions != null && typeName == 'LogicArray';
 }

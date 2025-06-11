@@ -65,9 +65,18 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
       constructorParams.addAll(parsedBaseConstructor.constructorParams);
     }
 
+    for (final structPort in ports.values.flattened.where((e) => e.isStruct)) {
+      constructorParams.add(FormalParameter(
+        paramType: ParamType.namedRequired,
+        name: structPort.name,
+        type: structPort.typeName,
+        isNullable: structPort.isConditional,
+        varLocation: ParamVarLocation.constructor,
+      ));
+    }
+
     final buffer = StringBuffer();
     buffer.writeln('class $genClassName extends $baseClassName {');
-
     buffer.write(_genAccessors(ports));
 
     final constructorContents = _genConstructorContents(ports);
@@ -87,9 +96,9 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     final buffer = StringBuffer();
 
     for (final genLogic in ports.values.flattened) {
-      final type = genLogic.type ?? 'Logic';
-      buffer.writeln('$type get ${genLogic.name} => '
-          "port('${genLogic.name}') as $type;");
+      final typeName = genLogic.typeName;
+      buffer.writeln('$typeName get ${genLogic.name} => '
+          "port('${genLogic.name}') as $typeName;");
     }
 
     return buffer.toString();
@@ -101,9 +110,23 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
 
     ports.forEach((group, genLogics) {
       for (final genLogic in genLogics) {
-        buffer.writeln(
-            "setPorts([Logic.port('${genLogic.name}', ${genLogic.width})] "
-            ',[$group]);');
+        final String portString;
+        if (genLogic.isStruct) {
+          portString = genLogic.name;
+        } else if (genLogic.isArray) {
+          portString = "LogicArray.port('${genLogic.name}', "
+              '${genLogic.dimensions}, '
+              '${genLogic.width}, '
+              '${genLogic.numUnpackedDimensions})';
+        } else {
+          portString = "Logic.port('${genLogic.name}', ${genLogic.width})";
+        }
+
+        //TODO: handle isConditional
+
+        buffer.writeln('setPort($portString, '
+            'tags: const [$group], '
+            "portName: '${genLogic.name}');");
       }
     });
 

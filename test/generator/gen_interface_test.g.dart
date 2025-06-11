@@ -10,8 +10,8 @@ class _$ExampleIntfWithGen extends Interface<ExampleDir> {
   Logic get a => port('a') as Logic;
   Logic get b => port('b') as Logic;
   _$ExampleIntfWithGen() : super() {
-    setPorts([Logic.port('a', 1)], [ExampleDir.dir1]);
-    setPorts([Logic.port('b', 1)], [ExampleDir.dir2]);
+    setPort(Logic.port('a', 1), tags: const [ExampleDir.dir1], portName: 'a');
+    setPort(Logic.port('b', 1), tags: const [ExampleDir.dir2], portName: 'b');
   }
 }
 
@@ -25,7 +25,18 @@ class _$GenPairIntf extends PairInterface {
     super.portsFromProvider,
     super.sharedInputPorts,
   }) : super.new() {
-    setPorts([Logic.port('fp', 1)], [PairDirection.fromProvider]);
-    setPorts([Logic.port('fc', 1)], [PairDirection.fromConsumer]);
+    setPort(Logic.port('fp', 1),
+        tags: const [PairDirection.fromProvider], portName: 'fp');
+    setPort(Logic.port('fc', 1),
+        tags: const [PairDirection.fromConsumer], portName: 'fc');
+  }
+}
+
+class _$GenIntfWithStruct extends Interface<ExampleDir> {
+  MyStruct get a => port('a') as MyStruct;
+  _$GenIntfWithStruct({
+    required MyStruct a,
+  }) : super() {
+    setPort(a, tags: const [ExampleDir.dir1], portName: 'a');
   }
 }

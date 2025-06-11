@@ -173,7 +173,9 @@ class Interface<TagType extends Enum> {
   /// and with name [portName].
   ///
   /// If no [portName] is specified, then [port]'s name is used.
-  void _setPort(Logic port, {Iterable<TagType>? tags, String? portName}) {
+  void setPort(Logic port, {Iterable<TagType>? tags, String? portName}) {
+    //TODO: test this function, now that it is public
+
     portName ??= port.name;
 
     assert(!_ports.containsKey(portName),
@@ -195,7 +197,7 @@ class Interface<TagType extends Enum> {
   @protected
   void setPorts(List<Logic> ports, [Iterable<TagType>? tags]) {
     for (final port in ports) {
-      _setPort(port, tags: tags);
+      setPort(port, tags: tags);
     }
   }
 

@@ -81,6 +81,7 @@ class PairInterface extends Interface<PairDirection> {
           .map((e) {
             final p = e.value;
             final name = e.key;
+            //TODO: replace this stuff with clone?
             switch (p) {
               case LogicArray():
                 return p.isNet
