@@ -37,10 +37,35 @@ class GenPairIntf extends _$GenPairIntf {
 }
 
 @GenInterface({
-  ExampleDir.dir1: [GenLogic.struct('a', type: MyStruct)],
+  ExampleDir.dir1: [GenLogic.struct('a', type: MyFancyStruct)],
 })
-class GenIntfWithStruct extends _$GenIntfWithStruct {
-  GenIntfWithStruct() : super(a: MyStruct());
+class GenIntfWithFancyStruct extends _$GenIntfWithFancyStruct {
+  GenIntfWithFancyStruct() : super(a: MyFancyStruct(busWidth: 8));
+}
+
+class MyStructWithName extends LogicStructure {
+  final Logic ready;
+  final Logic valid;
+
+  factory MyStructWithName({String? name = 'my_struct'}) => MyStructWithName._(
+        Logic(name: 'ready'),
+        Logic(name: 'valid'),
+        name: name,
+      );
+
+  MyStructWithName._(this.ready, this.valid, {super.name})
+      : super([ready, valid]);
+
+  @override
+  MyStructWithName clone({String? name}) => MyStructWithName(name: name);
+}
+
+@GenInterface({
+  ExampleDir.dir1: [GenLogic.struct('a', type: MyStruct)],
+  ExampleDir.dir2: [GenLogic.struct('b', type: MyStructWithName)],
+})
+class GenIntfWithSimpleStruct extends _$GenIntfWithSimpleStruct {
+  GenIntfWithSimpleStruct() : super();
 }
 
 void main() {
@@ -67,8 +92,8 @@ void main() {
   });
 
   test('interface with struct', () {
-    final intf = GenIntfWithStruct();
+    final intf = GenIntfWithFancyStruct();
 
-    expect(intf.a, isA<MyStruct>());
+    expect(intf.a, isA<MyFancyStruct>());
   });
 }

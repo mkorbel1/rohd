@@ -32,10 +32,28 @@ class _$GenPairIntf extends PairInterface {
   }
 }
 
-class _$GenIntfWithStruct extends Interface<ExampleDir> {
+class _$GenIntfWithFancyStruct extends Interface<ExampleDir> {
+  MyFancyStruct get a => port('a') as MyFancyStruct;
+  _$GenIntfWithFancyStruct({
+    required MyFancyStruct a,
+  }) : super() {
+    setPort(a, tags: const [ExampleDir.dir1], portName: 'a');
+  }
+}
+
+class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
   MyStruct get a => port('a') as MyStruct;
-  _$GenIntfWithStruct({
+  _$GenIntfWithSimpleStruct({
     required MyStruct a,
+  }) : super() {
+    setPort(a, tags: const [ExampleDir.dir1], portName: 'a');
+  }
+}
+
+class _$GenIntfWithNamedSimpleStruct extends Interface<ExampleDir> {
+  MyStructWithName get a => port('a') as MyStructWithName;
+  _$GenIntfWithNamedSimpleStruct({
+    required MyStructWithName a,
   }) : super() {
     setPort(a, tags: const [ExampleDir.dir1], portName: 'a');
   }

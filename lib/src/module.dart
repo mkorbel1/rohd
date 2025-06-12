@@ -876,6 +876,7 @@ abstract class Module {
     return inOutArr;
   }
 
+  //TODO: add an addInputStruct?
   //TODO: add an `addInterface` which takes care of cloning and connectIO
 
   @override
