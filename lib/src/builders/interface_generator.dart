@@ -66,11 +66,16 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     }
 
     for (final structPort in ports.values.flattened.where((e) => e.isStruct)) {
+      final isOptional = structPort.isConditional ||
+          structPort.structDefaultConstructorType! !=
+              StructDefaultConstructorType.unusable;
+
       constructorParams.add(FormalParameter(
-        paramType: ParamType.namedRequired,
+        paramType:
+            isOptional ? ParamType.namedOptional : ParamType.namedRequired,
         name: structPort.name,
         type: structPort.typeName,
-        isNullable: structPort.isConditional,
+        isNullable: isOptional,
         varLocation: ParamVarLocation.constructor,
       ));
     }
@@ -112,7 +117,12 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
       for (final genLogic in genLogics) {
         final String portString;
         if (genLogic.isStruct) {
-          portString = genLogic.name;
+          final constructorString = genLogic.genStructConstructorCall();
+          if (constructorString == null) {
+            portString = genLogic.name;
+          } else {
+            portString = '${genLogic.name} ?? $constructorString';
+          }
         } else if (genLogic.isArray) {
           portString = "LogicArray.port('${genLogic.name}', "
               '${genLogic.dimensions}, '
@@ -126,7 +136,7 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
 
         buffer.writeln('setPort($portString, '
             'tags: const [$group], '
-            "portName: '${genLogic.name}');");
+            "name: '${genLogic.name}');");
       }
     });
 

@@ -10,8 +10,8 @@ class _$ExampleIntfWithGen extends Interface<ExampleDir> {
   Logic get a => port('a') as Logic;
   Logic get b => port('b') as Logic;
   _$ExampleIntfWithGen() : super() {
-    setPort(Logic.port('a', 1), tags: const [ExampleDir.dir1], portName: 'a');
-    setPort(Logic.port('b', 1), tags: const [ExampleDir.dir2], portName: 'b');
+    setPort(Logic.port('a', 1), tags: const [ExampleDir.dir1], name: 'a');
+    setPort(Logic.port('b', 1), tags: const [ExampleDir.dir2], name: 'b');
   }
 }
 
@@ -26,35 +26,44 @@ class _$GenPairIntf extends PairInterface {
     super.sharedInputPorts,
   }) : super.new() {
     setPort(Logic.port('fp', 1),
-        tags: const [PairDirection.fromProvider], portName: 'fp');
+        tags: const [PairDirection.fromProvider], name: 'fp');
     setPort(Logic.port('fc', 1),
-        tags: const [PairDirection.fromConsumer], portName: 'fc');
+        tags: const [PairDirection.fromConsumer], name: 'fc');
   }
 }
 
 class _$GenIntfWithFancyStruct extends Interface<ExampleDir> {
   MyFancyStruct get a => port('a') as MyFancyStruct;
   _$GenIntfWithFancyStruct({
-    required MyFancyStruct a,
+    MyFancyStruct? a,
   }) : super() {
-    setPort(a, tags: const [ExampleDir.dir1], portName: 'a');
+    setPort(a ?? MyFancyStruct(), tags: const [ExampleDir.dir1], name: 'a');
   }
 }
 
 class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
   MyStruct get a => port('a') as MyStruct;
+  MyStructWithNamedName get b => port('b') as MyStructWithNamedName;
+  MyStructWithPosName get c => port('c') as MyStructWithPosName;
   _$GenIntfWithSimpleStruct({
-    required MyStruct a,
+    MyStruct? a,
+    MyStructWithNamedName? b,
+    MyStructWithPosName? c,
   }) : super() {
-    setPort(a, tags: const [ExampleDir.dir1], portName: 'a');
+    setPort(a ?? MyStruct(), tags: const [ExampleDir.dir1], name: 'a');
+    setPort(b ?? MyStructWithNamedName(name: 'b'),
+        tags: const [ExampleDir.dir2], name: 'b');
+    setPort(c ?? MyStructWithPosName('c'),
+        tags: const [ExampleDir.dir2], name: 'c');
   }
 }
 
-class _$GenIntfWithNamedSimpleStruct extends Interface<ExampleDir> {
-  MyStructWithName get a => port('a') as MyStructWithName;
-  _$GenIntfWithNamedSimpleStruct({
-    required MyStructWithName a,
+class _$GenIntfWithUnusableStructConstructor extends Interface<ExampleDir> {
+  MyStructWithRequiredArgs get reqarg =>
+      port('reqarg') as MyStructWithRequiredArgs;
+  _$GenIntfWithUnusableStructConstructor({
+    required MyStructWithRequiredArgs reqarg,
   }) : super() {
-    setPort(a, tags: const [ExampleDir.dir1], portName: 'a');
+    setPort(reqarg, tags: const [ExampleDir.dir1], name: 'reqarg');
   }
 }

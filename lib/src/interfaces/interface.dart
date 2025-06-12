@@ -169,24 +169,24 @@ class Interface<TagType extends Enum> {
     }
   }
 
-  /// Adds a single new port to this [Interface], associated with [tags]
-  /// and with name [portName].
+  /// Adds a single new port to this [Interface], associated with [tags] and
+  /// with name [name].
   ///
-  /// If no [portName] is specified, then [port]'s name is used.
-  void setPort(Logic port, {Iterable<TagType>? tags, String? portName}) {
+  /// If no [name] is specified, then [port]'s name is used.
+  void setPort(Logic port, {Iterable<TagType>? tags, String? name}) {
     //TODO: test this function, now that it is public
 
-    portName ??= port.name;
+    name ??= port.name;
 
-    assert(!_ports.containsKey(portName),
-        'Port named $portName already exists on this interface.');
+    assert(!_ports.containsKey(name),
+        'Port named $name already exists on this interface.');
 
-    _ports[portName] = port;
+    _ports[name] = port;
     if (tags != null) {
-      if (!_portToTagMap.containsKey(portName)) {
-        _portToTagMap[portName] = <TagType>{};
+      if (!_portToTagMap.containsKey(name)) {
+        _portToTagMap[name] = <TagType>{};
       }
-      _portToTagMap[portName]!.addAll(tags);
+      _portToTagMap[name]!.addAll(tags);
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
@@ -62,6 +63,7 @@ class GenInfoExtracted extends GenInfo {
     super.numUnpackedDimensions,
     this.typeName = 'Logic',
     this.annotationName,
+    this.structDefaultConstructorType,
   });
 
   /// Returns `null` if the parameter does not have any port annotation.
@@ -148,6 +150,52 @@ class GenInfoExtracted extends GenInfo {
         ? 'Logic'
         : oConst.read('type').typeValue.getDisplayString();
 
+    // Attempt to extract constructor arguments from the type, if available
+    StructDefaultConstructorType? structDefaultConstructorType;
+    if (typeName != 'Logic' &&
+        typeName != 'LogicArray' &&
+        !oConst.read('type').isNull) {
+      final typeObj = oConst.read('type').typeValue;
+      final element = typeObj.element3;
+      if (element is ClassElement2) {
+        final defaultConstructor =
+            element.constructors2.firstWhereOrNull((c) => c.name3 == 'new');
+        if (defaultConstructor != null) {
+          var hasNamedName = false;
+          var hasPositionalName = false;
+          var hasNonNameRequiredArgs = false;
+
+          for (final formalParam in defaultConstructor.formalParameters) {
+            if (formalParam.name3 == 'name') {
+              if (formalParam.isPositional) {
+                hasPositionalName = true;
+              } else {
+                hasNamedName = true;
+              }
+            } else if (formalParam.isRequired) {
+              hasNonNameRequiredArgs = true;
+            }
+          }
+
+          assert(!(hasNamedName && hasPositionalName),
+              'Should not be possible to have both');
+
+          if (hasNonNameRequiredArgs) {
+            structDefaultConstructorType =
+                StructDefaultConstructorType.unusable;
+          } else if (hasNamedName) {
+            structDefaultConstructorType =
+                StructDefaultConstructorType.nameNamed;
+          } else if (hasPositionalName) {
+            structDefaultConstructorType =
+                StructDefaultConstructorType.namePositional;
+          } else {
+            structDefaultConstructorType = StructDefaultConstructorType.none;
+          }
+        }
+      }
+    }
+
     if (dimensions != null) {
       typeName = 'LogicArray';
     }
@@ -161,7 +209,30 @@ class GenInfoExtracted extends GenInfo {
       paramType: null, // Not a constructor parameter
       dimensions: dimensions,
       typeName: typeName,
+      structDefaultConstructorType: structDefaultConstructorType,
     );
+  }
+
+  /// If [isStruct], the type of default constructor available, else `null`.
+  StructDefaultConstructorType? structDefaultConstructorType;
+
+  String? genStructConstructorCall() {
+    if (!isStruct) {
+      return null;
+    }
+
+    final instName = "'${logicName ?? name}'";
+
+    switch (structDefaultConstructorType!) {
+      case StructDefaultConstructorType.unusable:
+        return null; // No usable constructor
+      case StructDefaultConstructorType.none:
+        return '$typeName()';
+      case StructDefaultConstructorType.namePositional:
+        return '$typeName($instName)';
+      case StructDefaultConstructorType.nameNamed:
+        return '$typeName(name: $instName)';
+    }
   }
 
   @override
@@ -169,4 +240,22 @@ class GenInfoExtracted extends GenInfo {
 
   @override
   bool get isArray => dimensions != null && typeName == 'LogicArray';
+}
+
+enum StructDefaultConstructorType {
+  /// The default, we can't infer anything special to construct the struct
+  /// automatically.
+  unusable,
+
+  /// The struct has a default constructor that can be used to construct it,
+  /// with no arguments passed.
+  none,
+
+  /// The struct has a default constructor that can be used to construct it,
+  /// with positional `name` passed as the first argument.
+  namePositional,
+
+  /// The struct has a default constructor that can be used to construct it,
+  /// with named `name` passed as an argument.
+  nameNamed;
 }
