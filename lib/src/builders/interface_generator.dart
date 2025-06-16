@@ -116,20 +116,17 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     ports.forEach((group, genLogics) {
       for (final genLogic in genLogics) {
         final String portString;
+
+        final constructorString = genLogic.genConstructorCall();
+
         if (genLogic.isStruct) {
-          final constructorString = genLogic.genStructConstructorCall();
           if (constructorString == null) {
             portString = genLogic.name;
           } else {
             portString = '${genLogic.name} ?? $constructorString';
           }
-        } else if (genLogic.isArray) {
-          portString = "LogicArray.port('${genLogic.name}', "
-              '${genLogic.dimensions}, '
-              '${genLogic.width}, '
-              '${genLogic.numUnpackedDimensions})';
         } else {
-          portString = "Logic.port('${genLogic.name}', ${genLogic.width})";
+          portString = constructorString!;
         }
 
         //TODO: handle isConditional

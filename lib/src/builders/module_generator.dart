@@ -5,6 +5,7 @@ import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:build/build.dart';
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
+import 'package:rohd/rohd.dart';
 import 'package:rohd/src/builders/gen_info.dart';
 
 import 'package:rohd/src/builders/annotations.dart';
@@ -59,8 +60,12 @@ class _PortInfo {
       ? '${genInfo.name}IsPresent'
       : throw Exception('Should not be called for non-conditional ports');
 
+  String get sourceName => switch (origin) {
+        _PortInfoOrigin.classAnnotation => '${genInfo.name}Source',
+        _PortInfoOrigin.constructorArgAnnotation => genInfo.name
+      };
+
   String moduleAccessor() {
-    // TODO: handle arrays
     // TODO: handle structs
     var accessorFunction = switch (direction) {
       _PortDirection.input => 'input',
@@ -77,20 +82,36 @@ class _PortInfo {
       buffer.writeln('@protected');
     }
 
-    var type = 'Logic';
+    var type = genInfo.typeName;
 
     if (genInfo.isConditional) {
-      accessorFunction = switch (direction) {
-        _PortDirection.input => 'tryInput',
-        _PortDirection.output => 'tryOutput',
-        _PortDirection.inOut => 'tryInOut'
-      };
+      final capsVersion =
+          accessorFunction[0].toUpperCase() + accessorFunction.substring(1);
+      accessorFunction = 'try$capsVersion';
 
       type += '?';
     }
 
+    var castStr = '';
+    if (genInfo.isArray) {
+      castStr = ' as $type';
+    }
+
     buffer.writeln('$type get ${genInfo.name} =>'
-        " $accessorFunction('${genInfo.logicName}');");
+        " $accessorFunction('${genInfo.logicName}')$castStr;");
+
+    if (origin == _PortInfoOrigin.classAnnotation &&
+        (direction == _PortDirection.input ||
+            direction == _PortDirection.inOut)) {
+      // we need to declare the source variable
+      buffer.writeln('/// The external source for the [${genInfo.name}] port.');
+
+      //TODO: what about when struct can't be made?
+      final constructorCall =
+          genInfo.genConstructorCall(naming: Naming.mergeable);
+
+      buffer.writeln('final $type $sourceName = $constructorCall;');
+    }
 
     return buffer.toString();
   }
@@ -101,11 +122,9 @@ class _PortInfo {
       _PortDirection.output => 'addOutput',
       _PortDirection.inOut => 'addInOut'
     };
-    // final creator = creatorMap[direction]!;
 
-    final source = switch (direction) {
-      _PortDirection.input => ', ${genInfo.name}',
-      _PortDirection.inOut => ', ${genInfo.name}',
+    final sourceStr = switch (direction) {
+      _PortDirection.input || _PortDirection.inOut => ', $sourceName',
       _PortDirection.output => '',
     };
 
@@ -114,7 +133,7 @@ class _PortInfo {
         : '';
 
     final portCreationString =
-        "$creator('${genInfo.logicName}' $source $widthString);";
+        "$creator('${genInfo.logicName}' $sourceStr $widthString);";
 
     if (genInfo.isConditional) {
       final condition = switch (origin) {

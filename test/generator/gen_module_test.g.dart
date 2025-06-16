@@ -58,6 +58,10 @@ class _$KitchenGenSinkModule extends Module {
   @protected
   Logic get topIn => input('topIn');
 
+  /// The external source for the [topIn] port.
+  final Logic topInSource =
+      Logic(name: 'topIn', width: 1, naming: Naming.mergeable);
+
   /// This is the top output
   Logic get topOut => output('topOut');
 
@@ -72,10 +76,14 @@ class _$KitchenGenSinkModule extends Module {
 
   Logic get topOutNewName => output('top_out_new_name');
 
-  Logic get topOutArray => output('topOutArray');
+  LogicArray get topOutArray => output('topOutArray') as LogicArray;
 
   @protected
   Logic get topInOut => inOut('topInOut');
+
+  /// The external source for the [topInOut] port.
+  final Logic topInOutSource =
+      Logic(name: 'topInOut', width: 1, naming: Naming.mergeable);
 
   @protected
   Logic get botInPos => input('botInPos');
@@ -100,7 +108,7 @@ class _$KitchenGenSinkModule extends Module {
     super.reserveDefinitionName,
     required bool topOutCondIsPresent,
   }) : super() {
-    addInput('topIn', topIn);
+    addInput('topIn', topInSource);
     addOutput('topOut');
     if (topOutCondIsPresent) {
       addOutput('topOutCond');
@@ -109,7 +117,7 @@ class _$KitchenGenSinkModule extends Module {
     addOutput('topOutDynWidth');
     addOutput('top_out_new_name');
     addOutput('topOutArray', width: 4);
-    addInOut('topInOut', topInOut);
+    addInOut('topInOut', topInOutSource);
     addInput('botInPos', botInPos);
     if (botInPosNullable != null) {
       addInput('botInPosNullable', botInPosNullable);

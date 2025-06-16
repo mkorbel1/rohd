@@ -52,6 +52,9 @@ class GenInfoExtracted extends GenInfo {
   @override
   String get name => super.name!;
 
+  @override
+  String get logicName => super.logicName ?? name;
+
   GenInfoExtracted({
     required String super.name,
     required super.logicName,
@@ -217,12 +220,32 @@ class GenInfoExtracted extends GenInfo {
   /// If [isStruct], the type of default constructor available, else `null`.
   StructDefaultConstructorType? structDefaultConstructorType;
 
-  String? genStructConstructorCall() {
-    if (!isStruct) {
-      return null;
+  /// If possible, a string that constructs an instance of this signal.
+  ///
+  /// If it is not possible, it will return `null`, signalling an implementation
+  /// must be provided.
+  String? genConstructorCall({Naming? naming}) {
+    if (isStruct) {
+      return _genStructConstructorCall();
     }
 
-    final instName = "'${logicName ?? name}'";
+    // TODO: what about nets?
+
+    final namingStr = naming == null ? '' : ', naming: $naming';
+
+    if (isArray) {
+      return "LogicArray(name: '$name', "
+          'dimensions: $dimensions, '
+          'elementWidth: $width, '
+          'numUnpackedDimensions: $numUnpackedDimensions $namingStr)';
+    } else {
+      return "Logic(name: '$name', width: $width $namingStr)";
+    }
+  }
+
+  String? _genStructConstructorCall() {
+    assert(isStruct,
+        'Cannot generate struct constructor call for non-struct type: $typeName');
 
     switch (structDefaultConstructorType!) {
       case StructDefaultConstructorType.unusable:
@@ -230,9 +253,9 @@ class GenInfoExtracted extends GenInfo {
       case StructDefaultConstructorType.none:
         return '$typeName()';
       case StructDefaultConstructorType.namePositional:
-        return '$typeName($instName)';
+        return '$typeName($logicName)';
       case StructDefaultConstructorType.nameNamed:
-        return '$typeName(name: $instName)';
+        return '$typeName(name: $logicName)';
     }
   }
 
