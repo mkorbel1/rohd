@@ -53,9 +53,9 @@ class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
     MyStructWithPosName? c,
   }) : super() {
     setPort(a ?? MyStruct(), tags: const [ExampleDir.dir1], name: 'a');
-    setPort(b ?? MyStructWithNamedName(name: b),
+    setPort(b ?? MyStructWithNamedName(name: 'b'),
         tags: const [ExampleDir.dir2], name: 'b');
-    setPort(c ?? MyStructWithPosName(c),
+    setPort(c ?? MyStructWithPosName('c'),
         tags: const [ExampleDir.dir2], name: 'c');
   }
 }

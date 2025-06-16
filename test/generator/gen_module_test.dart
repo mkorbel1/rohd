@@ -42,9 +42,7 @@ class GenSubMod extends _$GenSubMod {
 @GenModule(
   inputs: [GenLogic('topIn')],
   outputs: [
-    /// hello //TODO: can we extract doc comment?
     GenLogic('topOut', description: 'This is the top output'),
-
     GenLogic('topOutCond', isConditional: true),
     GenLogic('topOutWider', width: 8, description: '''
 This is a wider output.

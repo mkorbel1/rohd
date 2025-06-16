@@ -137,6 +137,7 @@ class GenInfoExtracted extends GenInfo {
 
     final width =
         oConst.read('width').isNull ? null : oConst.read('width').intValue;
+
     final description = oConst.read('description').isNull
         ? null
         : oConst.read('description').stringValue;
@@ -253,9 +254,9 @@ class GenInfoExtracted extends GenInfo {
       case StructDefaultConstructorType.none:
         return '$typeName()';
       case StructDefaultConstructorType.namePositional:
-        return '$typeName($logicName)';
+        return "$typeName('$logicName')";
       case StructDefaultConstructorType.nameNamed:
-        return '$typeName(name: $logicName)';
+        return "$typeName(name: '$logicName')";
     }
   }
 
