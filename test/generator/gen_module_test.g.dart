@@ -61,15 +61,16 @@ class _$KitchenGenSinkModule extends Module {
   /// This is the top output
   Logic get topOut => output('topOut');
 
-  Logic get topOutCond => output('topOutCond');
+  Logic? get topOutCond => tryOutput('topOutCond');
 
+  /// This is a wider output.
+  ///
+  /// It has a multi-line description, as well.
   Logic get topOutWider => output('topOutWider');
 
   Logic get topOutDynWidth => output('topOutDynWidth');
 
   Logic get topOutNewName => output('top_out_new_name');
-
-  Logic get topOutNet => output('topOutNet');
 
   Logic get topOutArray => output('topOutArray');
 
@@ -80,36 +81,42 @@ class _$KitchenGenSinkModule extends Module {
   Logic get botInPos => input('botInPos');
 
   @protected
-  Logic get botInPosNullable => input('botInPosNullable');
+  Logic? get botInPosNullable => tryInput('botInPosNullable');
 
   @protected
   Logic get botInNamed => input('botInNamed');
 
   @protected
-  Logic get botInNamedOptional => input('botInNamedOptional');
+  Logic? get botInNamedOptional => tryInput('botInNamedOptional');
 
   _$KitchenGenSinkModule(
     Logic botInPos,
-    Logic botInPosNullable, {
+    Logic? botInPosNullable, {
     required Logic botInNamed,
-    Logic botInNamedOptional,
+    Logic? botInNamedOptional,
     super.name,
     super.reserveName,
     super.definitionName,
     super.reserveDefinitionName,
+    required bool topOutCondIsPresent,
   }) : super() {
     addInput('topIn', topIn);
     addOutput('topOut');
-    addOutput('topOutCond');
+    if (topOutCondIsPresent) {
+      addOutput('topOutCond');
+    }
     addOutput('topOutWider', width: 8);
     addOutput('topOutDynWidth');
     addOutput('top_out_new_name');
-    addOutput('topOutNet');
     addOutput('topOutArray', width: 4);
     addInOut('topInOut', topInOut);
     addInput('botInPos', botInPos);
-    addInput('botInPosNullable', botInPosNullable);
+    if (botInPosNullable != null) {
+      addInput('botInPosNullable', botInPosNullable);
+    }
     addInput('botInNamed', botInNamed);
-    addInput('botInNamedOptional', botInNamedOptional);
+    if (botInNamedOptional != null) {
+      addInput('botInNamedOptional', botInNamedOptional);
+    }
   }
 }

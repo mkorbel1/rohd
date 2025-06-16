@@ -55,8 +55,14 @@ class _PortInfo {
     required this.origin,
   });
 
+  String get createConditionName => genInfo.isConditional
+      ? '${genInfo.name}IsPresent'
+      : throw Exception('Should not be called for non-conditional ports');
+
   String moduleAccessor() {
-    final accessorFunction = switch (direction) {
+    // TODO: handle arrays
+    // TODO: handle structs
+    var accessorFunction = switch (direction) {
       _PortDirection.input => 'input',
       _PortDirection.output => 'output',
       _PortDirection.inOut => 'inOut'
@@ -71,7 +77,19 @@ class _PortInfo {
       buffer.writeln('@protected');
     }
 
-    buffer.writeln('Logic get ${genInfo.name} =>'
+    var type = 'Logic';
+
+    if (genInfo.isConditional) {
+      accessorFunction = switch (direction) {
+        _PortDirection.input => 'tryInput',
+        _PortDirection.output => 'tryOutput',
+        _PortDirection.inOut => 'tryInOut'
+      };
+
+      type += '?';
+    }
+
+    buffer.writeln('$type get ${genInfo.name} =>'
         " $accessorFunction('${genInfo.logicName}');");
 
     return buffer.toString();
@@ -95,7 +113,18 @@ class _PortInfo {
         ? ', width: ${genInfo.width}'
         : '';
 
-    return "$creator('${genInfo.logicName}' $source $widthString);";
+    final portCreationString =
+        "$creator('${genInfo.logicName}' $source $widthString);";
+
+    if (genInfo.isConditional) {
+      final condition = switch (origin) {
+        _PortInfoOrigin.classAnnotation => createConditionName,
+        _PortInfoOrigin.constructorArgAnnotation => '${genInfo.name} != null',
+      };
+      return 'if($condition) { $portCreationString }';
+    } else {
+      return portCreationString;
+    }
   }
 
   static _PortInfo? ofAnnotatedParameter(ParameterElement param) {
@@ -223,10 +252,18 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
       constructorParams.addAll(parsedBaseConstructor.constructorParams);
     }
 
-    final inputs = portInfos.where((p) => p.direction == _PortDirection.input);
-    final inOuts = portInfos.where((p) => p.direction == _PortDirection.inOut);
-    final outputs =
-        portInfos.where((p) => p.direction == _PortDirection.output);
+    // Add arguments for all the optional presence of ports
+    for (final portInfo in portInfos
+        .where((p) => p.origin == _PortInfoOrigin.classAnnotation)) {
+      if (portInfo.genInfo.isConditional) {
+        constructorParams.add(FormalParameter(
+          paramType: ParamType.namedRequired,
+          name: portInfo.createConditionName,
+          varLocation: ParamVarLocation.constructor,
+          type: 'bool',
+        ));
+      }
+    }
 
     final buffer = StringBuffer();
     buffer.writeln('class $genClassName extends $baseClassName {');

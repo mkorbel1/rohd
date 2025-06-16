@@ -161,4 +161,4 @@ String genConstructor({
 /// Takes a [content] string and makes it print so that all new lines are
 /// prepended with `///`.
 String genMultilineDocComment(String content) =>
-    content.split('\n').map((e) => '/// $e').join('\n');
+    content.trim().split('\n').map((e) => '/// $e').join('\n');

@@ -116,6 +116,7 @@ class GenInfoExtracted extends GenInfo {
       logicName: logicName ?? name,
       paramType: paramType,
       annotationName: 'Input', //TODO: for other types
+      isConditional: isNullable,
     );
   }
 

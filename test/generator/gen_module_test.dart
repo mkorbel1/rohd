@@ -44,10 +44,13 @@ class GenSubMod extends _$GenSubMod {
   outputs: [
     GenLogic('topOut', description: 'This is the top output'),
     GenLogic('topOutCond', isConditional: true),
-    GenLogic('topOutWider', width: 8),
+    GenLogic('topOutWider', width: 8, description: '''
+This is a wider output.
+
+It has a multi-line description, as well.
+'''),
     GenLogic('topOutDynWidth', width: null),
     GenLogic('topOutNewName', logicName: 'top_out_new_name'),
-    GenLogic('topOutNet'),
     GenLogic.array('topOutArray',
         dimensions: [2, 3], elementWidth: 4, numUnpackedDimensions: 1),
   ],
@@ -59,6 +62,7 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
     @Input() Logic? super.botInPosNullable, {
     @Input() required super.botInNamed,
     @Input() Logic? super.botInNamedOptional,
+    super.topOutCondIsPresent = true,
   });
 
   //TODO: also need to test positional optional inputs
