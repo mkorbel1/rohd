@@ -14,9 +14,15 @@ import 'package:rohd/src/builders/parameters.dart';
 import 'package:source_gen/source_gen.dart';
 
 enum _PortDirection {
-  input,
-  output,
-  inOut;
+  input(forInternalUsage: true),
+  output(),
+  inOut(forInternalUsage: true);
+
+  final bool forInternalUsage;
+
+  const _PortDirection({this.forInternalUsage = false});
+
+  String get moduleAccessorName => name;
 
   static _PortDirection ofAnnotationName(String annotationName) {
     switch (annotationName) {
@@ -48,6 +54,49 @@ class _PortInfo {
     required this.direction,
     required this.origin,
   });
+
+  String moduleAccessor() {
+    final accessorFunction = switch (direction) {
+      _PortDirection.input => 'input',
+      _PortDirection.output => 'output',
+      _PortDirection.inOut => 'inOut'
+    };
+
+    final buffer = StringBuffer();
+
+    if (genInfo.description != null) {
+      buffer.writeln(genMultilineDocComment(genInfo.description!));
+    }
+    if (direction.forInternalUsage) {
+      buffer.writeln('@protected');
+    }
+
+    buffer.writeln('Logic get ${genInfo.name} =>'
+        " $accessorFunction('${genInfo.logicName}');");
+
+    return buffer.toString();
+  }
+
+  String modulePortCreator() {
+    final creator = switch (direction) {
+      _PortDirection.input => 'addInput',
+      _PortDirection.output => 'addOutput',
+      _PortDirection.inOut => 'addInOut'
+    };
+    // final creator = creatorMap[direction]!;
+
+    final source = switch (direction) {
+      _PortDirection.input => ', ${genInfo.name}',
+      _PortDirection.inOut => ', ${genInfo.name}',
+      _PortDirection.output => '',
+    };
+
+    final widthString = genInfo.width != null && genInfo.width != 1
+        ? ', width: ${genInfo.width}'
+        : '';
+
+    return "$creator('${genInfo.logicName}' $source $widthString);";
+  }
 
   static _PortInfo? ofAnnotatedParameter(ParameterElement param) {
     final genInfo = GenInfoExtracted.ofAnnotatedParameter(param);
@@ -182,26 +231,8 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     final buffer = StringBuffer();
     buffer.writeln('class $genClassName extends $baseClassName {');
 
-    // Generate protected fields for inputs
-    for (final input in [...inputs, ...inOuts]) {
-      if (input.genInfo.description != null) {
-        buffer.writeln('  /// ${input.genInfo.description}');
-      }
-      buffer.writeln('  @protected');
-      final nullableSuffix = input.genInfo.isConditional ? '?' : '';
-      //TODO: handle inouts
-      buffer
-          .writeln('  late final Logic$nullableSuffix ${input.genInfo.name};');
-    }
-
-    // Generate output getters
-    for (final o in outputs) {
-      if (o.genInfo.description != null) {
-        buffer.writeln('  /// ${o.genInfo.description}');
-      }
-      buffer.write(
-          "  Logic get ${o.genInfo.name} => output('${o.genInfo.name}');\n");
-    }
+    // Generate module accessors
+    buffer.writeln(_genAccessors(portInfos));
 
     final constructorContents = _genConstructorContents(portInfos);
 
@@ -218,31 +249,21 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     return buffer.toString();
   }
 
-  static String _genConstructorContents(List<_PortInfo> portInfos) {
-    final inputs = portInfos.where((p) => p.direction == _PortDirection.input);
-    final inOuts = portInfos.where((p) => p.direction == _PortDirection.inOut);
-    final outputs =
-        portInfos.where((p) => p.direction == _PortDirection.output);
-
+  static String _genAccessors(List<_PortInfo> portInfos) {
     final buffer = StringBuffer();
 
-    // Generate addInput calls for annotated parameters
-    for (final input in inputs) {
-      final paramName = input.genInfo.name;
-      final inputName = input.genInfo.logicName;
-      final widthParam =
-          input.genInfo.width != null ? ', width: ${input.genInfo.width}' : '';
-      buffer.writeln(
-          '    this.$paramName = addInput(\'$inputName\', $paramName$widthParam);');
+    for (final p in portInfos) {
+      buffer.writeln(p.moduleAccessor());
     }
 
-    //TODO: inouts
+    return buffer.toString();
+  }
 
-    // Generate addOutput calls
-    for (final o in outputs) {
-      final width = o.genInfo.width ?? 1;
+  static String _genConstructorContents(List<_PortInfo> portInfos) {
+    final buffer = StringBuffer();
 
-      buffer.writeln("    addOutput('${o.genInfo.name}', width: $width);");
+    for (final port in portInfos) {
+      buffer.writeln(port.modulePortCreator());
     }
 
     return buffer.toString();

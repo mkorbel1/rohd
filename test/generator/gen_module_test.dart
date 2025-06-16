@@ -56,10 +56,9 @@ class GenSubMod extends _$GenSubMod {
 class KitchenGenSinkModule extends _$KitchenGenSinkModule {
   KitchenGenSinkModule(
     @Input() super.botInPos,
-    // @Input() Logic? super.botInPosNullable,
-    {
+    @Input() Logic? super.botInPosNullable, {
     @Input() required super.botInNamed,
-    // @Input() Logic? super.botInNamedOptional,
+    @Input() Logic? super.botInNamedOptional,
   });
 
   //TODO: also need to test positional optional inputs
