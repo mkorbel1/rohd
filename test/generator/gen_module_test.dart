@@ -57,6 +57,9 @@ It has a multi-line description, as well.
   inOuts: [GenLogic('topInOut')],
 )
 class KitchenGenSinkModule extends _$KitchenGenSinkModule {
+  @Output() //TODO get rid of description? (then this needs abstract and setter)
+  late final Logic midOut;
+
   KitchenGenSinkModule(
     @Input() super.botInPos,
     @Input() Logic? super.botInPosNullable, {

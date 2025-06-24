@@ -54,7 +54,7 @@ class _$GenSubMod extends GenBaseMod {
   }
 }
 
-class _$KitchenGenSinkModule extends Module {
+abstract class _$KitchenGenSinkModule extends Module {
   @protected
   Logic get topIn => input('topIn');
 
@@ -64,6 +64,8 @@ class _$KitchenGenSinkModule extends Module {
 
   /// This is the top output
   Logic get topOut => output('topOut');
+
+  void set midOut(Logic newMidOut);
 
   Logic? get topOutCond => tryOutput('topOutCond');
 
@@ -126,5 +128,7 @@ class _$KitchenGenSinkModule extends Module {
     if (botInNamedOptional != null) {
       addInput('botInNamedOptional', botInNamedOptional);
     }
+
+    midOut = addOutput('midOut');
   }
 }
