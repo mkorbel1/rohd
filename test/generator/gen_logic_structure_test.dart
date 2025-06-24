@@ -18,4 +18,6 @@ class ExampleStruct extends LogicStructure {
 class ExampleStructWithGen extends _$ExampleStructWithGen {}
 //TODO: name in super
 
+//TODO: BUG! elements are backwards, make sure order of elements is right!
+
 void main() {}

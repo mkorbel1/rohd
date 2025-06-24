@@ -41,12 +41,18 @@ abstract class Module {
       TraverseableCollection();
 
   /// An internal mapping of inputs to this [Module].
+  ///
+  /// This is ordered based on insertion order.
   late final Map<String, Logic> _inputs = {};
 
   /// An internal mapping of outputs to this [Module].
+  ///
+  /// This is ordered based on insertion order.
   late final Map<String, Logic> _outputs = {};
 
   /// An internal mapping of inOuts to this [Module].
+  ///
+  /// This is ordered based on insertion order.
   late final Map<String, Logic> _inOuts = {};
 
   /// An internal mapping of input names to their sources to this [Module].

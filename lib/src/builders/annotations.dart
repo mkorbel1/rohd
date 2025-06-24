@@ -35,7 +35,7 @@ class GenLogic extends GenInfo {
 class Input extends GenInfo {
   const Input({
     super.logicName,
-    super.width,
+    super.width, //TODO: default is 1? nullable still is dynamic?
     super.description,
     // super.isNet,
   });

@@ -11,6 +11,8 @@ import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 
+//TODO: BUG: if you make a port with unsanitary name on interface, it renames??
+
 /// Represents a logical interface to a [Module].
 ///
 /// Interfaces make it easier to define port connections of a [Module]
