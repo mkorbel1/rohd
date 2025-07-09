@@ -62,7 +62,7 @@
   <section id="getter">
     <section class="multi-line-signature">
       
-      <span class="returntype"><a href="https://api.dart.dev/stable/3.6.1/dart-core/String-class.html">String</a></span>
+      <span class="returntype"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span>
       get
       <span class="name ">uniqueInstanceName</span>
       
@@ -80,8 +80,7 @@ unique name within its scope.</p>
   <pre class="language-dart"><code class="language-dart">String get uniqueInstanceName =&gt; hasBuilt || reserveName
     ? _uniqueInstanceName
     : throw ModuleNotBuiltException(
-        &#39;Module must be built to access uniquified name.&#39;
-        &#39;  Call build() before accessing this.&#39;);</code></pre>
+        this, &#39;Module must be built to access uniquified name.&#39;);</code></pre>
 </section>
 
   </section>
@@ -111,7 +110,7 @@ unique name within its scope.</p>
 <footer>
   <span class="no-break">
     rohd
-      0.6.1
+      0.6.3
   </span>
   
 </footer>

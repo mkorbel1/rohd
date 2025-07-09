@@ -59,7 +59,7 @@
       
 <span class="returntype"><a href="../../rohd/Logic-class.html">Logic</a></span>
 <span class="name ">get</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="get-param-identifier"><span class="type-annotation"><a href="../../rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">identifier</span>, [</span></li>
-<li><span class="parameter" id="get-param-stageAdjustment"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">stageAdjustment</span> = <span class="default-value">0</span></span></li>
+<li><span class="parameter" id="get-param-stageAdjustment"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">stageAdjustment</span> = <span class="default-value">0</span></span></li>
 </ol>])
 
       
@@ -67,12 +67,13 @@
     </section>
     
 <section class="desc markdown">
-  <p>Returns a staged version of <code>identifier</code> at the current stage, adjusted
-by the amount of <code>stageAdjustment</code>.</p>
+  <p>Returns a staged version of <code>identifier</code> at the current stage, adjusted by
+the amount of <code>stageAdjustment</code>.</p>
 <p>Typically, your pipeline will consist of a lot of <code>p.get(x)</code> type calls,
 but if you want to combinationally access a value of a signal from another
-stage, you can access it relatively using <code>stageAdjustment</code>.  For
-example, <code>p.get(x, -1)</code> will access the value of <code>x</code> one stage prior.</p>
+stage, you can access it relatively using <code>stageAdjustment</code>.  For example,
+<code>p.get(x, -1)</code> will access the value of <code>x</code> at the output of one stage
+prior.</p>
 </section>
 
 
@@ -80,7 +81,7 @@ example, <code>p.get(x, -1)</code> will access the value of <code>x</code> one s
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Logic get(Logic identifier, [int stageAdjustment = 0]) =&gt;
-    _ssa(_pipeline.get(identifier, stage + stageAdjustment));</code></pre>
+    getAbs(identifier, stage + stageAdjustment);</code></pre>
 </section>
 
 
@@ -108,7 +109,7 @@ example, <code>p.get(x, -1)</code> will access the value of <code>x</code> one s
 <footer>
   <span class="no-break">
     rohd
-      0.6.1
+      0.6.3
   </span>
   
 </footer>

@@ -59,11 +59,11 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/3.6.1/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://api.dart.dev/stable/3.6.2/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
 <span class="returntype"><a href="../../rohd/Logic-class.html">Logic</a></span>
-<span class="name ">withSet</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="withSet-param-startIndex"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">startIndex</span>, </span></li>
+<span class="name ">withSet</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="withSet-param-startIndex"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">startIndex</span>, </span></li>
 <li><span class="parameter" id="withSet-param-update"><span class="type-annotation"><a href="../../rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">update</span></span></li>
 </ol>)
 
@@ -121,7 +121,7 @@ Logic withSet(int startIndex, Logic update) {
               max(startIndex - index, 0),
               update.getRange(
                 max(index - startIndex, 0),
-                min(index - startIndex + elementWidth, elementWidth),
+                min(index - startIndex + elementWidth, update.width),
               ));
     } else {
       newElement &lt;= element;
@@ -159,7 +159,7 @@ Logic withSet(int startIndex, Logic update) {
 <footer>
   <span class="no-break">
     rohd
-      0.6.1
+      0.6.3
   </span>
   
 </footer>
