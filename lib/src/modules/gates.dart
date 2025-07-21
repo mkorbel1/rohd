@@ -236,7 +236,8 @@ abstract class _TwoInputBitwiseGate extends Module with InlineSystemVerilog {
     var sv = '$in0 $_opStr $in1';
 
     if (_forceOutputWidth) {
-      sv = "$width'($sv)";
+      final andMask = LogicValue.ofString('0${'1' * width}');
+      sv = "$width'($andMask & ($sv))";
     }
 
     if (_makeSelfDetermined) {
