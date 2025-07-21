@@ -7,6 +7,8 @@
 // 2021 May 7
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:ffi';
+
 import 'package:rohd/rohd.dart';
 
 /// A gate [Module] that performs bit-wise inversion.
@@ -170,6 +172,9 @@ abstract class _TwoInputBitwiseGate extends Module with InlineSystemVerilog {
   /// expression to behave as a self-determined width.
   final bool _makeSelfDetermined;
 
+  //TODO doc
+  final bool _forceOutputWidth;
+
   /// Constructs a two-input bitwise gate for an abitrary custom functional
   /// implementation.
   ///
@@ -180,11 +185,13 @@ abstract class _TwoInputBitwiseGate extends Module with InlineSystemVerilog {
   _TwoInputBitwiseGate(this._op, this._opStr, Logic in0, dynamic in1,
       {String name = 'gate2',
       int outputSvWidthExpansion = 0,
-      bool makeSelfDetermined = false})
+      bool makeSelfDetermined = false,
+      bool forceOutputWidth = false})
       : width = in0.width,
         assert(!outputSvWidthExpansion.isNegative, 'Should not be negative.'),
         _outputSvWidthExpansion = outputSvWidthExpansion,
         _makeSelfDetermined = makeSelfDetermined,
+        _forceOutputWidth = forceOutputWidth,
         super(name: name) {
     if (in1 is Logic && in0.width != in1.width) {
       throw PortWidthMismatchException.equalWidth(in0, in1);
@@ -227,9 +234,15 @@ abstract class _TwoInputBitwiseGate extends Module with InlineSystemVerilog {
     final in0 = inputs[_in0Name]!;
     final in1 = inputs[_in1Name]!;
     var sv = '$in0 $_opStr $in1';
+
+    if (_forceOutputWidth) {
+      sv = "$width'($sv)";
+    }
+
     if (_makeSelfDetermined) {
       sv = '{$sv}';
     }
+
     return sv;
   }
 }
@@ -617,6 +630,16 @@ class Add extends Module with SystemVerilog {
 
     return 'assign {$carry, $sum} = $in0 $_addOpStr $in1;';
   }
+}
+
+class AddWithoutCarry extends _TwoInputBitwiseGate {
+  /// Calculates the sum of [in0] and [in1] without the carry bit.
+  ///
+  /// [in1] can be either a [Logic] or a constant be processable by
+  /// [LogicValue.of].
+  AddWithoutCarry(Logic in0, dynamic in1, {String name = 'addWithoutCarry'})
+      : super((a, b) => a + b, '+', in0, in1,
+            name: name, forceOutputWidth: true);
 }
 
 /// A two-input subtraction module.
