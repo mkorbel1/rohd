@@ -69,11 +69,46 @@ class GenInfoExtracted extends GenInfo {
     this.structDefaultConstructorType,
   });
 
+  /// Returns `null` if the field does not have any annotation.
+  static GenInfoExtracted? ofAnnotatedField(
+      FieldElement field, String annotationName) {
+    final annotation = field.metadata.firstWhereOrNull(
+      (m) => m.element2?.enclosingElement2?.name3 == annotationName,
+    );
+
+    if (annotation == null) {
+      return null;
+    }
+
+    final name = field.name;
+    final isNullable =
+        field.type.nullabilitySuffix == NullabilitySuffix.question;
+
+    final annotationConst =
+        annotation.computeConstantValue()!.getField('(super)')!;
+
+    final logicName = annotationConst.getField('logicName')!.isNull
+        ? null
+        : annotationConst.getField('logicName')!.toStringValue();
+
+    final width = annotationConst.getField('width')!.isNull
+        ? null
+        : annotationConst.getField('width')!.toIntValue();
+
+    return GenInfoExtracted(
+      name: name,
+      logicName: logicName ?? name,
+      paramType: null,
+      width: width,
+      //TODO rest of the fields
+    );
+  }
+
   /// Returns `null` if the parameter does not have any port annotation.
   static GenInfoExtracted? ofAnnotatedParameter(ParameterElement param) {
-    final name = param.name;
-    final isNullable =
-        param.type.nullabilitySuffix == NullabilitySuffix.question;
+    if (param.hasDefaultValue) {
+      throw Exception('Cannot have a default value for a port argument.');
+    }
 
     final annotation = param.metadata.firstWhereOrNull(
       //TODO: make this look at class instead??
@@ -84,9 +119,9 @@ class GenInfoExtracted extends GenInfo {
       return null;
     }
 
-    if (param.hasDefaultValue) {
-      throw Exception('Cannot have a default value for a port argument.');
-    }
+    final name = param.name;
+    final isNullable =
+        param.type.nullabilitySuffix == NullabilitySuffix.question;
 
     final ParamType paramType;
     if (param.isOptionalPositional) {
@@ -120,6 +155,7 @@ class GenInfoExtracted extends GenInfo {
       paramType: paramType,
       annotationName: 'Input', //TODO: for other types
       isConditional: isNullable,
+      width: width,
     );
   }
 

@@ -39,7 +39,8 @@ class _$GenIntfWithFancyStruct extends Interface<ExampleDir> {
   _$GenIntfWithFancyStruct({
     MyFancyStruct? a,
   }) : super() {
-    setPort(a ?? MyFancyStruct(), tags: const [ExampleDir.dir1], name: 'a');
+    setPort(a ?? MyFancyStruct(name: 'a'),
+        tags: const [ExampleDir.dir1], name: 'a');
   }
 }
 
@@ -52,7 +53,7 @@ class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
     MyStructWithNamedName? b,
     MyStructWithPosName? c,
   }) : super() {
-    setPort(a ?? MyStruct(), tags: const [ExampleDir.dir1], name: 'a');
+    setPort(a ?? MyStruct(name: 'a'), tags: const [ExampleDir.dir1], name: 'a');
     setPort(b ?? MyStructWithNamedName(name: 'b'),
         tags: const [ExampleDir.dir2], name: 'b');
     setPort(c ?? MyStructWithPosName('c'),

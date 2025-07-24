@@ -14,8 +14,17 @@ class ExampleStruct extends LogicStructure {
   ExampleStruct._(this.a, this.b) : super([b, a]);
 }
 
-@GenStruct(fields: [GenLogic('a'), GenLogic('b')])
-class ExampleStructWithGen extends _$ExampleStructWithGen {}
+@GenStruct(
+    // fields: [GenLogic('a'), GenLogic('b')]
+    )
+class ExampleStructWithGen extends _$ExampleStructWithGen {
+  @StructField()
+  late final Logic a;
+
+  @StructField()
+  late final Logic b;
+}
+
 //TODO: name in super
 
 //TODO: BUG! elements are backwards, make sure order of elements is right!

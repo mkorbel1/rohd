@@ -6,16 +6,21 @@ part of 'gen_logic_structure_test.dart';
 // LogicStructureGenerator
 // **************************************************************************
 
-class _$ExampleStructWithGen extends LogicStructure {
-  late final Logic b = elements[0];
-  late final Logic a = elements[1];
+abstract class _$ExampleStructWithGen extends LogicStructure {
+  Logic get b;
+  set b(Logic b);
+  Logic get a;
+  set a(Logic a);
 
   _$ExampleStructWithGen()
       : super(
           [
-            Logic(name: 'a', width: 1),
-            Logic(name: 'b', width: 1),
+            Logic(name: 'b', width: 1, naming: Naming.mergeable),
+            Logic(name: 'a', width: 1, naming: Naming.mergeable)
           ],
           name: '_$ExampleStructWithGen',
-        );
+        ) {
+    b = elements[0];
+    a = elements[1];
+  }
 }

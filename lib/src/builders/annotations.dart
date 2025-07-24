@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/builders/gen_info.dart';
 
@@ -110,6 +112,25 @@ class InOut extends GenInfo {
   });
 }
 
+class StructField extends GenInfo {
+  const StructField({
+    super.logicName,
+    super.width = 1,
+  });
+
+  const StructField.array({
+    super.logicName,
+    super.dimensions = const [1],
+    super.numUnpackedDimensions = 0,
+    int? elementWidth = 1,
+    // super.isNet,
+  }) : super(width: elementWidth);
+
+  const StructField.struct({
+    super.logicName,
+  });
+}
+
 //TODO: InOut
 
 class GenModule {
@@ -144,7 +165,9 @@ class GenInterface<T extends Enum> {
 class GenStruct {
   //TODO name?
 
-  final List<GenLogic> fields;
+  // final List<GenLogic> fields;
 
-  const GenStruct({required this.fields});
+  const GenStruct(
+      // {required this.fields}
+      );
 }

@@ -1,17 +1,25 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:collection/collection.dart';
 import 'package:rohd/builder.dart';
+import 'package:rohd/rohd.dart';
 import 'package:rohd/src/builders/gen_info.dart';
 import 'package:source_gen/source_gen.dart';
 
 class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
-  static List<GenInfoExtracted> _extractFieldsFromAnnotation(
-          ConstantReader annotation) =>
-      annotation.peek('fields')?.listValue.map((o) {
-        final oConst = ConstantReader(o);
-        return GenInfoExtracted.ofGenLogicConstReader(oConst);
-      }).toList() ??
-      [];
+  static List<GenInfoExtracted> _extractFieldsFromClass(Element element) {
+    final fields = <GenInfoExtracted>[];
+    if (element is ClassElement) {
+      for (final field in element.fields) {
+        final genInfo = GenInfoExtracted.ofAnnotatedField(field, 'StructField');
+
+        if (genInfo != null) {
+          fields.add(genInfo);
+        }
+      }
+    }
+    return fields;
+  }
 
   @override
   String generateForAnnotatedElement(
@@ -21,10 +29,11 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
 
     const baseClassName = 'LogicStructure';
 
-    final fields = _extractFieldsFromAnnotation(annotation);
+    // reverse so that first declared fields are most significant
+    final fields = _extractFieldsFromClass(element).reversed.toList();
 
     final buffer = StringBuffer();
-    buffer.writeln('class $genClassName extends $baseClassName {');
+    buffer.writeln('abstract class $genClassName extends $baseClassName {');
 
     buffer.writeln(_genAccessors(fields));
 
@@ -41,13 +50,27 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
 
     buffer.writeln('$constructorName() : super(');
     buffer.writeln('[');
-    for (final field in fields) {
-      //TODO: what about other types?
-      buffer.writeln("Logic(name: '${field.name}', width: ${field.width}),");
-    }
+    buffer.writeln(fields
+        .map((field) => field.genConstructorCall(naming: Naming.mergeable))
+        .join(','));
     buffer.writeln('],');
     buffer.writeln("name: '$constructorName',"); // TODO: name??
-    buffer.writeln(');');
+    buffer.writeln(') {');
+    buffer.writeln(_genFieldAssignments(fields));
+    buffer.writeln('}');
+
+    return buffer.toString();
+  }
+
+  static String _genFieldAssignments(List<GenInfoExtracted> fields) {
+    final buffer = StringBuffer();
+
+    var elementIdx = 0;
+    for (final field in fields) {
+      buffer.writeln('${field.name} = elements[$elementIdx];');
+
+      elementIdx++;
+    }
 
     return buffer.toString();
   }
@@ -57,17 +80,12 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
   static String _genAccessors(List<GenInfoExtracted> fields) {
     final buffer = StringBuffer();
 
-    var elementIdx = 0;
-    for (final field in fields.reversed) {
-      // go backwards so that the first field is at the top
-
+    for (final field in fields) {
       if (field.description != null) {
         buffer.writeln('/// ${field.description}');
       }
-      buffer.writeln('late final ${field.typeName} ${field.name}'
-          ' = elements[$elementIdx];');
-
-      elementIdx++;
+      buffer.writeln('${field.typeName} get ${field.name};');
+      buffer.writeln('set ${field.name}(${field.typeName} ${field.name});');
     }
 
     return buffer.toString();
