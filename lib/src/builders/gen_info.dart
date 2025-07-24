@@ -106,10 +106,6 @@ class GenInfoExtracted extends GenInfo {
 
   /// Returns `null` if the parameter does not have any port annotation.
   static GenInfoExtracted? ofAnnotatedParameter(ParameterElement param) {
-    if (param.hasDefaultValue) {
-      throw Exception('Cannot have a default value for a port argument.');
-    }
-
     final annotation = param.metadata.firstWhereOrNull(
       //TODO: make this look at class instead??
       (meta) => meta.element?.displayName == 'Input',
@@ -117,6 +113,10 @@ class GenInfoExtracted extends GenInfo {
 
     if (annotation == null) {
       return null;
+    }
+
+    if (param.hasDefaultValue) {
+      throw Exception('Cannot have a default value for a port argument.');
     }
 
     final name = param.name;
