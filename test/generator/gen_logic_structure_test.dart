@@ -18,6 +18,7 @@ class ExampleStruct extends LogicStructure {
     // fields: [GenLogic('a'), GenLogic('b')]
     )
 class ExampleStructWithGen extends _$ExampleStructWithGen {
+  /// Documentation here.
   @StructField()
   late final Logic a;
 

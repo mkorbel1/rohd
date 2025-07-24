@@ -25,3 +25,25 @@ class MyLogicStructure extends _$MyLogicStructure {
   MyLogicStructure(int x, {required super.aWidth, required super.bPresent})
       : super(rv2: MyStruct());
 }
+
+// @GenModule()
+// class MyFpOperation extends _$MyFpOperation {
+//   @Output()
+//   FloatingPoint myOut1;
+
+//   @Output()
+//   FloatingPoint myOut2;
+
+//   MyFpOperation(
+//     @Input() FloatingPoint myIn,
+//   ) : super(
+//           myOut1: FloatingPoint(mantissaWdith: 25),
+//           myOut2: myIn.clone(),
+//         );
+// }
+
+// class _$MyFpOperation {
+//   _$MyFpOperation({FloatingPoint myOut1}) {
+//     addMatchedOutput('myOut1', myOut1 ?? FloatingPoint());
+//   }
+// }
