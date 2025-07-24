@@ -17,7 +17,8 @@ class LogicStructure implements Logic {
   late final List<Logic> elements = UnmodifiableListView(_elements);
   final List<Logic> _elements = [];
 
-  /// Packs all [elements] into one flattened bus.
+  /// Packs all [elements] into one flattened [Logic] bus.
+  @override
   late final Logic packed = elements
       .map((e) {
         if (e is LogicStructure) {
@@ -272,7 +273,7 @@ class LogicStructure implements Logic {
   @override
   Module? _parentModule;
 
-  @protected
+  @internal
   @override
   set parentModule(Module? newParentModule) {
     assert(_parentModule == null || _parentModule == newParentModule,
@@ -286,8 +287,11 @@ class LogicStructure implements Logic {
   ///
   /// This should *only* be called by [Module.build].  It is used to optimize
   /// search.
-  @protected
+  @internal
   void setAllParentModule(Module? newParentModule) {
+    assert(_parentModule == null || _parentModule == newParentModule,
+        'Should only set parent module once.');
+
     parentModule = newParentModule;
     for (final element in elements) {
       if (element is LogicStructure) {
@@ -618,7 +622,14 @@ class LogicStructure implements Logic {
       packed.selectFrom(busList, defaultValue: defaultValue);
 
   @override
-  bool get isNet => false;
+  bool get isNet => _isNet;
+  late final bool _isNet = elements.every((e) => e.isNet);
+
+  /// Indicates whether this structure or any of its elements [isNet].
+  bool get hasNets => _hasNets;
+  late final bool _hasNets =
+      elements.any((e) => e.isNet || (e is LogicStructure && e.hasNets)) ||
+          isNet;
 
   @override
   Iterable<Logic> get srcConnections => {
@@ -642,4 +653,7 @@ class LogicStructure implements Logic {
   // ignore: unused_element
   set _unassignableReason(String? _) =>
       throw UnsupportedError('Delegated to elements');
+
+  @override
+  String toString() => 'LogicStructure(${super.toString()}): $name';
 }

@@ -192,7 +192,7 @@ class Logic {
   ///
   /// This should *only* be called by [Module.build].  It is used to
   /// optimize search.
-  @protected
+  @internal
   set parentModule(Module? newParentModule) {
     assert(_parentModule == null || _parentModule == newParentModule,
         'Should only set parent module once.');
@@ -274,7 +274,7 @@ class Logic {
   @mustBeOverridden
   Logic clone({String? name}) => _clone(name: name);
 
-  /// Makes a [clone] with the provided [name] and optionally [naming], then
+  /// Makes a new [Logic] with the provided [name] and optionally [naming], then
   /// assigns it to be driven by `this`.
   ///
   /// This is a useful utility for naming the result of some hardware
@@ -733,6 +733,12 @@ class Logic {
   /// each element may be any positive number of bits.
   late final List<Logic> elements = UnmodifiableListView(
       List.generate(width, (index) => this[index], growable: false));
+
+  /// Returns a simple flattened [Logic].
+  ///
+  /// For a basic [Logic], this just returns itself.
+  // ignore: avoid_returning_this
+  Logic get packed => this;
 
   /// Accesses a subset of this signal from [startIndex] to [endIndex],
   /// both inclusive.

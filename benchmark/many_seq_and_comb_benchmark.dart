@@ -46,9 +46,8 @@ class _MCUInterface extends Interface<_MCUInterfaceTag> {
   final int? memorySizeOverride;
 
   @override
-  _MCUInterface clone() => _MCUInterface(
-        memorySizeOverride: memorySizeOverride,
-      );
+  _MCUInterface clone() =>
+      _MCUInterface(memorySizeOverride: memorySizeOverride);
 }
 
 class _MemoryControllerUnit extends Module {

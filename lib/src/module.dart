@@ -170,30 +170,21 @@ abstract class Module {
 
   /// Returns true iff [signal] is the same [Logic] as the [input] port of this
   /// [Module] with the same name.
-  ///
-  /// Note that if signal is a [LogicStructure] which contains an [input] port,
-  /// but is not itself a port, this will return false.
   bool isInput(Logic signal) =>
       _inputs[signal.name] == signal ||
-      (signal.isArrayMember && isInput(signal.parentStructure!));
+      (signal.parentStructure != null && isInput(signal.parentStructure!));
 
   /// Returns true iff [signal] is the same [Logic] as the [output] port of this
   /// [Module] with the same name.
-  ///
-  /// Note that if signal is a [LogicStructure] which contains an [output] port,
-  /// but is not itself a port, this will return false.
   bool isOutput(Logic signal) =>
       _outputs[signal.name] == signal ||
-      (signal.isArrayMember && isOutput(signal.parentStructure!));
+      (signal.parentStructure != null && isOutput(signal.parentStructure!));
 
   /// Returns true iff [signal] is the same [Logic] as the [inOut] port of this
   /// [Module] with the same name.
-  ///
-  /// Note that if signal is a [LogicStructure] which contains an [inOut] port,
-  /// but is not itself a port, this will return false.
   bool isInOut(Logic signal) =>
       _inOuts[signal.name] == signal ||
-      (signal.isArrayMember && isInOut(signal.parentStructure!));
+      (signal.parentStructure != null && isInOut(signal.parentStructure!));
 
   /// Returns true iff [signal] is the same [Logic] as an [input], [output], or
   /// [inOut] port of this [Module] with the same name.
@@ -205,8 +196,7 @@ abstract class Module {
   String get uniqueInstanceName => hasBuilt || reserveName
       ? _uniqueInstanceName
       : throw ModuleNotBuiltException(
-          'Module must be built to access uniquified name.'
-          '  Call build() before accessing this.');
+          this, 'Module must be built to access uniquified name.');
   String _uniqueInstanceName;
 
   /// If true, guarantees [uniqueInstanceName] matches [name] or else the
@@ -257,8 +247,7 @@ abstract class Module {
   Iterable<Module> hierarchy() {
     if (!hasBuilt) {
       throw ModuleNotBuiltException(
-          'Module must be built before accessing hierarchy.'
-          '  Call build() before executing this.');
+          this, 'Module must be built before accessing hierarchy.');
     }
     Module? pModule = this;
     final hierarchyQueue = Queue<Module>();
@@ -647,7 +636,6 @@ abstract class Module {
 
     _internalSignals.add(signal);
 
-    // ignore: invalid_use_of_protected_member
     signal.parentModule = this;
   }
 
@@ -663,8 +651,8 @@ abstract class Module {
     }
   }
 
-  /// Registers a signal as an input to this [Module] and returns an input port
-  /// that can be consumed.
+  /// Registers a signal as an [input] to this [Module] and returns an input
+  /// port that can be consumed.
   ///
   /// The return value is the same as what is returned by [input] and should
   /// only be used within this [Module]. The provided [source] is accessible via
@@ -682,8 +670,45 @@ abstract class Module {
 
     final inPort = Logic(name: name, width: width, naming: Naming.reserved)
       ..gets(source)
-      // ignore: invalid_use_of_protected_member
       ..parentModule = this;
+
+    _inputs[name] = inPort;
+
+    _inputSources[name] = source;
+
+    return inPort;
+  }
+
+  /// Registers a signal as an [input] to this [Module] and returns an input
+  /// port that can be consumed. The type of the port will be [LogicType] and
+  /// constructed via [Logic.clone], so it is required that the [source]
+  /// implements clone functionality that matches the type and properly updates
+  /// the [Logic.name] as well.
+  ///
+  /// The return value is the same as what is returned by [input] and should
+  /// only be used within this [Module]. The provided [source] is accessible via
+  /// [inputSource].
+  LogicType addMatchedInput<LogicType extends Logic>(
+      String name, LogicType source) {
+    _checkForSafePortName(name);
+
+    if (source.isNet || (source is LogicStructure && source.hasNets)) {
+      throw PortTypeException(
+          source, 'Matched inputs cannot have nets in them.');
+    }
+
+    final inPort = (source.clone(name: name) as LogicType)..gets(source);
+
+    if (inPort.name != name) {
+      throw PortTypeException.forIntendedName(name,
+          'The `clone` method for $source failed to update the signal name.');
+    }
+
+    if (inPort is LogicStructure) {
+      inPort.setAllParentModule(this);
+    } else {
+      inPort.parentModule = this;
+    }
 
     _inputs[name] = inPort;
 
@@ -698,8 +723,8 @@ abstract class Module {
   /// bidirectional.
   final Set<Logic> _inOutDrivers = {};
 
-  /// Registers a signal as an inOut to this [Module] and returns an inOut port
-  /// that can be consumed.
+  /// Registers a signal as an [inOut] to this [Module] and returns an inOut
+  /// port that can be consumed inside this [Module].
   ///
   /// The return value is the same as what is returned by [inOut] and should
   /// only be used within this [Module]. The provided [source] is accessible via
@@ -738,9 +763,66 @@ abstract class Module {
 
     final inOutPort =
         LogicNet(name: name, width: width, naming: Naming.reserved)
-          // ignore: invalid_use_of_protected_member
           ..parentModule = this
           ..gets(source);
+
+    _inOuts[name] = inOutPort;
+
+    _inOutSources[name] = source;
+
+    return inOutPort;
+  }
+
+  /// Registers a signal as an [inOut] to this [Module] and returns an inOut
+  /// port that can be consumed inside this [Module]. The type of the port will
+  /// be [LogicType] and constructed via [Logic.clone], so it is required that
+  /// the [source] implements clone functionality that matches the type and
+  /// properly updates the [Logic.name] as well.
+  ///
+  /// The return value is the same as what is returned by [inOut] and should
+  /// only be used within this [Module]. The provided [source] is accessible via
+  /// [inOutSource].
+  LogicType addMatchedInOut<LogicType extends Logic>(
+      String name, LogicType source) {
+    _checkForSafePortName(name);
+
+    if (!source.isNet) {
+      throw PortTypeException(source, 'Matched inOuts must be nets.');
+    }
+
+    _inOutDrivers.add(source);
+
+    // we need to properly detect all inout sources
+    if (source is LogicStructure) {
+      final sourceElems = TraverseableCollection<Logic>()..add(source);
+      for (var i = 0; i < sourceElems.length; i++) {
+        final sei = sourceElems[i];
+        _inOutDrivers.add(sei);
+
+        if (sei.parentStructure != null) {
+          sourceElems.add(sei.parentStructure!);
+        }
+
+        if (sei is LogicStructure) {
+          sourceElems.addAll(sei.elements);
+        }
+      }
+    }
+
+    final inOutPort = (source.clone(name: name) as LogicType)..gets(source);
+
+    if (inOutPort.name != name) {
+      throw PortTypeException.forIntendedName(name,
+          'The `clone` method for $source failed to update the signal name.');
+    }
+
+    if (inOutPort is LogicStructure) {
+      inOutPort.setAllParentModule(this);
+    } else {
+      inOutPort.parentModule = this;
+    }
+
+    _inOutDrivers.addAll(inOutPort.srcConnections);
 
     _inOuts[name] = inOutPort;
 
@@ -774,7 +856,6 @@ abstract class Module {
       naming: Naming.reserved,
     )
       ..gets(source)
-      // ignore: invalid_use_of_protected_member
       ..setAllParentModule(this);
 
     _inputs[name] = inArr;
@@ -784,16 +865,53 @@ abstract class Module {
     return inArr;
   }
 
-  /// Registers an output to this [Module] and returns an output port that
-  /// can be driven.
+  /// Registers an [output] to this [Module] and returns an output port that can
+  /// be driven by this [Module] or consumed outside of it.
   ///
   /// The return value is the same as what is returned by [output].
   Logic addOutput(String name, {int width = 1}) {
     _checkForSafePortName(name);
 
     final outPort = Logic(name: name, width: width, naming: Naming.reserved)
-      // ignore: invalid_use_of_protected_member
       ..parentModule = this;
+
+    _outputs[name] = outPort;
+
+    return outPort;
+  }
+
+  /// Registers an [output] to this [Module] and returns an output port that can
+  /// be driven by this [Module] or consumed outside of it. The type of the port
+  /// will be [LogicType] and constructed via [Logic.clone] on [toMatch], so it
+  /// is required that the [toMatch] implements clone functionality that matches
+  /// the type and properly updates the [Logic.name] as well.
+  ///
+  /// This function does not set the [toMatch] argument to drive or be driven by
+  /// the [output] port.
+  ///
+  /// The return value is the same as what is returned by [output].
+  LogicType addMatchedOutput<LogicType extends Logic>(
+      String name, LogicType toMatch) {
+    _checkForSafePortName(name);
+
+    if (toMatch.isNet || (toMatch is LogicStructure && toMatch.hasNets)) {
+      throw PortTypeException(
+          toMatch, 'Matched outputs cannot have nets in them.');
+    }
+
+    // must make a new clone of it, to avoid people using ports of other modules
+    final outPort = toMatch.clone(name: name) as LogicType;
+
+    if (outPort.name != name) {
+      throw PortTypeException.forIntendedName(name,
+          'The `clone` method for $toMatch failed to update the signal name.');
+    }
+
+    if (outPort is LogicStructure) {
+      outPort.setAllParentModule(this);
+    } else {
+      outPort.parentModule = this;
+    }
 
     _outputs[name] = outPort;
 
@@ -819,9 +937,7 @@ abstract class Module {
       elementWidth,
       numUnpackedDimensions: numUnpackedDimensions,
       naming: Naming.reserved,
-    )
-      // ignore: invalid_use_of_protected_member
-      ..setAllParentModule(this);
+    )..setAllParentModule(this);
 
     _outputs[name] = outArr;
 
@@ -868,7 +984,6 @@ abstract class Module {
       naming: Naming.reserved,
     )
       ..gets(source)
-      // ignore: invalid_use_of_protected_member
       ..setAllParentModule(this);
 
     // there may be packed arrays created by the `gets` above, so this makes
@@ -882,8 +997,28 @@ abstract class Module {
     return inOutArr;
   }
 
-  //TODO: add an addInputStruct?
-  //TODO: add an `addInterface` which takes care of cloning and connectIO
+  /// Connects the [source] to this [Module] using [Interface.connectIO] and
+  /// returns a copy of the [source] that can be used within this module.
+  InterfaceType connectInterface<InterfaceType extends Interface<TagType>,
+              TagType extends Enum>(InterfaceType source,
+          {Iterable<TagType>? inputTags,
+          Iterable<TagType>? outputTags,
+          Iterable<TagType>? inOutTags,
+          String Function(String original)? uniquify}) =>
+      (source.clone() as InterfaceType)
+        ..connectIO(this, source,
+            inputTags: inputTags,
+            outputTags: outputTags,
+            inOutTags: inOutTags,
+            uniquify: uniquify);
+
+  /// Connects the [source] to this [Module] using [PairInterface.pairConnectIO]
+  /// and returns a copy of the [source] that can be used within this module.
+  InterfaceType connectPairInterface<InterfaceType extends PairInterface>(
+          InterfaceType source, PairRole role,
+          {String Function(String original)? uniquify}) =>
+      (source.clone() as InterfaceType)
+        ..pairConnectIO(this, source, role, uniquify: uniquify);
 
   @override
   String toString() => [
@@ -911,7 +1046,7 @@ abstract class Module {
   /// may have other output formats, languages, files, etc.
   String generateSynth() {
     if (!_hasBuilt) {
-      throw ModuleNotBuiltException();
+      throw ModuleNotBuiltException(this);
     }
 
     final synthHeader = '''
@@ -924,7 +1059,7 @@ abstract class Module {
 ''';
     return synthHeader +
         SynthBuilder(this, SystemVerilogSynthesizer())
-            .getFileContents()
+            .getSynthFileContents()
             .join('\n\n////////////////////\n\n');
   }
 }

@@ -123,6 +123,9 @@ class NetIntf extends Interface<NetTag> {
     setPorts([LogicNet.port('ana', 8)], {NetTag.na});
     setPorts([LogicNet.port('anb', 8)], {NetTag.nb});
   }
+
+  @override
+  NetIntf clone() => NetIntf();
 }
 
 class NetISubMod extends Module {
@@ -176,6 +179,9 @@ class NetArrayIntf extends Interface<NetArrayTag> {
       NetArrayTag.d3
     });
   }
+
+  @override
+  NetArrayIntf clone() => NetArrayIntf();
 }
 
 class NetArraySubMod extends Module {
@@ -233,14 +239,15 @@ class NetArrayTopMod extends Module {
 }
 
 class NetfulLogicStructure extends LogicStructure {
-  NetfulLogicStructure()
+  NetfulLogicStructure({super.name})
       : super([
           LogicNet(name: 'structnet', width: 4),
           Logic(name: 'structlogic', width: 4)
         ]);
 
   @override
-  NetfulLogicStructure clone({String? name}) => NetfulLogicStructure();
+  NetfulLogicStructure clone({String? name}) =>
+      NetfulLogicStructure(name: name);
 }
 
 class NetsStructsArraysDriving extends Module {
