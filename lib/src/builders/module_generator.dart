@@ -132,7 +132,8 @@ class _PortInfo {
     if (origin == _PortInfoOrigin.fieldAnnotation) {
       // TODO description
       buffer.writeln('$type get ${genInfo.name};');
-      buffer.writeln('set ${genInfo.name}(${type} ${genInfo.name});');
+      buffer.writeln('@visibleForOverriding '
+          'set ${genInfo.name}(${type} ${genInfo.name});');
     } else {
       buffer.writeln('$type get ${genInfo.name} =>'
           " $accessorFunction('${genInfo.logicName}')$castStr;");
@@ -145,15 +146,17 @@ class _PortInfo {
 
       switch (origin) {
         case _PortInfoOrigin.constructorArgAnnotation:
+          // this is coming from the constructor arg, so just access
           buffer.writeln('$type get ${genInfo.name}Source =>'
               " ${accessorFunction}Source('${genInfo.logicName}');");
 
         case _PortInfoOrigin.fieldAnnotation:
+          // this needs to be constructed in the constructor
           final constructorCall =
               //TODO: what about when struct can't be made?
               genInfo.genConstructorCall(naming: Naming.mergeable);
 
-          buffer.writeln('final $type $sourceName = $constructorCall;');
+          buffer.writeln('late final $type $sourceName;');
       }
     }
 
@@ -161,6 +164,7 @@ class _PortInfo {
   }
 
   String modulePortCreator() {
+    final buffer = StringBuffer();
     final creator = switch (direction) {
       _PortDirection.input => switch (genInfo.logicType) {
           LogicType.logic => 'addInput',
@@ -210,10 +214,28 @@ class _PortInfo {
       LogicType.struct => '',
     };
 
+    // create the source here, if necessary
+    switch (origin) {
+      case _PortInfoOrigin.fieldAnnotation:
+        switch (direction) {
+          case _PortDirection.input || _PortDirection.inOut:
+            final constructorCall =
+                //TODO: what about when struct can't be made?
+                genInfo.genConstructorCall(naming: Naming.mergeable);
+            buffer.writeln('$sourceName = $constructorCall;');
+
+          case _PortDirection.output:
+            break;
+        }
+
+      case _PortInfoOrigin.constructorArgAnnotation:
+        break;
+    }
+
     final portCreationString =
         "$creator('${genInfo.logicName}' $sourceStr $widthString)";
 
-    return switch (genInfo.isConditional) {
+    buffer.writeln(switch (genInfo.isConditional) {
       true => switch (origin) {
           _PortInfoOrigin.constructorArgAnnotation =>
             'if(${genInfo.name} != null) { $portCreationString; }',
@@ -225,7 +247,9 @@ class _PortInfo {
           _PortInfoOrigin.fieldAnnotation =>
             '${genInfo.name} = $portCreationString;',
         },
-    };
+    });
+
+    return buffer.toString();
   }
 
   static _PortInfo? ofAnnotatedParameter(ParameterElement param) {

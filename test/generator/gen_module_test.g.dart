@@ -24,6 +24,7 @@ abstract class _$ExampleModuleWithGen extends Module {
     super.reserveDefinitionName,
   }) : super() {
     b = addOutput('b', width: bWidth);
+
     addInput('a', a, width: aWidth);
   }
 }
@@ -61,6 +62,7 @@ abstract class _$GenSubMod extends GenBaseMod {
     required super.myFlag,
   }) : super.new() {
     b = addOutput('b', width: bWidth);
+
     addInput('a', a, width: aWidth);
   }
 }
@@ -71,8 +73,7 @@ abstract class _$KitchenGenSinkModule extends Module {
   set topIn(Logic topIn);
 
   /// The external source for the [topIn] port.
-  final Logic topInSource =
-      Logic(name: 'topIn', width: null, naming: Naming.mergeable);
+  late final Logic topInSource;
 
   Logic get topOut;
   set topOut(Logic topOut);
@@ -97,8 +98,7 @@ abstract class _$KitchenGenSinkModule extends Module {
   set topInOut(Logic topInOut);
 
   /// The external source for the [topInOut] port.
-  final Logic topInOutSource =
-      Logic(name: 'topInOut', width: null, naming: Naming.mergeable);
+  late final Logic topInOutSource;
 
   @protected
   Logic get botInPos => input('botInPos');
@@ -135,23 +135,37 @@ abstract class _$KitchenGenSinkModule extends Module {
     super.reserveDefinitionName,
     required bool topOutCondIsPresent,
   }) : super() {
+    topInSource = Logic(name: 'topIn', width: null, naming: Naming.mergeable);
     topIn = addInput('topIn', topInSource, width: topInWidth);
+
     topOut = addOutput('topOut', width: topOutWidth);
+
     topOutCond = topOutCondIsPresent
         ? addOutput('topOutCond', width: topOutCondWidth)
         : null;
+
     topOutWider = addOutput('topOutWider', width: 8);
+
     topOutDynWidth = addOutput('topOutDynWidth', width: topOutDynWidthWidth);
+
     topOutNewName = addOutput('top_out_new_name', width: topOutNewNameWidth);
+
     topOutArray = addOutputArray('topOutArray',
         elementWidth: 4, dimensions: const [2, 3], numUnpackedDimensions: 1);
+
+    topInOutSource =
+        Logic(name: 'topInOut', width: null, naming: Naming.mergeable);
     topInOut = addInOut('topInOut', topInOutSource, width: topInOutWidth);
+
     addInput('botInPos', botInPos, width: botInPosWidth);
+
     if (botInPosNullable != null) {
       addInput('botInPosNullable', botInPosNullable,
           width: botInPosNullableWidth);
     }
+
     addInput('botInNamed', botInNamed, width: botInNamedWidth);
+
     if (botInNamedOptional != null) {
       addInput('botInNamedOptional', botInNamedOptional,
           width: botInNamedOptionalWidth);
