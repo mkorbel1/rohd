@@ -8,6 +8,7 @@ part of 'gen_module_test.dart';
 
 abstract class _$ExampleModuleWithGen extends Module {
   Logic get b;
+  @visibleForOverriding
   set b(Logic b);
 
   @protected
@@ -49,6 +50,7 @@ abstract class _$NonSuperInputMod extends Module {
 
 abstract class _$GenSubMod extends GenBaseMod {
   Logic get b;
+  @visibleForOverriding
   set b(Logic b);
 
   @protected
@@ -70,31 +72,39 @@ abstract class _$GenSubMod extends GenBaseMod {
 abstract class _$KitchenGenSinkModule extends Module {
   @protected
   Logic get topIn;
+  @visibleForOverriding
   set topIn(Logic topIn);
 
   /// The external source for the [topIn] port.
   late final Logic topInSource;
 
   Logic get topOut;
+  @visibleForOverriding
   set topOut(Logic topOut);
 
   Logic? get topOutCond;
+  @visibleForOverriding
   set topOutCond(Logic? topOutCond);
 
   Logic get topOutWider;
+  @visibleForOverriding
   set topOutWider(Logic topOutWider);
 
   Logic get topOutDynWidth;
+  @visibleForOverriding
   set topOutDynWidth(Logic topOutDynWidth);
 
   Logic get topOutNewName;
+  @visibleForOverriding
   set topOutNewName(Logic topOutNewName);
 
   LogicArray get topOutArray;
+  @visibleForOverriding
   set topOutArray(LogicArray topOutArray);
 
   @protected
   Logic get topInOut;
+  @visibleForOverriding
   set topInOut(Logic topInOut);
 
   /// The external source for the [topInOut] port.
@@ -135,7 +145,8 @@ abstract class _$KitchenGenSinkModule extends Module {
     super.reserveDefinitionName,
     required bool topOutCondIsPresent,
   }) : super() {
-    topInSource = Logic(name: 'topIn', width: null, naming: Naming.mergeable);
+    topInSource =
+        Logic(name: 'topIn', width: topInWidth, naming: Naming.mergeable);
     topIn = addInput('topIn', topInSource, width: topInWidth);
 
     topOut = addOutput('topOut', width: topOutWidth);
@@ -154,7 +165,7 @@ abstract class _$KitchenGenSinkModule extends Module {
         elementWidth: 4, dimensions: const [2, 3], numUnpackedDimensions: 1);
 
     topInOutSource =
-        Logic(name: 'topInOut', width: null, naming: Naming.mergeable);
+        Logic(name: 'topInOut', width: topInOutWidth, naming: Naming.mergeable);
     topInOut = addInOut('topInOut', topInOutSource, width: topInOutWidth);
 
     addInput('botInPos', botInPos, width: botInPosWidth);

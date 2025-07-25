@@ -15,8 +15,8 @@ abstract class _$ExampleStructWithGen extends LogicStructure {
   _$ExampleStructWithGen()
       : super(
           [
-            Logic(name: 'b', width: 1, naming: Naming.mergeable),
-            Logic(name: 'a', width: 1, naming: Naming.mergeable)
+            Logic(name: 'b', naming: Naming.mergeable),
+            Logic(name: 'a', naming: Naming.mergeable)
           ],
           name: '_$ExampleStructWithGen',
         ) {

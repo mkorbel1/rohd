@@ -27,6 +27,17 @@ enum LogicType {
         return LogicType.struct;
     }
   }
+
+  String? toTypeName() {
+    switch (this) {
+      case LogicType.logic:
+        return 'Logic';
+      case LogicType.array:
+        return 'LogicArray';
+      case LogicType.struct:
+        return null; // Structs don't have a specific type name
+    }
+  }
 }
 
 class GenInfo {
@@ -87,6 +98,43 @@ class GenInfoExtracted extends GenInfo {
     this.annotationName,
     this.structDefaultConstructorType,
   }) : super(logicType: LogicType.fromTypeName(typeName));
+
+  /// The `width` or `elementWidth` argument, if any, passed in from the
+  /// module's constructor.
+  String? get widthName => switch (logicType) {
+        LogicType.logic => width != null ? null : '${name}Width',
+        LogicType.array => width != null ? null : '${name}ElementWidth',
+        LogicType.struct => null, // structs don't have width
+      };
+
+  String? get numUnpackedDimensionsName =>
+      numUnpackedDimensions != null ? '${name}NumUnpackedDimensions' : null;
+
+  String? get dimensionsName =>
+      (dimensions?.isNotEmpty ?? false) ? '${name}Dimensions' : null;
+
+  String get widthString => switch (logicType) {
+        LogicType.logic => switch (width) {
+            null => ', width: $widthName',
+            1 => '',
+            _ => ', width: $width',
+          },
+        LogicType.array => switch (width) {
+              null => ', elementWidth: $widthName',
+              1 => '',
+              _ => ', elementWidth: $width',
+            } +
+            switch (dimensions) {
+              null => ', dimensions: $dimensionsName',
+              _ => ', dimensions: const $dimensions',
+            } +
+            switch (numUnpackedDimensions) {
+              null => ', numUnpackedDimensions: $numUnpackedDimensionsName',
+              0 => '',
+              _ => ', numUnpackedDimensions: $numUnpackedDimensions',
+            },
+        LogicType.struct => '',
+      };
 
   /// Returns `null` if the field does not have any annotation.
   static GenInfoExtracted? ofAnnotatedField(
@@ -300,21 +348,13 @@ class GenInfoExtracted extends GenInfo {
   /// If it is not possible, it will return `null`, signalling an implementation
   /// must be provided.
   String? genConstructorCall({Naming? naming}) {
-    if (isStruct) {
-      return _genStructConstructorCall();
-    }
-
-    // TODO: what about nets?
-
-    final namingStr = naming == null ? '' : ', naming: $naming';
-
-    if (isArray) {
-      return "LogicArray(name: '$name', "
-          'dimensions: $dimensions, '
-          'elementWidth: $width, '
-          'numUnpackedDimensions: $numUnpackedDimensions $namingStr)';
-    } else {
-      return "Logic(name: '$name', width: $width $namingStr)";
+    switch (logicType) {
+      case LogicType.struct:
+        return _genStructConstructorCall();
+      case LogicType.logic || LogicType.array:
+        final namingStr = naming == null ? '' : ', naming: $naming';
+        return "${logicType.toTypeName()}(name: '$name'"
+            ' $widthString $namingStr)';
     }
   }
 

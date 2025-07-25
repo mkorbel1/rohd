@@ -72,24 +72,6 @@ class _PortInfo {
       ? '${genInfo.name}IsPresent'
       : throw Exception('Should not be called for non-conditional ports');
 
-  /// The `width` or `elementWidth` argument, if any, passed in from the
-  /// module's constructor.
-  String? get widthName => switch (genInfo.logicType) {
-        LogicType.logic =>
-          genInfo.width != null ? null : '${genInfo.name}Width',
-        LogicType.array =>
-          genInfo.width != null ? null : '${genInfo.name}ElementWidth',
-        LogicType.struct => null, // structs don't have width
-      };
-
-  String? get numUnpackedDimensionsName => genInfo.numUnpackedDimensions != null
-      ? '${genInfo.name}NumUnpackedDimensions'
-      : null;
-
-  String? get dimensionsName => (genInfo.dimensions?.isNotEmpty ?? false)
-      ? '${genInfo.name}Dimensions'
-      : null;
-
   /// The name of a signal to use as the source for addInput, addInOut, etc.
   String get sourceName => switch (origin) {
         // _PortInfoOrigin.classAnnotation => '${genInfo.name}Source',
@@ -191,29 +173,6 @@ class _PortInfo {
       LogicType.struct => ', $sourceName',
     };
 
-    final widthString = switch (genInfo.logicType) {
-      LogicType.logic => switch (genInfo.width) {
-          null => ', width: $widthName',
-          1 => '',
-          _ => ', width: ${genInfo.width}',
-        },
-      LogicType.array => switch (genInfo.width) {
-            null => ', elementWidth: $widthName',
-            1 => '',
-            _ => ', elementWidth: ${genInfo.width}',
-          } +
-          switch (genInfo.dimensions) {
-            null => ', dimensions: $dimensionsName',
-            _ => ', dimensions: const ${genInfo.dimensions}',
-          } +
-          switch (genInfo.numUnpackedDimensions) {
-            null => ', numUnpackedDimensions: $numUnpackedDimensionsName',
-            0 => '',
-            _ => ', numUnpackedDimensions: ${genInfo.numUnpackedDimensions}',
-          },
-      LogicType.struct => '',
-    };
-
     // create the source here, if necessary
     switch (origin) {
       case _PortInfoOrigin.fieldAnnotation:
@@ -233,7 +192,7 @@ class _PortInfo {
     }
 
     final portCreationString =
-        "$creator('${genInfo.logicName}' $sourceStr $widthString)";
+        "$creator('${genInfo.logicName}' $sourceStr ${genInfo.widthString})";
 
     buffer.writeln(switch (genInfo.isConditional) {
       true => switch (origin) {
