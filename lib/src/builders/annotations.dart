@@ -3,61 +3,24 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/builders/gen_info.dart';
 
-class GenLogic extends GenInfo {
-  const GenLogic(
-    String name, {
-    super.width = 1,
-    super.description,
-    super.isConditional = false,
-    super.logicName,
-    // super.isNet = false,
-  }) : super(dimensions: null, type: null, name: name);
-
-  const GenLogic.array(
-    String name, {
-    int? elementWidth = 1,
-    List<int> super.dimensions = const [1],
-    int super.numUnpackedDimensions = 0,
-    super.description,
-    super.isConditional = false,
-    super.logicName,
-    // super.isNet = false,
-  }) : super(width: elementWidth, type: null, name: name);
-
-  const GenLogic.struct(
-    String name, {
-    required Type super.type,
-    super.description,
-    super.isConditional = false,
-    super.logicName,
-    // super.isNet = false,
-  }) : super(dimensions: null, name: name);
-}
-
 class Input extends GenInfo {
   const Input({
     super.logicName,
     super.width, //TODO: default is 1? nullable still is dynamic?
     super.description,
-    // super.isNet,
-  });
+  }) : super(logicType: LogicType.logic);
 
   const Input.array({
     super.logicName,
-    int? elementWidth = 1,
-    super.dimensions = const [1],
+    int? elementWidth,
+    super.dimensions,
     super.description,
-    super.isConditional = false,
-    // super.isNet,
-  }) : super(width: elementWidth);
+  }) : super(width: elementWidth, logicType: LogicType.array);
 
   const Input.struct({
-    required Type super.type,
     super.description,
-    super.isConditional = false,
     super.logicName,
-    // super.isNet,
-  });
+  }) : super(logicType: LogicType.struct);
 }
 
 class Output extends GenInfo {
@@ -66,25 +29,22 @@ class Output extends GenInfo {
     super.width,
     super.description,
     // super.isNet,
-  });
+  }) : super(logicType: LogicType.logic);
 
   const Output.array({
     super.logicName,
-    int? elementWidth = 1,
-    super.dimensions = const [1],
-    super.numUnpackedDimensions = 0,
+    int? elementWidth,
+    super.dimensions,
+    super.numUnpackedDimensions,
     super.description,
-    super.isConditional = false,
     // super.isNet,
-  }) : super(width: elementWidth);
+  }) : super(width: elementWidth, logicType: LogicType.array);
 
   const Output.struct({
-    required Type super.type,
     super.description,
-    super.isConditional = false,
     super.logicName,
     // super.isNet,
-  });
+  }) : super(logicType: LogicType.struct);
 }
 
 class InOut extends GenInfo {
@@ -92,32 +52,31 @@ class InOut extends GenInfo {
     super.logicName,
     super.width,
     super.description,
-    // super.isNet = true,
-  });
+  }) : super(logicType: LogicType.logic);
 
   const InOut.array({
     super.logicName,
     int? elementWidth = 1,
     super.dimensions = const [1],
     super.description,
-    super.isConditional = false,
-    // super.isNet = true,
-  }) : super(width: elementWidth);
+  }) : super(width: elementWidth, logicType: LogicType.array);
 
   const InOut.struct({
-    required Type super.type,
     super.description,
-    super.isConditional = false,
     super.logicName,
-    // super.isNet = true,
-  });
+  }) : super(logicType: LogicType.struct);
 }
+
+// TODO: annotation for adding interfaces to modules
+class Intf {}
+
+//TODO: do structs and interfaces need a net indication?
 
 class StructField extends GenInfo {
   const StructField({
     super.logicName,
     super.width = 1,
-  });
+  }) : super(logicType: LogicType.logic);
 
   const StructField.array({
     super.logicName,
@@ -125,11 +84,36 @@ class StructField extends GenInfo {
     super.numUnpackedDimensions = 0,
     int? elementWidth = 1,
     // super.isNet,
-  }) : super(width: elementWidth);
+  }) : super(width: elementWidth, logicType: LogicType.array);
 
   const StructField.struct({
     super.logicName,
-  });
+  }) : super(logicType: LogicType.struct);
+}
+
+// TODO: consider name: InterfacePort, but then Intf above?
+class IntfPort<TagType extends Enum> extends GenInfo {
+  const IntfPort(
+    TagType tag, {
+    super.logicName,
+    super.width = 1,
+    super.description,
+  }) : super(logicType: LogicType.logic);
+
+  const IntfPort.array(
+    TagType tag, {
+    super.logicName,
+    int? elementWidth = 1,
+    super.dimensions = const [1],
+    super.numUnpackedDimensions = 0,
+    super.description,
+  }) : super(width: elementWidth, logicType: LogicType.array);
+
+  const IntfPort.struct(
+    TagType tag, {
+    super.description,
+    super.logicName,
+  }) : super(logicType: LogicType.struct);
 }
 
 //TODO: InOut
@@ -158,11 +142,11 @@ class GenModule {
 class GenInterface<T extends Enum> {
   // final Type? extendsModule; // TODO: add custom constructor?
 
-  final Map<T, List<GenLogic>>? ports;
+  // final Map<T, List<GenLogic>>? ports;
 
   final Function? baseConstructor;
 
-  const GenInterface(this.ports, {this.baseConstructor});
+  const GenInterface({this.baseConstructor});
 }
 
 class GenStruct {

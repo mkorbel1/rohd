@@ -136,6 +136,9 @@ abstract class Module {
   /// Only logic within this [Module] should consume this signal.
   Logic? tryInput(String name) => _inputs[name];
 
+  // TODO: test and doc
+  Logic? tryInputSource(String name) => _inputSources[name];
+
   /// Accesses the [Logic] associated with this [Module]s output port
   /// named [name].
   ///
@@ -167,6 +170,9 @@ abstract class Module {
 
   /// Provides the [inOut] named [name] if it exists, otherwise `null`.
   Logic? tryInOut(String name) => _inOuts[name];
+
+  // TODO: test and doc
+  Logic? tryInOutSource(String name) => _inOutSources[name];
 
   /// Returns true iff [signal] is the same [Logic] as the [input] port of this
   /// [Module] with the same name.

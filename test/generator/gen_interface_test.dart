@@ -22,24 +22,45 @@ class ExampleIntf extends Interface<ExampleDir> {
   }
 }
 
-@GenInterface({
-  ExampleDir.dir1: [GenLogic('a')],
-  ExampleDir.dir2: [GenLogic('b')],
-})
-class ExampleIntfWithGen extends _$ExampleIntfWithGen {}
+@GenInterface(
+//   {
+//   ExampleDir.dir1: [GenLogic('a')],
+//   ExampleDir.dir2: [GenLogic('b')],
+// }
+    )
+class ExampleIntfWithGen extends _$ExampleIntfWithGen {
+  @IntfPort(ExampleDir.dir1)
+  late final Logic a;
 
-@GenInterface({
-  PairDirection.fromProvider: [GenLogic('fp')],
-  PairDirection.fromConsumer: [GenLogic('fc')],
-}, baseConstructor: PairInterface.new)
+  @IntfPort(ExampleDir.dir2)
+  late final Logic b;
+}
+
+@GenInterface(
+    // {
+    // PairDirection.fromProvider: [GenLogic('fp')],
+    // PairDirection.fromConsumer: [GenLogic('fc')],
+// },
+    baseConstructor: PairInterface.new)
 class GenPairIntf extends _$GenPairIntf {
+  @IntfPort(PairDirection.fromProvider)
+  late final Logic fp;
+
+  @IntfPort(PairDirection.fromConsumer)
+  late final Logic fc;
+
   GenPairIntf() : super(sharedInputPorts: [Logic.port('si')]);
 }
 
-@GenInterface({
-  ExampleDir.dir1: [GenLogic.struct('a', type: MyFancyStruct)],
-})
+@GenInterface(
+//   {
+//   ExampleDir.dir1: [GenLogic.struct('a', type: MyFancyStruct)],
+// }
+    )
 class GenIntfWithFancyStruct extends _$GenIntfWithFancyStruct {
+  @IntfPort(ExampleDir.dir1)
+  late final MyFancyStruct a;
+
   GenIntfWithFancyStruct() : super(a: MyFancyStruct(busWidth: 8));
 }
 
@@ -80,16 +101,27 @@ class MyStructWithPosName extends LogicStructure {
       MyStructWithNamedName(name: name);
 }
 
-@GenInterface({
-  ExampleDir.dir1: [
-    GenLogic.struct('a', type: MyStruct),
-  ],
-  ExampleDir.dir2: [
-    GenLogic.struct('b', type: MyStructWithNamedName),
-    GenLogic.struct('c', type: MyStructWithPosName)
-  ],
-})
+@GenInterface(
+//   {
+//   ExampleDir.dir1: [
+//     GenLogic.struct('a', type: MyStruct),
+//   ],
+//   ExampleDir.dir2: [
+//     GenLogic.struct('b', type: MyStructWithNamedName),
+//     GenLogic.struct('c', type: MyStructWithPosName)
+//   ],
+// }
+    )
 class GenIntfWithSimpleStruct extends _$GenIntfWithSimpleStruct {
+  @IntfPort(ExampleDir.dir1)
+  late final MyStruct a;
+
+  @IntfPort(ExampleDir.dir2)
+  late final MyStructWithNamedName b;
+
+  @IntfPort(ExampleDir.dir2)
+  late final MyStructWithPosName c;
+
   GenIntfWithSimpleStruct() : super();
 
   GenIntfWithSimpleStruct.explicit()
@@ -123,11 +155,16 @@ class MyStructWithRequiredArgs extends LogicStructure {
       MyStructWithNamedName(name: name);
 }
 
-@GenInterface({
-  ExampleDir.dir1: [GenLogic.struct('reqarg', type: MyStructWithRequiredArgs)],
-})
+@GenInterface(
+//   {
+//   ExampleDir.dir1: [GenLogic.struct('reqarg', type: MyStructWithRequiredArgs)],
+// }
+    )
 class GenIntfWithUnusableStructConstructor
     extends _$GenIntfWithUnusableStructConstructor {
+  @IntfPort(ExampleDir.dir1)
+  late final MyStructWithRequiredArgs reqarg;
+
   GenIntfWithUnusableStructConstructor()
       : super(reqarg: MyStructWithRequiredArgs(3, namedRequired: true));
 }

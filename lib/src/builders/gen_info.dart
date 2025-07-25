@@ -6,37 +6,55 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd/src/builders/parameters.dart';
 import 'package:source_gen/source_gen.dart';
 
+enum LogicType {
+  /// a simple [Logic]
+  logic,
+
+  /// a [LogicArray]
+  array,
+
+  /// a [LogicStructure], or some other derivative class
+  struct;
+
+  static LogicType fromTypeName(String typeName) {
+    switch (typeName) {
+      case 'Logic':
+      case 'LogicNet':
+        return LogicType.logic;
+      case 'LogicArray':
+        return LogicType.array;
+      default:
+        return LogicType.struct;
+    }
+  }
+}
+
 class GenInfo {
   //TODO: should run sanitizer on the name?
-
-  final String? name;
 
   /// The name to use for the [Logic], if different from the variable [name].
   final String? logicName;
 
-  final int? width;
   final String? description; //TODO: test multi-line descriptions
-  final bool isConditional;
 
+  final LogicType logicType;
+
+  // plain logic specific
+  final int? width;
+
+  // array-specific
   final List<int>? dimensions;
-  bool get isArray => dimensions != null;
-
   final int? numUnpackedDimensions;
-
-  final Type? type;
-  bool get isStruct => type != null;
 
   // final bool isNet; //TODO: need this?
 
   const GenInfo({
-    this.name,
+    required this.logicType,
     this.logicName,
     this.width,
     this.dimensions,
     this.numUnpackedDimensions,
     this.description,
-    this.type,
-    this.isConditional = false,
     // this.isNet = false,
   });
 }
@@ -49,25 +67,26 @@ class GenInfoExtracted extends GenInfo {
 
   final String? annotationName;
 
-  @override
-  String get name => super.name!;
+  final String name;
+
+  final bool isConditional;
 
   @override
   String get logicName => super.logicName ?? name;
 
   GenInfoExtracted({
-    required String super.name,
+    required this.name,
     required super.logicName,
     required this.paramType,
     super.width,
     super.description,
-    super.isConditional,
+    this.isConditional = false,
     super.dimensions,
     super.numUnpackedDimensions,
     this.typeName = 'Logic',
     this.annotationName,
     this.structDefaultConstructorType,
-  });
+  }) : super(logicType: LogicType.fromTypeName(typeName));
 
   /// Returns `null` if the field does not have any annotation.
   static GenInfoExtracted? ofAnnotatedField(
