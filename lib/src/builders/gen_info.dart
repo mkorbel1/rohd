@@ -239,6 +239,49 @@ class GenInfoExtracted extends GenInfo {
             ? null
             : annotationConst.getField('numUnpackedDimensions')!.toIntValue();
 
+    StructDefaultConstructorType? structDefaultConstructorType;
+    if (typeName != 'Logic' && typeName != 'LogicArray') {
+      final element = field.type.element3;
+
+      if (element is ClassElement2) {
+        final defaultConstructor =
+            element.constructors2.firstWhereOrNull((c) => c.name3 == 'new');
+        if (defaultConstructor != null) {
+          var hasNamedName = false;
+          var hasPositionalName = false;
+          var hasNonNameRequiredArgs = false;
+
+          for (final formalParam in defaultConstructor.formalParameters) {
+            if (formalParam.name3 == 'name') {
+              if (formalParam.isPositional) {
+                hasPositionalName = true;
+              } else {
+                hasNamedName = true;
+              }
+            } else if (formalParam.isRequired) {
+              hasNonNameRequiredArgs = true;
+            }
+          }
+
+          assert(!(hasNamedName && hasPositionalName),
+              'Should not be possible to have both');
+
+          if (hasNonNameRequiredArgs) {
+            structDefaultConstructorType =
+                StructDefaultConstructorType.unusable;
+          } else if (hasNamedName) {
+            structDefaultConstructorType =
+                StructDefaultConstructorType.nameNamed;
+          } else if (hasPositionalName) {
+            structDefaultConstructorType =
+                StructDefaultConstructorType.namePositional;
+          } else {
+            structDefaultConstructorType = StructDefaultConstructorType.none;
+          }
+        }
+      }
+    }
+
     return GenInfoExtracted(
       name: name,
       logicName: logicName ?? name,
@@ -249,6 +292,7 @@ class GenInfoExtracted extends GenInfo {
       dimensions: dimensions,
       numUnpackedDimensions: numUnpackedDimensions,
       referenceName: null,
+      structDefaultConstructorType: structDefaultConstructorType,
       //TODO rest of the fields
     );
   }
@@ -406,7 +450,8 @@ class GenInfoExtracted extends GenInfo {
     );
   }
 
-  /// If [isStruct], the type of default constructor available, else `null`.
+  /// If [logicType] is [LogicType.struct], the type of default constructor
+  /// available, else `null`.
   StructDefaultConstructorType? structDefaultConstructorType;
 
   /// If possible, a string that constructs an instance of this signal.
@@ -425,7 +470,7 @@ class GenInfoExtracted extends GenInfo {
   }
 
   String? _genStructConstructorCall() {
-    assert(isStruct,
+    assert(logicType == LogicType.struct,
         'Cannot generate struct constructor call for non-struct type: $typeName');
 
     switch (structDefaultConstructorType!) {
@@ -439,12 +484,6 @@ class GenInfoExtracted extends GenInfo {
         return "$typeName(name: '$logicName')";
     }
   }
-
-  @override
-  bool get isStruct => typeName != 'Logic' && typeName != 'LogicArray';
-
-  @override
-  bool get isArray => dimensions != null && typeName == 'LogicArray';
 }
 
 enum StructDefaultConstructorType {

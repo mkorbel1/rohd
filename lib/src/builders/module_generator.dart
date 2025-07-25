@@ -107,7 +107,7 @@ class _PortInfo {
     }
 
     var castStr = '';
-    if (genInfo.isArray) {
+    if (genInfo.logicType != LogicType.logic) {
       castStr = ' as $type';
     }
 

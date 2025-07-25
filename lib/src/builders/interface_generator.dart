@@ -24,6 +24,35 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
       }) ??
       {};
 
+  static Map<String, List<GenInfoExtracted>> _extractPortsFromClass(
+      Element element) {
+    final ports = <String, List<GenInfoExtracted>>{};
+    const annotationType = 'IntfPort';
+    if (element is ClassElement) {
+      for (final field in element.fields) {
+        final genInfo =
+            GenInfoExtracted.ofAnnotatedField(field, annotationType);
+
+        if (genInfo != null) {
+          final annotation = field.metadata.firstWhere(
+            (m) => m.element2?.enclosingElement2?.name3 == annotationType,
+          );
+          final tagAnnotationConst =
+              annotation.computeConstantValue()!.getField('tag')!;
+
+          final tagTypeName = tagAnnotationConst.type!.getDisplayString();
+          final tagValueName =
+              ConstantReader(tagAnnotationConst.getField('_name')).stringValue;
+
+          final tagType = '$tagTypeName.$tagValueName';
+
+          ports.putIfAbsent(tagType, () => []).add(genInfo);
+        }
+      }
+    }
+    return ports;
+  }
+
   @override
   String generateForAnnotatedElement(
       // ignore: deprecated_member_use
@@ -36,7 +65,7 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     final superParams = <SuperParameter>[];
     final constructorParams = <FormalParameter>[];
 
-    final ports = _extractPortsFromAnnotation(annotation);
+    final ports = _extractPortsFromClass(element);
 
     // for example: "GenInterface<ExampleDir>"
     final annotationTypeString =
@@ -65,7 +94,8 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
       constructorParams.addAll(parsedBaseConstructor.constructorParams);
     }
 
-    for (final structPort in ports.values.flattened.where((e) => e.isStruct)) {
+    for (final structPort in ports.values.flattened
+        .where((e) => e.logicType == LogicType.struct)) {
       final isOptional = structPort.isConditional ||
           structPort.structDefaultConstructorType! !=
               StructDefaultConstructorType.unusable;
@@ -119,7 +149,7 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
 
         final constructorString = genLogic.genConstructorCall();
 
-        if (genLogic.isStruct) {
+        if (genLogic.logicType == LogicType.struct) {
           if (constructorString == null) {
             portString = genLogic.name;
           } else {

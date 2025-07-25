@@ -93,15 +93,17 @@ class StructField extends GenInfo {
 
 // TODO: consider name: InterfacePort, but then Intf above?
 class IntfPort<TagType extends Enum> extends GenInfo {
+  final TagType tag;
+
   const IntfPort(
-    TagType tag, {
+    this.tag, {
     super.logicName,
     super.width,
     super.description,
   }) : super(logicType: LogicType.logic);
 
   const IntfPort.array(
-    TagType tag, {
+    this.tag, {
     super.logicName,
     int? elementWidth,
     super.dimensions,
@@ -110,7 +112,7 @@ class IntfPort<TagType extends Enum> extends GenInfo {
   }) : super(width: elementWidth, logicType: LogicType.array);
 
   const IntfPort.struct(
-    TagType tag, {
+    this.tag, {
     super.description,
     super.logicName,
   }) : super(logicType: LogicType.struct);
