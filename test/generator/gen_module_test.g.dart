@@ -23,10 +23,12 @@ abstract class _$ExampleModuleWithGen extends Module {
     super.reserveName,
     super.definitionName,
     super.reserveDefinitionName,
+    int? bWidth,
+    int? aWidth,
   }) : super() {
     b = addOutput('b', width: bWidth);
 
-    addInput('a', a, width: aWidth);
+    addInput('a', a, width: aWidth ?? a.width);
   }
 }
 
@@ -43,8 +45,9 @@ abstract class _$NonSuperInputMod extends Module {
     super.reserveName,
     super.definitionName,
     super.reserveDefinitionName,
+    int? aWidth,
   }) : super() {
-    addInput('a', a, width: aWidth);
+    addInput('a', a, width: aWidth ?? a.width);
   }
 }
 
@@ -62,10 +65,12 @@ abstract class _$GenSubMod extends GenBaseMod {
   _$GenSubMod(
     Logic a, {
     required super.myFlag,
+    int? bWidth,
+    int? aWidth,
   }) : super.new() {
     b = addOutput('b', width: bWidth);
 
-    addInput('a', a, width: aWidth);
+    addInput('a', a, width: aWidth ?? a.width);
   }
 }
 
@@ -144,6 +149,18 @@ abstract class _$KitchenGenSinkModule extends Module {
     super.definitionName,
     super.reserveDefinitionName,
     required bool topOutCondIsPresent,
+    int? topInWidth,
+    int? topOutWidth,
+    int? topOutCondWidth,
+    int? topOutDynWidthWidth,
+    int? topOutNewNameWidth,
+    List<int>? topOutArrayDimensions,
+    int? topOutArrayNumUnpackedDimensions,
+    int? topInOutWidth,
+    int? botInPosWidth,
+    int? botInPosNullableWidth,
+    int? botInNamedWidth,
+    int? botInNamedOptionalWidth,
   }) : super() {
     topInSource =
         Logic(name: 'topIn', width: topInWidth, naming: Naming.mergeable);
@@ -168,18 +185,19 @@ abstract class _$KitchenGenSinkModule extends Module {
         Logic(name: 'topInOut', width: topInOutWidth, naming: Naming.mergeable);
     topInOut = addInOut('topInOut', topInOutSource, width: topInOutWidth);
 
-    addInput('botInPos', botInPos, width: botInPosWidth);
+    addInput('botInPos', botInPos, width: botInPosWidth ?? botInPos.width);
 
     if (botInPosNullable != null) {
       addInput('botInPosNullable', botInPosNullable,
-          width: botInPosNullableWidth);
+          width: botInPosNullableWidth ?? botInPosNullable.width);
     }
 
-    addInput('botInNamed', botInNamed, width: botInNamedWidth);
+    addInput('botInNamed', botInNamed,
+        width: botInNamedWidth ?? botInNamed.width);
 
     if (botInNamedOptional != null) {
       addInput('botInNamedOptional', botInNamedOptional,
-          width: botInNamedOptionalWidth);
+          width: botInNamedOptionalWidth ?? botInNamedOptional.width);
     }
   }
 }

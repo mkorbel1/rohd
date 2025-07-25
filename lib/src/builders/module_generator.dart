@@ -385,6 +385,10 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
       }
     }
 
+    for (final portInfo in portInfos) {
+      constructorParams.addAll(portInfo.genInfo.configurationParameters);
+    }
+
     final buffer = StringBuffer();
     buffer.writeln('abstract class $genClassName extends $baseClassName {');
 

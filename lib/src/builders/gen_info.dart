@@ -82,6 +82,10 @@ class GenInfoExtracted extends GenInfo {
 
   final bool isConditional;
 
+  /// If provided, the name of a reference variable that can be used for
+  /// construction of [widthString], etc.
+  final String? referenceName;
+
   @override
   String get logicName => super.logicName ?? name;
 
@@ -97,6 +101,7 @@ class GenInfoExtracted extends GenInfo {
     this.typeName = 'Logic',
     this.annotationName,
     this.structDefaultConstructorType,
+    required this.referenceName,
   }) : super(logicType: LogicType.fromTypeName(typeName));
 
   /// The `width` or `elementWidth` argument, if any, passed in from the
@@ -113,28 +118,71 @@ class GenInfoExtracted extends GenInfo {
   String? get dimensionsName =>
       (dimensions?.isNotEmpty ?? false) ? '${name}Dimensions' : null;
 
+  String _referenceWidthAdjustment(String widthArgName) {
+    if (referenceName == null) {
+      return '';
+    }
+
+    return '?? $referenceName.$widthArgName';
+  }
+
+  String _widthSettingWithReferenceAdjustment(
+          String widthArgName, String widthVarName) =>
+      ', $widthArgName: '
+      '$widthVarName${_referenceWidthAdjustment(widthArgName)}';
+
   String get widthString => switch (logicType) {
         LogicType.logic => switch (width) {
-            null => ', width: $widthName',
+            null => _widthSettingWithReferenceAdjustment('width', widthName!),
             1 => '',
             _ => ', width: $width',
           },
         LogicType.array => switch (width) {
-              null => ', elementWidth: $widthName',
+              null => _widthSettingWithReferenceAdjustment(
+                  'elementWidth', widthName!),
               1 => '',
               _ => ', elementWidth: $width',
             } +
             switch (dimensions) {
-              null => ', dimensions: $dimensionsName',
+              null => _widthSettingWithReferenceAdjustment(
+                  'dimensions', dimensionsName!),
               _ => ', dimensions: const $dimensions',
             } +
             switch (numUnpackedDimensions) {
-              null => ', numUnpackedDimensions: $numUnpackedDimensionsName',
+              null => _widthSettingWithReferenceAdjustment(
+                  'numUnpackedDimensions', numUnpackedDimensionsName!),
               0 => '',
               _ => ', numUnpackedDimensions: $numUnpackedDimensions',
             },
         LogicType.struct => '',
       };
+
+  List<FormalParameter> get configurationParameters => <FormalParameter>[
+        if (widthName != null)
+          FormalParameter(
+            varLocation: ParamVarLocation.constructor,
+            paramType: ParamType.namedOptional,
+            isNullable: true,
+            name: widthName!,
+            type: 'int',
+          ),
+        if (dimensionsName != null)
+          FormalParameter(
+            varLocation: ParamVarLocation.constructor,
+            paramType: ParamType.namedOptional,
+            isNullable: true,
+            name: dimensionsName!,
+            type: 'List<int>',
+          ),
+        if (numUnpackedDimensionsName != null)
+          FormalParameter(
+            varLocation: ParamVarLocation.constructor,
+            paramType: ParamType.namedOptional,
+            isNullable: true,
+            name: numUnpackedDimensionsName!,
+            type: 'int',
+          ),
+      ];
 
   /// Returns `null` if the field does not have any annotation.
   static GenInfoExtracted? ofAnnotatedField(
@@ -186,6 +234,7 @@ class GenInfoExtracted extends GenInfo {
       typeName: typeName,
       dimensions: dimensions,
       numUnpackedDimensions: numUnpackedDimensions,
+      referenceName: null,
       //TODO rest of the fields
     );
   }
@@ -242,9 +291,11 @@ class GenInfoExtracted extends GenInfo {
       annotationName: 'Input', //TODO: for other types
       isConditional: isNullable,
       width: width,
+      referenceName: name,
     );
   }
 
+  // TODO: delete this whole thing?
   factory GenInfoExtracted.ofGenLogicConstReader(ConstantReader oConst) {
     final name =
         oConst.read('name').isNull ? null : oConst.read('name').stringValue;
@@ -337,6 +388,7 @@ class GenInfoExtracted extends GenInfo {
       dimensions: dimensions,
       typeName: typeName,
       structDefaultConstructorType: structDefaultConstructorType,
+      referenceName: null,
     );
   }
 
