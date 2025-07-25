@@ -56,8 +56,8 @@ class InOut extends GenInfo {
 
   const InOut.array({
     super.logicName,
-    int? elementWidth = 1,
-    super.dimensions = const [1],
+    int? elementWidth,
+    super.dimensions,
     super.description,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
@@ -80,9 +80,9 @@ class StructField extends GenInfo {
 
   const StructField.array({
     super.logicName,
-    super.dimensions = const [1],
-    super.numUnpackedDimensions = 0,
-    int? elementWidth = 1,
+    super.dimensions,
+    super.numUnpackedDimensions,
+    int? elementWidth,
     // super.isNet,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
@@ -96,16 +96,16 @@ class IntfPort<TagType extends Enum> extends GenInfo {
   const IntfPort(
     TagType tag, {
     super.logicName,
-    super.width = 1,
+    super.width,
     super.description,
   }) : super(logicType: LogicType.logic);
 
   const IntfPort.array(
     TagType tag, {
     super.logicName,
-    int? elementWidth = 1,
-    super.dimensions = const [1],
-    super.numUnpackedDimensions = 0,
+    int? elementWidth,
+    super.dimensions,
+    super.numUnpackedDimensions,
     super.description,
   }) : super(width: elementWidth, logicType: LogicType.array);
 

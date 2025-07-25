@@ -92,6 +92,9 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
   @Output.array(dimensions: [2, 3], elementWidth: 4, numUnpackedDimensions: 1)
   late final LogicArray topOutArray;
 
+  @Output.array()
+  late final LogicArray topOutArrayUnspecified;
+
   //TODO: array with unspecified args needs args passed into super constructor or match?
 
   @InOut()

@@ -23,7 +23,7 @@ abstract class _$ExampleModuleWithGen extends Module {
     super.reserveName,
     super.definitionName,
     super.reserveDefinitionName,
-    int? bWidth,
+    int bWidth = 1,
     int? aWidth,
   }) : super() {
     b = addOutput('b', width: bWidth);
@@ -65,7 +65,7 @@ abstract class _$GenSubMod extends GenBaseMod {
   _$GenSubMod(
     Logic a, {
     required super.myFlag,
-    int? bWidth,
+    int bWidth = 1,
     int? aWidth,
   }) : super.new() {
     b = addOutput('b', width: bWidth);
@@ -106,6 +106,10 @@ abstract class _$KitchenGenSinkModule extends Module {
   LogicArray get topOutArray;
   @visibleForOverriding
   set topOutArray(LogicArray topOutArray);
+
+  LogicArray get topOutArrayUnspecified;
+  @visibleForOverriding
+  set topOutArrayUnspecified(LogicArray topOutArrayUnspecified);
 
   @protected
   Logic get topInOut;
@@ -149,14 +153,15 @@ abstract class _$KitchenGenSinkModule extends Module {
     super.definitionName,
     super.reserveDefinitionName,
     required bool topOutCondIsPresent,
-    int? topInWidth,
-    int? topOutWidth,
-    int? topOutCondWidth,
-    int? topOutDynWidthWidth,
-    int? topOutNewNameWidth,
-    List<int>? topOutArrayDimensions,
-    int? topOutArrayNumUnpackedDimensions,
-    int? topInOutWidth,
+    int topInWidth = 1,
+    int topOutWidth = 1,
+    int topOutCondWidth = 1,
+    int topOutDynWidthWidth = 1,
+    int topOutNewNameWidth = 1,
+    int topOutArrayUnspecifiedElementWidth = 1,
+    List<int> topOutArrayUnspecifiedDimensions = const [1],
+    int topOutArrayUnspecifiedNumUnpackedDimensions = 0,
+    int topInOutWidth = 1,
     int? botInPosWidth,
     int? botInPosNullableWidth,
     int? botInNamedWidth,
@@ -180,6 +185,11 @@ abstract class _$KitchenGenSinkModule extends Module {
 
     topOutArray = addOutputArray('topOutArray',
         elementWidth: 4, dimensions: const [2, 3], numUnpackedDimensions: 1);
+
+    topOutArrayUnspecified = addOutputArray('topOutArrayUnspecified',
+        elementWidth: topOutArrayUnspecifiedElementWidth,
+        dimensions: topOutArrayUnspecifiedDimensions,
+        numUnpackedDimensions: topOutArrayUnspecifiedNumUnpackedDimensions);
 
     topInOutSource =
         Logic(name: 'topInOut', width: topInOutWidth, naming: Naming.mergeable);

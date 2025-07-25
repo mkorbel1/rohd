@@ -112,11 +112,18 @@ class GenInfoExtracted extends GenInfo {
         LogicType.struct => null, // structs don't have width
       };
 
-  String? get numUnpackedDimensionsName =>
-      numUnpackedDimensions != null ? '${name}NumUnpackedDimensions' : null;
+  String? get numUnpackedDimensionsName => switch (logicType) {
+        LogicType.logic => null, // logic doesn't have dimensions
+        LogicType.array =>
+          numUnpackedDimensions == null ? '${name}NumUnpackedDimensions' : null,
+        LogicType.struct => null, // structs don't have dimensions
+      };
 
-  String? get dimensionsName =>
-      (dimensions?.isNotEmpty ?? false) ? '${name}Dimensions' : null;
+  String? get dimensionsName => switch (logicType) {
+        LogicType.logic => null, // logic doesn't have dimensions
+        LogicType.array => dimensions == null ? '${name}Dimensions' : null,
+        LogicType.struct => null, // structs don't have dimensions
+      };
 
   String _referenceWidthAdjustment(String widthArgName) {
     if (referenceName == null) {
@@ -157,32 +164,39 @@ class GenInfoExtracted extends GenInfo {
         LogicType.struct => '',
       };
 
-  List<FormalParameter> get configurationParameters => <FormalParameter>[
-        if (widthName != null)
-          FormalParameter(
-            varLocation: ParamVarLocation.constructor,
-            paramType: ParamType.namedOptional,
-            isNullable: true,
-            name: widthName!,
-            type: 'int',
-          ),
-        if (dimensionsName != null)
-          FormalParameter(
-            varLocation: ParamVarLocation.constructor,
-            paramType: ParamType.namedOptional,
-            isNullable: true,
-            name: dimensionsName!,
-            type: 'List<int>',
-          ),
-        if (numUnpackedDimensionsName != null)
-          FormalParameter(
-            varLocation: ParamVarLocation.constructor,
-            paramType: ParamType.namedOptional,
-            isNullable: true,
-            name: numUnpackedDimensionsName!,
-            type: 'int',
-          ),
-      ];
+  List<FormalParameter> get configurationParameters {
+    final isNullable = referenceName != null;
+
+    return <FormalParameter>[
+      if (widthName != null)
+        FormalParameter(
+          varLocation: ParamVarLocation.constructor,
+          paramType: ParamType.namedOptional,
+          isNullable: isNullable,
+          name: widthName!,
+          type: 'int',
+          defaultValue: isNullable ? null : '1',
+        ),
+      if (dimensionsName != null)
+        FormalParameter(
+          varLocation: ParamVarLocation.constructor,
+          paramType: ParamType.namedOptional,
+          isNullable: isNullable,
+          name: dimensionsName!,
+          type: 'List<int>',
+          defaultValue: isNullable ? null : 'const [1]',
+        ),
+      if (numUnpackedDimensionsName != null)
+        FormalParameter(
+          varLocation: ParamVarLocation.constructor,
+          paramType: ParamType.namedOptional,
+          isNullable: isNullable,
+          name: numUnpackedDimensionsName!,
+          type: 'int',
+          defaultValue: isNullable ? null : '0',
+        ),
+    ];
+  }
 
   /// Returns `null` if the field does not have any annotation.
   static GenInfoExtracted? ofAnnotatedField(
