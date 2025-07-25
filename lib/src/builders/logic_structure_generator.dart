@@ -37,7 +37,16 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
 
     buffer.writeln(_genAccessors(fields));
 
-    buffer.writeln(_genConstructor(fields, constructorName: genClassName));
+    buffer.writeln(_genConstructor(
+      fields,
+      constructorName: genClassName,
+      defaultName: sourceClassName,
+    ));
+
+    buffer.writeln(_genClone(
+      element as ClassElement,
+      sourceClassName: sourceClassName,
+    ));
 
     buffer.writeln('}');
 
@@ -45,19 +54,58 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
   }
 
   static String _genConstructor(List<GenInfoExtracted> fields,
-      {required String constructorName}) {
+      {required String constructorName, required String defaultName}) {
     final buffer = StringBuffer();
 
-    buffer.writeln('$constructorName() : super(');
+    buffer.writeln("$constructorName({super.name = '$defaultName'}) : super(");
     buffer.writeln('[');
     buffer.writeln(fields
         .map((field) => field.genConstructorCall(naming: Naming.mergeable))
         .join(','));
     buffer.writeln('],');
-    buffer.writeln("name: '$constructorName',"); // TODO: name??
     buffer.writeln(') {');
     buffer.writeln(_genFieldAssignments(fields));
     buffer.writeln('}');
+
+    return buffer.toString();
+  }
+
+  static String _genClone(ClassElement annotatedClassElement,
+      {required String sourceClassName}) {
+    final buffer = StringBuffer();
+
+    buffer.writeln('@override');
+
+    final defaultConstructorInfo =
+        GenInfoExtracted.extractStructDefaultConstructorTypeForCloning(
+            annotatedClassElement);
+
+    final constructorCall = GenInfoExtracted.genStructConstructorCall(
+        defaultConstructorInfo.structDefaultConstructorType,
+        typeName: annotatedClassElement.name,
+        logicName: annotatedClassElement.name);
+
+    if (constructorCall == null || defaultConstructorInfo.anyOthers) {
+      // we can't reliably generate a clone for this class which carries the
+      // name, just return super and warn that they need to make it themselves
+      buffer
+          .writeln('  // This clone method does not create the matching type.');
+      buffer.writeln('@mustBeOverridden');
+      buffer.writeln(
+          'LogicStructure clone({String? name}) => super.clone(name: name);');
+    } else if (defaultConstructorInfo.structDefaultConstructorType ==
+        StructDefaultConstructorType.none) {
+      buffer.writeln(
+          '  // This clone method does not properly rename the clone.');
+      buffer.writeln('@mustBeOverridden');
+      buffer.writeln(
+          '$sourceClassName clone({String? name}) => $constructorCall;');
+    } else {
+      buffer.writeln(
+          '$sourceClassName clone({String? name}) => $constructorCall;');
+    }
+
+    // buffer.writeln('$genClassName clone({String? name}) => $genClassName
 
     return buffer.toString();
   }

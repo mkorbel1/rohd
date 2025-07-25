@@ -244,41 +244,8 @@ class GenInfoExtracted extends GenInfo {
       final element = field.type.element3;
 
       if (element is ClassElement2) {
-        final defaultConstructor =
-            element.constructors2.firstWhereOrNull((c) => c.name3 == 'new');
-        if (defaultConstructor != null) {
-          var hasNamedName = false;
-          var hasPositionalName = false;
-          var hasNonNameRequiredArgs = false;
-
-          for (final formalParam in defaultConstructor.formalParameters) {
-            if (formalParam.name3 == 'name') {
-              if (formalParam.isPositional) {
-                hasPositionalName = true;
-              } else {
-                hasNamedName = true;
-              }
-            } else if (formalParam.isRequired) {
-              hasNonNameRequiredArgs = true;
-            }
-          }
-
-          assert(!(hasNamedName && hasPositionalName),
-              'Should not be possible to have both');
-
-          if (hasNonNameRequiredArgs) {
-            structDefaultConstructorType =
-                StructDefaultConstructorType.unusable;
-          } else if (hasNamedName) {
-            structDefaultConstructorType =
-                StructDefaultConstructorType.nameNamed;
-          } else if (hasPositionalName) {
-            structDefaultConstructorType =
-                StructDefaultConstructorType.namePositional;
-          } else {
-            structDefaultConstructorType = StructDefaultConstructorType.none;
-          }
-        }
+        structDefaultConstructorType =
+            extractStructDefaultConstructorType(element);
       }
     }
 
@@ -294,6 +261,104 @@ class GenInfoExtracted extends GenInfo {
       referenceName: null,
       structDefaultConstructorType: structDefaultConstructorType,
       //TODO rest of the fields
+    );
+  }
+
+  static StructDefaultConstructorType extractStructDefaultConstructorType(
+      ClassElement2 element) {
+    final defaultConstructor =
+        element.constructors2.firstWhereOrNull((c) => c.name3 == 'new');
+    if (defaultConstructor == null) {
+      return StructDefaultConstructorType.unusable;
+    }
+
+    var hasNamedName = false;
+    var hasPositionalName = false;
+    var hasNonNameRequiredArgs = false;
+
+    for (final formalParam in defaultConstructor.formalParameters) {
+      if (formalParam.name3 == 'name') {
+        if (formalParam.isPositional) {
+          hasPositionalName = true;
+        } else {
+          hasNamedName = true;
+        }
+      } else if (formalParam.isRequired) {
+        hasNonNameRequiredArgs = true;
+      }
+    }
+
+    assert(!(hasNamedName && hasPositionalName),
+        'Should not be possible to have both');
+
+    if (hasNonNameRequiredArgs) {
+      return StructDefaultConstructorType.unusable;
+    } else if (hasNamedName) {
+      return StructDefaultConstructorType.nameNamed;
+    } else if (hasPositionalName) {
+      return StructDefaultConstructorType.namePositional;
+    } else {
+      return StructDefaultConstructorType.none;
+    }
+  }
+
+  static ({
+    StructDefaultConstructorType structDefaultConstructorType,
+    bool anyOthers
+  }) extractStructDefaultConstructorTypeForCloning(ClassElement element) {
+    final defaultConstructor =
+        element.constructors.firstWhereOrNull((c) => c.name == 'new');
+
+    if (defaultConstructor == null) {
+      return (
+        structDefaultConstructorType: StructDefaultConstructorType.unusable,
+        anyOthers: true
+      );
+    }
+
+    var anyOthers = false;
+    if (element.constructors.length > 1) {
+      // if there's another way to construct it, also need to avoid
+      anyOthers = true;
+    }
+
+    var hasNamedName = false;
+    var hasPositionalName = false;
+    var hasNonNameRequiredArgs = false;
+
+    for (final formalParam in defaultConstructor.parameters) {
+      if (formalParam.name == 'name') {
+        if (formalParam.isPositional) {
+          hasPositionalName = true;
+        } else {
+          hasNamedName = true;
+        }
+      } else {
+        anyOthers = true;
+        if (formalParam.isRequired) {
+          hasNonNameRequiredArgs = true;
+        }
+      }
+    }
+
+    assert(!(hasNamedName && hasPositionalName),
+        'Should not be possible to have both');
+
+    final StructDefaultConstructorType structDefaultConstructorType;
+    if (hasNonNameRequiredArgs) {
+      structDefaultConstructorType = StructDefaultConstructorType.unusable;
+    } else if (hasNamedName) {
+      structDefaultConstructorType = StructDefaultConstructorType.nameNamed;
+    } else if (hasPositionalName) {
+      structDefaultConstructorType =
+          StructDefaultConstructorType.namePositional;
+    } else {
+      structDefaultConstructorType = StructDefaultConstructorType.none;
+    }
+
+    return (
+      structDefaultConstructorType: structDefaultConstructorType,
+      anyOthers: anyOthers
     );
   }
 
@@ -394,41 +459,8 @@ class GenInfoExtracted extends GenInfo {
       final typeObj = oConst.read('type').typeValue;
       final element = typeObj.element3;
       if (element is ClassElement2) {
-        final defaultConstructor =
-            element.constructors2.firstWhereOrNull((c) => c.name3 == 'new');
-        if (defaultConstructor != null) {
-          var hasNamedName = false;
-          var hasPositionalName = false;
-          var hasNonNameRequiredArgs = false;
-
-          for (final formalParam in defaultConstructor.formalParameters) {
-            if (formalParam.name3 == 'name') {
-              if (formalParam.isPositional) {
-                hasPositionalName = true;
-              } else {
-                hasNamedName = true;
-              }
-            } else if (formalParam.isRequired) {
-              hasNonNameRequiredArgs = true;
-            }
-          }
-
-          assert(!(hasNamedName && hasPositionalName),
-              'Should not be possible to have both');
-
-          if (hasNonNameRequiredArgs) {
-            structDefaultConstructorType =
-                StructDefaultConstructorType.unusable;
-          } else if (hasNamedName) {
-            structDefaultConstructorType =
-                StructDefaultConstructorType.nameNamed;
-          } else if (hasPositionalName) {
-            structDefaultConstructorType =
-                StructDefaultConstructorType.namePositional;
-          } else {
-            structDefaultConstructorType = StructDefaultConstructorType.none;
-          }
-        }
+        structDefaultConstructorType =
+            extractStructDefaultConstructorType(element);
       }
     }
 
@@ -461,7 +493,11 @@ class GenInfoExtracted extends GenInfo {
   String? genConstructorCall({Naming? naming}) {
     switch (logicType) {
       case LogicType.struct:
-        return _genStructConstructorCall();
+        return genStructConstructorCall(
+          structDefaultConstructorType!,
+          typeName: name,
+          logicName: logicName,
+        );
       case LogicType.logic || LogicType.array:
         final namingStr = naming == null ? '' : ', naming: $naming';
         return "${logicType.toTypeName()}(name: '$name'"
@@ -469,11 +505,12 @@ class GenInfoExtracted extends GenInfo {
     }
   }
 
-  String? _genStructConstructorCall() {
-    assert(logicType == LogicType.struct,
-        'Cannot generate struct constructor call for non-struct type: $typeName');
-
-    switch (structDefaultConstructorType!) {
+  static String? genStructConstructorCall(
+    StructDefaultConstructorType structDefaultConstructorType, {
+    required String typeName,
+    required String logicName,
+  }) {
+    switch (structDefaultConstructorType) {
       case StructDefaultConstructorType.unusable:
         return null; // No usable constructor
       case StructDefaultConstructorType.none:

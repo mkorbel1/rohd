@@ -14,9 +14,7 @@ class ExampleStruct extends LogicStructure {
   ExampleStruct._(this.a, this.b) : super([b, a]);
 }
 
-@GenStruct(
-    // fields: [GenLogic('a'), GenLogic('b')]
-    )
+@GenStruct()
 class ExampleStructWithGen extends _$ExampleStructWithGen {
   /// Documentation here.
   @StructField()
@@ -24,6 +22,20 @@ class ExampleStructWithGen extends _$ExampleStructWithGen {
 
   @StructField()
   late final Logic b;
+}
+
+@GenStruct()
+class KitchenSinkStruct extends _$KitchenSinkStruct {
+  @StructField()
+  late final Logic basic;
+
+  @StructField.array()
+  late final LogicArray array;
+
+  @StructField.struct()
+  late final ExampleStructWithGen struct;
+
+  KitchenSinkStruct({super.name});
 }
 
 //TODO: name in super

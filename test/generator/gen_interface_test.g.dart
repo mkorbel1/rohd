@@ -54,8 +54,8 @@ abstract class _$GenIntfWithFancyStruct extends Interface<Enum> {
   _$GenIntfWithFancyStruct({
     MyFancyStruct? a,
   }) : super() {
-    this.a = setPort(a ?? MyFancyStruct(name: 'a'),
-        tags: const [ExampleDir.dir1], name: 'a');
+    this.a =
+        setPort(a ?? a(name: 'a'), tags: const [ExampleDir.dir1], name: 'a');
   }
 }
 
@@ -74,12 +74,10 @@ abstract class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
     MyStructWithNamedName? b,
     MyStructWithPosName? c,
   }) : super() {
-    this.a = setPort(a ?? MyUnrenameableStruct(),
-        tags: const [ExampleDir.dir1], name: 'a');
-    this.b = setPort(b ?? MyStructWithNamedName(name: 'b'),
-        tags: const [ExampleDir.dir2], name: 'b');
-    this.c = setPort(c ?? MyStructWithPosName('c'),
-        tags: const [ExampleDir.dir2], name: 'c');
+    this.a = setPort(a ?? a(), tags: const [ExampleDir.dir1], name: 'a');
+    this.b =
+        setPort(b ?? b(name: 'b'), tags: const [ExampleDir.dir2], name: 'b');
+    this.c = setPort(c ?? c('c'), tags: const [ExampleDir.dir2], name: 'c');
   }
 }
 
