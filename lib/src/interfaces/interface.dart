@@ -172,10 +172,11 @@ class Interface<TagType extends Enum> {
   }
 
   /// Adds a single new port to this [Interface], associated with [tags] and
-  /// with name [name].
+  /// with name [name], and returns the original [port] back.
   ///
   /// If no [name] is specified, then [port]'s name is used.
-  void setPort(Logic port, {Iterable<TagType>? tags, String? name}) {
+  LogicType setPort<LogicType extends Logic>(LogicType port,
+      {Iterable<TagType>? tags, String? name}) {
     //TODO: test this function, now that it is public
 
     name ??= port.name;
@@ -190,6 +191,8 @@ class Interface<TagType extends Enum> {
       }
       _portToTagMap[name]!.addAll(tags);
     }
+
+    return port;
   }
 
   /// Adds a collection of ports to this [Interface], each associated with all

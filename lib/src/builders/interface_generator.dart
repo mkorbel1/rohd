@@ -115,7 +115,7 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     }
 
     final buffer = StringBuffer();
-    buffer.writeln('class $genClassName extends $baseClassName {');
+    buffer.writeln('abstract class $genClassName extends $baseClassName {');
     buffer.write(_genAccessors(ports));
 
     final constructorContents = _genConstructorContents(ports);
@@ -134,10 +134,16 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
   static String _genAccessors(Map<String, List<GenInfoExtracted>> ports) {
     final buffer = StringBuffer();
 
-    for (final genLogic in ports.values.flattened) {
-      final typeName = genLogic.typeName;
-      buffer.writeln('$typeName get ${genLogic.name} => '
-          "port('${genLogic.name}') as $typeName;");
+    for (final genInfo in ports.values.flattened) {
+      var type = genInfo.typeName;
+
+      if (genInfo.isConditional) {
+        type += '?';
+      }
+
+      buffer.writeln('$type get ${genInfo.name};');
+      buffer.writeln('@visibleForOverriding '
+          'set ${genInfo.name}(${type} ${genInfo.name});');
     }
 
     return buffer.toString();
@@ -165,9 +171,9 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
 
         //TODO: handle isConditional
 
-        buffer.writeln('setPort($portString, '
+        buffer.writeln('this.${genLogic.name} = setPort($portString, '
             'tags: const [$group], '
-            "name: '${genLogic.name}');");
+            "name: '${genLogic.logicName}');");
       }
     });
 

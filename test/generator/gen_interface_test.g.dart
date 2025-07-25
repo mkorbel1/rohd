@@ -6,23 +6,31 @@ part of 'gen_interface_test.dart';
 // InterfaceGenerator
 // **************************************************************************
 
-class _$ExampleIntfWithGen extends Interface<Enum> {
-  Logic get a => port('a') as Logic;
-  Logic get b => port('b') as Logic;
+abstract class _$ExampleIntfWithGen extends Interface<Enum> {
+  Logic get a;
+  @visibleForOverriding
+  set a(Logic a);
+  Logic get b;
+  @visibleForOverriding
+  set b(Logic b);
   _$ExampleIntfWithGen({
     int aWidth = 1,
     int bWidth = 1,
   }) : super() {
-    setPort(Logic(name: 'a', width: aWidth),
+    this.a = setPort(Logic(name: 'a', width: aWidth),
         tags: const [ExampleDir.dir1], name: 'a');
-    setPort(Logic(name: 'b', width: bWidth),
+    this.b = setPort(Logic(name: 'b', width: bWidth),
         tags: const [ExampleDir.dir2], name: 'b');
   }
 }
 
-class _$GenPairIntf extends PairInterface {
-  Logic get fp => port('fp') as Logic;
-  Logic get fc => port('fc') as Logic;
+abstract class _$GenPairIntf extends PairInterface {
+  Logic get fp;
+  @visibleForOverriding
+  set fp(Logic fp);
+  Logic get fc;
+  @visibleForOverriding
+  set fc(Logic fc);
   _$GenPairIntf({
     super.commonInOutPorts,
     super.modify,
@@ -32,46 +40,57 @@ class _$GenPairIntf extends PairInterface {
     int fpWidth = 1,
     int fcWidth = 1,
   }) : super.new() {
-    setPort(Logic(name: 'fp', width: fpWidth),
+    this.fp = setPort(Logic(name: 'fp', width: fpWidth),
         tags: const [PairDirection.fromProvider], name: 'fp');
-    setPort(Logic(name: 'fc', width: fcWidth),
+    this.fc = setPort(Logic(name: 'fc', width: fcWidth),
         tags: const [PairDirection.fromConsumer], name: 'fc');
   }
 }
 
-class _$GenIntfWithFancyStruct extends Interface<Enum> {
-  MyFancyStruct get a => port('a') as MyFancyStruct;
+abstract class _$GenIntfWithFancyStruct extends Interface<Enum> {
+  MyFancyStruct get a;
+  @visibleForOverriding
+  set a(MyFancyStruct a);
   _$GenIntfWithFancyStruct({
     MyFancyStruct? a,
   }) : super() {
-    setPort(a ?? MyFancyStruct(name: 'a'),
+    this.a = setPort(a ?? MyFancyStruct(name: 'a'),
         tags: const [ExampleDir.dir1], name: 'a');
   }
 }
 
-class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
-  MyStruct get a => port('a') as MyStruct;
-  MyStructWithNamedName get b => port('b') as MyStructWithNamedName;
-  MyStructWithPosName get c => port('c') as MyStructWithPosName;
+abstract class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
+  MyUnrenameableStruct get a;
+  @visibleForOverriding
+  set a(MyUnrenameableStruct a);
+  MyStructWithNamedName get b;
+  @visibleForOverriding
+  set b(MyStructWithNamedName b);
+  MyStructWithPosName get c;
+  @visibleForOverriding
+  set c(MyStructWithPosName c);
   _$GenIntfWithSimpleStruct({
-    MyStruct? a,
+    MyUnrenameableStruct? a,
     MyStructWithNamedName? b,
     MyStructWithPosName? c,
   }) : super() {
-    setPort(a ?? MyStruct(name: 'a'), tags: const [ExampleDir.dir1], name: 'a');
-    setPort(b ?? MyStructWithNamedName(name: 'b'),
+    this.a = setPort(a ?? MyUnrenameableStruct(),
+        tags: const [ExampleDir.dir1], name: 'a');
+    this.b = setPort(b ?? MyStructWithNamedName(name: 'b'),
         tags: const [ExampleDir.dir2], name: 'b');
-    setPort(c ?? MyStructWithPosName('c'),
+    this.c = setPort(c ?? MyStructWithPosName('c'),
         tags: const [ExampleDir.dir2], name: 'c');
   }
 }
 
-class _$GenIntfWithUnusableStructConstructor extends Interface<Enum> {
-  MyStructWithRequiredArgs get reqarg =>
-      port('reqarg') as MyStructWithRequiredArgs;
+abstract class _$GenIntfWithUnusableStructConstructor extends Interface<Enum> {
+  MyStructWithRequiredArgs get reqarg;
+  @visibleForOverriding
+  set reqarg(MyStructWithRequiredArgs reqarg);
   _$GenIntfWithUnusableStructConstructor({
     required MyStructWithRequiredArgs reqarg,
   }) : super() {
-    setPort(reqarg, tags: const [ExampleDir.dir1], name: 'reqarg');
+    this.reqarg =
+        setPort(reqarg, tags: const [ExampleDir.dir1], name: 'reqarg');
   }
 }

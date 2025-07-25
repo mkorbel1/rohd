@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:rohd/builder.dart';
 import 'package:rohd/rohd.dart';
 
@@ -87,10 +88,27 @@ class MyStructWithPosName extends LogicStructure {
       MyStructWithNamedName(name: name);
 }
 
+class MyUnrenameableStruct extends LogicStructure {
+  final Logic ready;
+  final Logic valid;
+
+  factory MyUnrenameableStruct() => MyUnrenameableStruct._(
+        Logic(name: 'ready'),
+        Logic(name: 'valid'),
+        name: 'my_unrenameable_struct',
+      );
+
+  MyUnrenameableStruct._(this.ready, this.valid, {required super.name})
+      : super([ready, valid]);
+
+  @override
+  MyStruct clone({String? name}) => MyStruct(name: name ?? this.name);
+}
+
 @GenInterface<ExampleDir>()
 class GenIntfWithSimpleStruct extends _$GenIntfWithSimpleStruct {
   @IntfPort(ExampleDir.dir1)
-  late final MyStruct a;
+  late final MyUnrenameableStruct a;
 
   @IntfPort(ExampleDir.dir2)
   late final MyStructWithNamedName b;
@@ -102,7 +120,7 @@ class GenIntfWithSimpleStruct extends _$GenIntfWithSimpleStruct {
 
   GenIntfWithSimpleStruct.explicit()
       : super(
-          a: MyStruct(),
+          a: MyUnrenameableStruct(),
           b: MyStructWithNamedName(name: 'b'),
           c: MyStructWithPosName('c'),
         );
@@ -180,7 +198,7 @@ void main() {
     expect(GenIntfWithSimpleStruct(), isA<Interface<ExampleDir>>());
 
     for (final intf in [basicIntf, explicitIntf]) {
-      expect(intf.a, isA<MyStruct>());
+      expect(intf.a, isA<MyUnrenameableStruct>());
       expect(intf.b, isA<MyStructWithNamedName>());
       expect(intf.c, isA<MyStructWithPosName>());
 
@@ -188,7 +206,7 @@ void main() {
       expect(intf.b.valid.name, 'valid');
       expect(intf.c.ready.name, 'ready');
 
-      expect(intf.a.name, 'myStruct');
+      expect(intf.a.name, 'my_unrenameable_struct');
       expect(intf.b.name, 'b');
       expect(intf.c.name, 'c');
     }
