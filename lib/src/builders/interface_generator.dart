@@ -110,6 +110,10 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
       ));
     }
 
+    for (final port in ports.values.flattened) {
+      constructorParams.addAll(port.configurationParameters);
+    }
+
     final buffer = StringBuffer();
     buffer.writeln('class $genClassName extends $baseClassName {');
     buffer.write(_genAccessors(ports));

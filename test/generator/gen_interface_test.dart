@@ -22,12 +22,7 @@ class ExampleIntf extends Interface<ExampleDir> {
   }
 }
 
-@GenInterface(
-//   {
-//   ExampleDir.dir1: [GenLogic('a')],
-//   ExampleDir.dir2: [GenLogic('b')],
-// }
-    )
+@GenInterface()
 class ExampleIntfWithGen extends _$ExampleIntfWithGen {
   @IntfPort(ExampleDir.dir1)
   late final Logic a;
@@ -36,12 +31,7 @@ class ExampleIntfWithGen extends _$ExampleIntfWithGen {
   late final Logic b;
 }
 
-@GenInterface(
-    // {
-    // PairDirection.fromProvider: [GenLogic('fp')],
-    // PairDirection.fromConsumer: [GenLogic('fc')],
-// },
-    baseConstructor: PairInterface.new)
+@GenInterface(baseConstructor: PairInterface.new)
 class GenPairIntf extends _$GenPairIntf {
   @IntfPort(PairDirection.fromProvider)
   late final Logic fp;
@@ -52,11 +42,7 @@ class GenPairIntf extends _$GenPairIntf {
   GenPairIntf() : super(sharedInputPorts: [Logic.port('si')]);
 }
 
-@GenInterface(
-//   {
-//   ExampleDir.dir1: [GenLogic.struct('a', type: MyFancyStruct)],
-// }
-    )
+@GenInterface()
 class GenIntfWithFancyStruct extends _$GenIntfWithFancyStruct {
   @IntfPort(ExampleDir.dir1)
   late final MyFancyStruct a;
@@ -101,17 +87,7 @@ class MyStructWithPosName extends LogicStructure {
       MyStructWithNamedName(name: name);
 }
 
-@GenInterface(
-//   {
-//   ExampleDir.dir1: [
-//     GenLogic.struct('a', type: MyStruct),
-//   ],
-//   ExampleDir.dir2: [
-//     GenLogic.struct('b', type: MyStructWithNamedName),
-//     GenLogic.struct('c', type: MyStructWithPosName)
-//   ],
-// }
-    )
+@GenInterface<ExampleDir>()
 class GenIntfWithSimpleStruct extends _$GenIntfWithSimpleStruct {
   @IntfPort(ExampleDir.dir1)
   late final MyStruct a;
@@ -155,11 +131,7 @@ class MyStructWithRequiredArgs extends LogicStructure {
       MyStructWithNamedName(name: name);
 }
 
-@GenInterface(
-//   {
-//   ExampleDir.dir1: [GenLogic.struct('reqarg', type: MyStructWithRequiredArgs)],
-// }
-    )
+@GenInterface()
 class GenIntfWithUnusableStructConstructor
     extends _$GenIntfWithUnusableStructConstructor {
   @IntfPort(ExampleDir.dir1)
@@ -171,7 +143,10 @@ class GenIntfWithUnusableStructConstructor
 
 void main() {
   group('simple interface', () {
-    for (final intfBuilder in [ExampleIntf.new, ExampleIntfWithGen.new]) {
+    for (final intfBuilder in <Interface Function()>[
+      ExampleIntf.new,
+      ExampleIntfWithGen.new
+    ]) {
       group(intfBuilder.toString(), () {
         test('constructs, ports available', () {
           final intf = intfBuilder();
@@ -201,6 +176,8 @@ void main() {
   test('interface with simple struct and constructors', () {
     final basicIntf = GenIntfWithSimpleStruct();
     final explicitIntf = GenIntfWithSimpleStruct.explicit();
+
+    expect(GenIntfWithSimpleStruct(), isA<Interface<ExampleDir>>());
 
     for (final intf in [basicIntf, explicitIntf]) {
       expect(intf.a, isA<MyStruct>());

@@ -9,7 +9,10 @@ part of 'gen_interface_test.dart';
 class _$ExampleIntfWithGen extends Interface<Enum> {
   Logic get a => port('a') as Logic;
   Logic get b => port('b') as Logic;
-  _$ExampleIntfWithGen() : super() {
+  _$ExampleIntfWithGen({
+    int aWidth = 1,
+    int bWidth = 1,
+  }) : super() {
     setPort(Logic(name: 'a', width: aWidth),
         tags: const [ExampleDir.dir1], name: 'a');
     setPort(Logic(name: 'b', width: bWidth),
@@ -26,6 +29,8 @@ class _$GenPairIntf extends PairInterface {
     super.portsFromConsumer,
     super.portsFromProvider,
     super.sharedInputPorts,
+    int fpWidth = 1,
+    int fcWidth = 1,
   }) : super.new() {
     setPort(Logic(name: 'fp', width: fpWidth),
         tags: const [PairDirection.fromProvider], name: 'fp');
@@ -44,7 +49,7 @@ class _$GenIntfWithFancyStruct extends Interface<Enum> {
   }
 }
 
-class _$GenIntfWithSimpleStruct extends Interface<Enum> {
+class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
   MyStruct get a => port('a') as MyStruct;
   MyStructWithNamedName get b => port('b') as MyStructWithNamedName;
   MyStructWithPosName get c => port('c') as MyStructWithPosName;

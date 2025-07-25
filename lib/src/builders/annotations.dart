@@ -99,7 +99,6 @@ class IntfPort<TagType extends Enum> extends GenInfo {
     this.tag, {
     super.logicName,
     super.width,
-    super.description,
   }) : super(logicType: LogicType.logic);
 
   const IntfPort.array(
@@ -108,12 +107,10 @@ class IntfPort<TagType extends Enum> extends GenInfo {
     int? elementWidth,
     super.dimensions,
     super.numUnpackedDimensions,
-    super.description,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
   const IntfPort.struct(
     this.tag, {
-    super.description,
     super.logicName,
   }) : super(logicType: LogicType.struct);
 }
