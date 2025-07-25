@@ -15,16 +15,16 @@ import 'package:rohd/rohd.dart';
 
 /// Represents a logical interface to a [Module].
 ///
-/// Interfaces make it easier to define port connections of a [Module]
-/// in a reusable way.  The [TagType] allows grouping of port signals
-/// of the module when connecting at a [Module] level.
+/// Interfaces make it easier to define port connections of a [Module] in a
+/// reusable way.  The [TagType] allows grouping of port signals of the module
+/// when connecting at a [Module] level.
 ///
-/// When connecting an [Interface] to a [Module], you should always create
-/// a new instance of the [Interface] so you don't modify the one being
-/// passed in through the constructor.  Modifying the same [Interface] as
-/// was passed would have negative consequences if multiple [Module]s
-/// were consuming the same [Interface], and also breaks the rules for
-/// [Module] input and output connectivity.
+/// When connecting an [Interface] to a [Module], you should always create a new
+/// instance of the [Interface] so you don't modify the one being passed in
+/// through the constructor.  Modifying the same [Interface] as was passed would
+/// have negative consequences if multiple [Module]s were consuming the same
+/// [Interface], and also breaks the rules for [Module] input and output
+/// connectivity.
 class Interface<TagType extends Enum> {
   /// Internal map from the [Interface]'s defined port name to an instance
   /// of a [Logic].
@@ -69,8 +69,8 @@ class Interface<TagType extends Enum> {
   /// }
   /// ```
   ///
-  /// All signals in the interface with specified [TagType] will be connected to
-  /// the [Module] via [Module.addInput], [Module.addOutput], or
+  /// All signals in the interface with specified [TagType] will be connected
+  /// to the [Module] via [Module.addInput], [Module.addOutput], or
   /// [Module.addInOut] based on [inputTags], [outputTags], and [inOutTags],
   /// respectively. [uniquify] can be used to uniquifiy port names by
   /// manipulating the original name of the port.

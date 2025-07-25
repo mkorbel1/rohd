@@ -4,6 +4,7 @@ import 'package:rohd/rohd.dart';
 
 enum CounterDirection { inward, outward, misc }
 
+//TODO finish renaming these
 class CounterInterface extends Interface<CounterDirection> {
   Logic get en => port('en');
   Logic get reset => port('reset');
