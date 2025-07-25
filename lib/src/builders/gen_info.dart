@@ -95,11 +95,30 @@ class GenInfoExtracted extends GenInfo {
         ? null
         : annotationConst.getField('width')!.toIntValue();
 
+    final typeName = field.type.getDisplayString().replaceAll('?', '');
+
+    final dimensions = annotationConst.getField('dimensions')!.isNull
+        ? null
+        : annotationConst
+            .getField('dimensions')!
+            .toListValue()!
+            .map((e) => e.toIntValue()!)
+            .toList();
+
+    final numUnpackedDimensions =
+        annotationConst.getField('numUnpackedDimensions')!.isNull
+            ? null
+            : annotationConst.getField('numUnpackedDimensions')!.toIntValue();
+
     return GenInfoExtracted(
       name: name,
       logicName: logicName ?? name,
       paramType: null,
       width: width,
+      isConditional: isNullable,
+      typeName: typeName,
+      dimensions: dimensions,
+      numUnpackedDimensions: numUnpackedDimensions,
       //TODO rest of the fields
     );
   }

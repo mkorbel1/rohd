@@ -25,6 +25,17 @@ enum _PortDirection {
 
   String get moduleAccessorName => name;
 
+  String toAnnotationName() {
+    switch (this) {
+      case _PortDirection.input:
+        return 'Input';
+      case _PortDirection.output:
+        return 'Output';
+      case _PortDirection.inOut:
+        return 'InOut';
+    }
+  }
+
   static _PortDirection ofAnnotationName(String annotationName) {
     switch (annotationName) {
       case 'Input':
@@ -42,7 +53,8 @@ enum _PortDirection {
 
 enum _PortInfoOrigin {
   constructorArgAnnotation,
-  classAnnotation,
+  classAnnotation, // TODO: remove this?
+  fieldAnnotation,
 }
 
 class _PortInfo {
@@ -62,7 +74,8 @@ class _PortInfo {
 
   String get sourceName => switch (origin) {
         _PortInfoOrigin.classAnnotation => '${genInfo.name}Source',
-        _PortInfoOrigin.constructorArgAnnotation => genInfo.name
+        _PortInfoOrigin.constructorArgAnnotation => genInfo.name,
+        _PortInfoOrigin.fieldAnnotation => genInfo.name,
       };
 
   String moduleAccessor() {
@@ -97,8 +110,14 @@ class _PortInfo {
       castStr = ' as $type';
     }
 
-    buffer.writeln('$type get ${genInfo.name} =>'
-        " $accessorFunction('${genInfo.logicName}')$castStr;");
+    if (origin == _PortInfoOrigin.fieldAnnotation) {
+      // TODO description
+      buffer.writeln('$type get ${genInfo.name};');
+      buffer.writeln('set ${genInfo.name}(${type} ${genInfo.name});');
+    } else {
+      buffer.writeln('$type get ${genInfo.name} =>'
+          " $accessorFunction('${genInfo.logicName}')$castStr;");
+    }
 
     if (origin == _PortInfoOrigin.classAnnotation &&
         (direction == _PortDirection.input ||
@@ -123,6 +142,8 @@ class _PortInfo {
       _PortDirection.inOut => 'addInOut'
     };
 
+    //TODO: handle arrays, matching, etc.
+
     final sourceStr = switch (direction) {
       _PortDirection.input || _PortDirection.inOut => ', $sourceName',
       _PortDirection.output => '',
@@ -133,16 +154,26 @@ class _PortInfo {
         : '';
 
     final portCreationString =
-        "$creator('${genInfo.logicName}' $sourceStr $widthString);";
+        "$creator('${genInfo.logicName}' $sourceStr $widthString)";
 
     if (genInfo.isConditional) {
       final condition = switch (origin) {
         _PortInfoOrigin.classAnnotation => createConditionName,
         _PortInfoOrigin.constructorArgAnnotation => '${genInfo.name} != null',
+        _PortInfoOrigin.fieldAnnotation => createConditionName,
       };
-      return 'if($condition) { $portCreationString }';
+
+      if (origin == _PortInfoOrigin.fieldAnnotation) {
+        return '${genInfo.name} = $condition ? $portCreationString : null;';
+      } else {
+        return 'if($condition) { $portCreationString; }';
+      }
     } else {
-      return portCreationString;
+      if (origin == _PortInfoOrigin.fieldAnnotation) {
+        return '${genInfo.name} = $portCreationString;';
+      } else {
+        return '$portCreationString;';
+      }
     }
   }
 
@@ -168,6 +199,24 @@ class _PortInfo {
       direction: direction,
       origin: _PortInfoOrigin.classAnnotation,
     );
+  }
+
+  static _PortInfo? ofAnnotatedField(FieldElement field) {
+    for (final portDirection in _PortDirection.values) {
+      final genInfo = GenInfoExtracted.ofAnnotatedField(
+        field,
+        portDirection.toAnnotationName(),
+      );
+
+      if (genInfo != null) {
+        return _PortInfo(
+          genInfo: genInfo,
+          direction: portDirection,
+          origin: _PortInfoOrigin.fieldAnnotation,
+        );
+      }
+    }
+    return null;
   }
 }
 
@@ -208,6 +257,20 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     return portInfos;
   }
 
+  static List<_PortInfo> _extractPortsFromAnnotatedFields(Element element) {
+    final portInfos = <_PortInfo>[];
+    if (element is ClassElement) {
+      for (final field in element.fields) {
+        final portInfo = _PortInfo.ofAnnotatedField(field);
+
+        if (portInfo != null) {
+          portInfos.add(portInfo);
+        }
+      }
+    }
+    return portInfos;
+  }
+
   @override
   String generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) {
@@ -219,6 +282,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
 
     final portInfos = <_PortInfo>[
       ..._extractPortsFromAnnotation(annotation),
+      ..._extractPortsFromAnnotatedFields(element),
     ];
 
     final classElement = element as ClassElement;
@@ -272,8 +336,9 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     }
 
     // Add arguments for all the optional presence of ports
-    for (final portInfo in portInfos
-        .where((p) => p.origin == _PortInfoOrigin.classAnnotation)) {
+    for (final portInfo in portInfos.where((p) =>
+        p.origin == _PortInfoOrigin.classAnnotation ||
+        p.origin == _PortInfoOrigin.fieldAnnotation)) {
       if (portInfo.genInfo.isConditional) {
         constructorParams.add(FormalParameter(
           paramType: ParamType.namedRequired,
@@ -285,7 +350,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     }
 
     final buffer = StringBuffer();
-    buffer.writeln('class $genClassName extends $baseClassName {');
+    buffer.writeln('abstract class $genClassName extends $baseClassName {');
 
     // Generate module accessors
     buffer.writeln(_genAccessors(portInfos));

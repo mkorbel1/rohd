@@ -72,6 +72,7 @@ class Output extends GenInfo {
     super.logicName,
     int? elementWidth = 1,
     super.dimensions = const [1],
+    super.numUnpackedDimensions = 0,
     super.description,
     super.isConditional = false,
     // super.isNet,
@@ -134,9 +135,9 @@ class StructField extends GenInfo {
 //TODO: InOut
 
 class GenModule {
-  final List<GenLogic>? inputs;
-  final List<GenLogic>? outputs;
-  final List<GenLogic>? inOuts;
+  // final List<GenLogic>? inputs;
+  // final List<GenLogic>? outputs;
+  // final List<GenLogic>? inOuts;
 
   // final Type? extendsModule; // TODO: add custom constructor?
 
@@ -149,7 +150,9 @@ class GenModule {
   //TODO: do we need interfaces in here too?
 
   const GenModule(
-      {this.inputs, this.outputs, this.inOuts, this.baseConstructor});
+      {
+      // this.inputs, this.outputs, this.inOuts,
+      this.baseConstructor});
 }
 
 class GenInterface<T extends Enum> {

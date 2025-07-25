@@ -6,8 +6,9 @@ part of 'gen_module_test.dart';
 // ModuleGenerator
 // **************************************************************************
 
-class _$ExampleModuleWithGen extends Module {
-  Logic get b => output('b');
+abstract class _$ExampleModuleWithGen extends Module {
+  Logic get b;
+  set b(Logic b);
 
   @protected
   Logic get a => input('a');
@@ -19,12 +20,12 @@ class _$ExampleModuleWithGen extends Module {
     super.definitionName,
     super.reserveDefinitionName,
   }) : super() {
-    addOutput('b');
+    b = addOutput('b');
     addInput('a', a);
   }
 }
 
-class _$NonSuperInputMod extends Module {
+abstract class _$NonSuperInputMod extends Module {
   @protected
   Logic get a => input('a');
 
@@ -39,8 +40,9 @@ class _$NonSuperInputMod extends Module {
   }
 }
 
-class _$GenSubMod extends GenBaseMod {
-  Logic get b => output('b');
+abstract class _$GenSubMod extends GenBaseMod {
+  Logic get b;
+  set b(Logic b);
 
   @protected
   Logic get a => input('a');
@@ -49,41 +51,37 @@ class _$GenSubMod extends GenBaseMod {
     Logic a, {
     required super.myFlag,
   }) : super.new() {
-    addOutput('b');
+    b = addOutput('b');
     addInput('a', a);
   }
 }
 
-class _$KitchenGenSinkModule extends Module {
+abstract class _$KitchenGenSinkModule extends Module {
   @protected
-  Logic get topIn => input('topIn');
+  Logic get topIn;
+  set topIn(Logic topIn);
 
-  /// The external source for the [topIn] port.
-  final Logic topInSource =
-      Logic(name: 'topIn', width: 1, naming: Naming.mergeable);
+  Logic get topOut;
+  set topOut(Logic topOut);
 
-  /// This is the top output
-  Logic get topOut => output('topOut');
+  Logic? get topOutCond;
+  set topOutCond(Logic? topOutCond);
 
-  Logic? get topOutCond => tryOutput('topOutCond');
+  Logic get topOutWider;
+  set topOutWider(Logic topOutWider);
 
-  /// This is a wider output.
-  ///
-  /// It has a multi-line description, as well.
-  Logic get topOutWider => output('topOutWider');
+  Logic get topOutDynWidth;
+  set topOutDynWidth(Logic topOutDynWidth);
 
-  Logic get topOutDynWidth => output('topOutDynWidth');
+  Logic get topOutNewName;
+  set topOutNewName(Logic topOutNewName);
 
-  Logic get topOutNewName => output('top_out_new_name');
-
-  LogicArray get topOutArray => output('topOutArray') as LogicArray;
+  LogicArray get topOutArray;
+  set topOutArray(LogicArray topOutArray);
 
   @protected
-  Logic get topInOut => inOut('topInOut');
-
-  /// The external source for the [topInOut] port.
-  final Logic topInOutSource =
-      Logic(name: 'topInOut', width: 1, naming: Naming.mergeable);
+  Logic get topInOut;
+  set topInOut(Logic topInOut);
 
   @protected
   Logic get botInPos => input('botInPos');
@@ -108,16 +106,14 @@ class _$KitchenGenSinkModule extends Module {
     super.reserveDefinitionName,
     required bool topOutCondIsPresent,
   }) : super() {
-    addInput('topIn', topInSource);
-    addOutput('topOut');
-    if (topOutCondIsPresent) {
-      addOutput('topOutCond');
-    }
-    addOutput('topOutWider', width: 8);
-    addOutput('topOutDynWidth');
-    addOutput('top_out_new_name');
-    addOutput('topOutArray', width: 4);
-    addInOut('topInOut', topInOutSource);
+    topIn = addInput('topIn', topIn);
+    topOut = addOutput('topOut');
+    topOutCond = topOutCondIsPresent ? addOutput('topOutCond') : null;
+    topOutWider = addOutput('topOutWider', width: 8);
+    topOutDynWidth = addOutput('topOutDynWidth');
+    topOutNewName = addOutput('top_out_new_name');
+    topOutArray = addOutput('topOutArray', width: 4);
+    topInOut = addInOut('topInOut', topInOut);
     addInput('botInPos', botInPos);
     if (botInPosNullable != null) {
       addInput('botInPosNullable', botInPosNullable);

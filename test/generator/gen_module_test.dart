@@ -1,3 +1,6 @@
+// ignore_for_file: type_init_formals
+//TODO: review file ignores
+
 import 'dart:io';
 
 import 'package:meta/meta.dart';
@@ -16,8 +19,13 @@ class ExampleModule extends Module {
   }
 }
 
-@GenModule(outputs: [GenLogic('b')])
+@GenModule(
+    // outputs: [GenLogic('b')]
+    )
 class ExampleModuleWithGen extends _$ExampleModuleWithGen {
+  @Output()
+  late final Logic b;
+
   ExampleModuleWithGen(@Input() super.a) {
     b <= ~a;
   }
@@ -34,31 +42,60 @@ class GenBaseMod extends Module {
   GenBaseMod({required this.myFlag});
 }
 
-@GenModule(outputs: [GenLogic('b')], baseConstructor: GenBaseMod.new)
+@GenModule(
+    // outputs: [GenLogic('b')],
+    baseConstructor: GenBaseMod.new)
 class GenSubMod extends _$GenSubMod {
+  @override
+  @Output()
+  late final Logic b;
+
   GenSubMod(@Input() super.a, {required super.myFlag});
 }
 
 @GenModule(
-  inputs: [GenLogic('topIn')],
-  outputs: [
-    GenLogic('topOut', description: 'This is the top output'),
-    GenLogic('topOutCond', isConditional: true),
-    GenLogic('topOutWider', width: 8, description: '''
-This is a wider output.
+//   inputs: [GenLogic('topIn')],
+//   outputs: [
+//     GenLogic('topOut', description: 'This is the top output'),
+//     GenLogic('topOutCond', isConditional: true),
+//     GenLogic('topOutWider', width: 8, description: '''
+// This is a wider output.
 
-It has a multi-line description, as well.
-'''),
-    GenLogic('topOutDynWidth', width: null),
-    GenLogic('topOutNewName', logicName: 'top_out_new_name'),
-    GenLogic.array('topOutArray',
-        dimensions: [2, 3], elementWidth: 4, numUnpackedDimensions: 1),
-  ],
-  inOuts: [GenLogic('topInOut')],
-)
+// It has a multi-line description, as well.
+// '''),
+//     GenLogic('topOutDynWidth', width: null),
+//     GenLogic('topOutNewName', logicName: 'top_out_new_name'),
+//     GenLogic.array('topOutArray',
+//         dimensions: [2, 3], elementWidth: 4, numUnpackedDimensions: 1),
+//   ],
+//   inOuts: [GenLogic('topInOut')],
+    )
 class KitchenGenSinkModule extends _$KitchenGenSinkModule {
-  @Output() //TODO get rid of description? (then this needs abstract and setter)
-  late final Logic midOut;
+  @Input()
+  late final Logic topIn;
+
+  @Output()
+  late final Logic topOut;
+
+  @Output()
+  late final Logic? topOutCond;
+
+  @Output(width: 8)
+  late final Logic topOutWider;
+
+  @Output()
+  late final Logic topOutDynWidth;
+
+  @Output(logicName: 'top_out_new_name')
+  late final Logic topOutNewName;
+
+  @Output.array(dimensions: [2, 3], elementWidth: 4, numUnpackedDimensions: 1)
+  late final LogicArray topOutArray;
+
+  //TODO: array with unspecified args needs args passed into super constructor or match?
+
+  @InOut()
+  late final Logic topInOut;
 
   KitchenGenSinkModule(
     @Input() super.botInPos,

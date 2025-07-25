@@ -1,6 +1,6 @@
 import 'package:rohd/builder.dart';
 import 'package:rohd/rohd.dart';
-import 'package:rohd/src/interfaces/interfaces.dart';
+
 import 'package:test/test.dart';
 
 import '../logic_structure_test.dart';
