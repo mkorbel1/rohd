@@ -73,6 +73,8 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
 
     buffer.writeln(_genAccessors(fields));
 
+    // TODO: what about struct field creation if not available?
+
     for (final field in fields) {
       constructorParams.addAll(field.configurationParameters);
     }

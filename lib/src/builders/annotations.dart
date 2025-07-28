@@ -75,7 +75,7 @@ class Intf {}
 class StructField extends GenInfo {
   const StructField({
     super.logicName,
-    super.width = 1,
+    super.width,
   }) : super(logicType: LogicType.logic);
 
   const StructField.array({

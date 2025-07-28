@@ -12,9 +12,11 @@ abstract class _$ExampleStructWithGen extends LogicStructure {
 
   _$ExampleStructWithGen({
     super.name = 'ExampleStructWithGen',
+    int bWidth = 1,
+    int aWidth = 1,
   }) : super([
-          Logic(name: 'b', naming: Naming.mergeable),
-          Logic(name: 'a', naming: Naming.mergeable)
+          Logic(name: 'b', width: bWidth, naming: Naming.mergeable),
+          Logic(name: 'a', width: aWidth, naming: Naming.mergeable)
         ]) {
     this.b = elements[0] as Logic;
     this.a = elements[1] as Logic;
@@ -36,6 +38,7 @@ abstract class _$KitchenSinkStruct extends LogicStructure {
     int arrayElementWidth = 1,
     List<int> arrayDimensions = const [1],
     int arrayNumUnpackedDimensions = 0,
+    int basicWidth = 1,
   }) : super([
           ExampleStructWithGen(),
           LogicArray(
@@ -44,7 +47,7 @@ abstract class _$KitchenSinkStruct extends LogicStructure {
               arrayElementWidth,
               numUnpackedDimensions: arrayNumUnpackedDimensions,
               naming: Naming.mergeable),
-          Logic(name: 'basic', naming: Naming.mergeable)
+          Logic(name: 'basic', width: basicWidth, naming: Naming.mergeable)
         ]) {
     this.struct = elements[0] as ExampleStructWithGen;
     this.array = elements[1] as LogicArray;
