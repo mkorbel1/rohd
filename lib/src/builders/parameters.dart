@@ -52,16 +52,18 @@ class FormalParameter {
     final requiredPrefix =
         paramType == ParamType.namedRequired ? 'required ' : '';
 
+    final defaultSuffix = defaultValue != null ? ' = $defaultValue' : '';
+
     switch (varLocation) {
       case ParamVarLocation.super_:
-        return '${requiredPrefix}super.$name';
+        return '${requiredPrefix}super.$name$defaultSuffix';
 
       case ParamVarLocation.this_:
-        return 'this.$name';
+        return 'this.$name$defaultSuffix';
 
       case ParamVarLocation.constructor:
         final nullableSuffix = isNullable ? '?' : '';
-        final defaultSuffix = defaultValue != null ? ' = $defaultValue' : '';
+
         return '$requiredPrefix $type $nullableSuffix $name$defaultSuffix';
     }
   }

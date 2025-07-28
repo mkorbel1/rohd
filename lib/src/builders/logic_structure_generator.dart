@@ -58,6 +58,14 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
       value: elementsValue,
     ));
 
+    constructorParams.add(FormalParameter(
+      paramType: ParamType.namedOptional,
+      name: 'name',
+      varLocation: ParamVarLocation.super_,
+      type: 'String',
+      defaultValue: "'$sourceClassName'",
+    ));
+
     final buffer = StringBuffer();
     buffer.writeln('abstract class $genClassName extends $baseClassName {');
 
