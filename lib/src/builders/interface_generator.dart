@@ -7,6 +7,9 @@ import 'package:rohd/src/builders/generator_utils.dart';
 import 'package:rohd/src/builders/parameters.dart';
 import 'package:source_gen/source_gen.dart';
 
+//TODO: allow a `late final` assignment directly instead of needing super to do it
+//TODO allow sub-interfaces to be added in the generator (but only to pair interfaces?)
+
 class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
   static Map<String, List<GenInfoExtracted>> _extractPortsFromAnnotation(
           ConstantReader annotation) =>
@@ -127,6 +130,8 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
         contents: constructorContents));
 
     buffer.writeln('}');
+
+    // TODO: need to add clone!
 
     return buffer.toString();
   }

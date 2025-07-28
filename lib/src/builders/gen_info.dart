@@ -210,6 +210,8 @@ class GenInfoExtracted extends GenInfo {
     ];
   }
 
+  //TODO: what if the type of a field/port is a parameterized type of the class?
+
   /// Returns `null` if the field does not have any annotation.
   static GenInfoExtracted? ofAnnotatedField(
       FieldElement field, String annotationName) {

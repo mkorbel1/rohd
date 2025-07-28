@@ -42,6 +42,23 @@ Now, to run the code generator, it's recommended to set the code generator up to
 dart run build_runner watch -d
 ```
 
+You can set up a Visual Studio Task in your `.vscode/tasks.json` in your repository that can run `build_runner watch` in the background (see below).  To launch, run `Run Task` from the command pallette.
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build_runner watch",
+      "type": "shell",
+      "command": "dart run build_runner watch -d",
+      "problemMatcher": [],
+      "isBackground": true
+    }
+  ]
+}
+```
+
 Alternatively, you could run the code generation on-demand whenever you like.  The generated code will only update each time you run this command.
 
 ```shell

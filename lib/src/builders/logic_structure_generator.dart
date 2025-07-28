@@ -8,6 +8,8 @@ import 'package:rohd/src/builders/generator_utils.dart';
 import 'package:rohd/src/builders/parameters.dart';
 import 'package:source_gen/source_gen.dart';
 
+//TODO: support lists of things?
+
 class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
   static List<GenInfoExtracted> _extractFieldsFromClass(Element element) {
     final fields = <GenInfoExtracted>[];
