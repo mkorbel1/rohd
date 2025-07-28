@@ -141,9 +141,8 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
         type += '?';
       }
 
-      buffer.writeln('$type get ${genInfo.name};');
       buffer.writeln('@visibleForOverriding '
-          'set ${genInfo.name}(${type} ${genInfo.name});');
+          'set ${genInfo.name}($type ${genInfo.name});');
     }
 
     return buffer.toString();

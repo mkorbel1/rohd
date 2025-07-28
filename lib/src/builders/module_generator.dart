@@ -113,9 +113,8 @@ class _PortInfo {
 
     if (origin == _PortInfoOrigin.fieldAnnotation) {
       // TODO description
-      buffer.writeln('$type get ${genInfo.name};');
       buffer.writeln('@visibleForOverriding '
-          'set ${genInfo.name}(${type} ${genInfo.name});');
+          'set ${genInfo.name}($type ${genInfo.name});');
     } else {
       buffer.writeln('$type get ${genInfo.name} =>'
           " $accessorFunction('${genInfo.logicName}')$castStr;");
@@ -191,8 +190,8 @@ class _PortInfo {
         break;
     }
 
-    final portCreationString =
-        "$creator('${genInfo.logicName}' $sourceStr ${genInfo.widthString})";
+    final portCreationString = "$creator('${genInfo.logicName}' $sourceStr"
+        ' ${genInfo.widthString(isLogicConstructor: false)})';
 
     buffer.writeln(switch (genInfo.isConditional) {
       true => switch (origin) {

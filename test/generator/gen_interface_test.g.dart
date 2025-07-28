@@ -7,10 +7,8 @@ part of 'gen_interface_test.dart';
 // **************************************************************************
 
 abstract class _$ExampleIntfWithGen extends Interface<Enum> {
-  Logic get a;
   @visibleForOverriding
   set a(Logic a);
-  Logic get b;
   @visibleForOverriding
   set b(Logic b);
   _$ExampleIntfWithGen({
@@ -25,10 +23,8 @@ abstract class _$ExampleIntfWithGen extends Interface<Enum> {
 }
 
 abstract class _$GenPairIntf extends PairInterface {
-  Logic get fp;
   @visibleForOverriding
   set fp(Logic fp);
-  Logic get fc;
   @visibleForOverriding
   set fc(Logic fc);
   _$GenPairIntf({
@@ -48,25 +44,21 @@ abstract class _$GenPairIntf extends PairInterface {
 }
 
 abstract class _$GenIntfWithFancyStruct extends Interface<Enum> {
-  MyFancyStruct get a;
   @visibleForOverriding
   set a(MyFancyStruct a);
   _$GenIntfWithFancyStruct({
     MyFancyStruct? a,
   }) : super() {
-    this.a =
-        setPort(a ?? a(name: 'a'), tags: const [ExampleDir.dir1], name: 'a');
+    this.a = setPort(a ?? MyFancyStruct(name: 'a'),
+        tags: const [ExampleDir.dir1], name: 'a');
   }
 }
 
 abstract class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
-  MyUnrenameableStruct get a;
   @visibleForOverriding
   set a(MyUnrenameableStruct a);
-  MyStructWithNamedName get b;
   @visibleForOverriding
   set b(MyStructWithNamedName b);
-  MyStructWithPosName get c;
   @visibleForOverriding
   set c(MyStructWithPosName c);
   _$GenIntfWithSimpleStruct({
@@ -74,15 +66,16 @@ abstract class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
     MyStructWithNamedName? b,
     MyStructWithPosName? c,
   }) : super() {
-    this.a = setPort(a ?? a(), tags: const [ExampleDir.dir1], name: 'a');
-    this.b =
-        setPort(b ?? b(name: 'b'), tags: const [ExampleDir.dir2], name: 'b');
-    this.c = setPort(c ?? c('c'), tags: const [ExampleDir.dir2], name: 'c');
+    this.a = setPort(a ?? MyUnrenameableStruct(),
+        tags: const [ExampleDir.dir1], name: 'a');
+    this.b = setPort(b ?? MyStructWithNamedName(name: 'b'),
+        tags: const [ExampleDir.dir2], name: 'b');
+    this.c = setPort(c ?? MyStructWithPosName('c'),
+        tags: const [ExampleDir.dir2], name: 'c');
   }
 }
 
 abstract class _$GenIntfWithUnusableStructConstructor extends Interface<Enum> {
-  MyStructWithRequiredArgs get reqarg;
   @visibleForOverriding
   set reqarg(MyStructWithRequiredArgs reqarg);
   _$GenIntfWithUnusableStructConstructor({

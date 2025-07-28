@@ -134,30 +134,42 @@ class GenInfoExtracted extends GenInfo {
   }
 
   String _widthSettingWithReferenceAdjustment(
-          String widthArgName, String widthVarName) =>
-      ', $widthArgName: '
-      '$widthVarName${_referenceWidthAdjustment(widthArgName)}';
+          String widthArgName, String widthVarName,
+          {required bool isNamed}) =>
+      [
+        ',',
+        if (isNamed) ' $widthArgName:',
+        ' $widthVarName${_referenceWidthAdjustment(widthArgName)}',
+      ].join();
 
-  String get widthString => switch (logicType) {
+  /// Returns a string representation of the width configuration.
+  ///
+  /// If [isLogicConstructor], then it will match for a construction of that
+  /// [Logic] type. Otherwise, will match for creation of a port.
+  String widthString({required bool isLogicConstructor}) => switch (logicType) {
         LogicType.logic => switch (width) {
-            null => _widthSettingWithReferenceAdjustment('width', widthName!),
+            null => _widthSettingWithReferenceAdjustment('width', widthName!,
+                isNamed: true),
             1 => '',
             _ => ', width: $width',
           },
-        LogicType.array => switch (width) {
+        LogicType.array => switch (dimensions) {
               null => _widthSettingWithReferenceAdjustment(
-                  'elementWidth', widthName!),
+                  'dimensions', dimensionsName!,
+                  isNamed: !isLogicConstructor),
+              _ => ', dimensions: const $dimensions',
+            } +
+            switch (width) {
+              null => _widthSettingWithReferenceAdjustment(
+                  'elementWidth', widthName!,
+                  isNamed: !isLogicConstructor),
               1 => '',
               _ => ', elementWidth: $width',
             } +
-            switch (dimensions) {
-              null => _widthSettingWithReferenceAdjustment(
-                  'dimensions', dimensionsName!),
-              _ => ', dimensions: const $dimensions',
-            } +
             switch (numUnpackedDimensions) {
               null => _widthSettingWithReferenceAdjustment(
-                  'numUnpackedDimensions', numUnpackedDimensionsName!),
+                  'numUnpackedDimensions', numUnpackedDimensionsName!,
+                  isNamed: true),
               0 => '',
               _ => ', numUnpackedDimensions: $numUnpackedDimensions',
             },
@@ -495,13 +507,13 @@ class GenInfoExtracted extends GenInfo {
       case LogicType.struct:
         return genStructConstructorCall(
           structDefaultConstructorType!,
-          typeName: name,
+          typeName: typeName,
           logicName: logicName,
         );
       case LogicType.logic || LogicType.array:
         final namingStr = naming == null ? '' : ', naming: $naming';
         return "${logicType.toTypeName()}(name: '$name'"
-            ' $widthString $namingStr)';
+            ' ${widthString(isLogicConstructor: true)} $namingStr)';
     }
   }
 

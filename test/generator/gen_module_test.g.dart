@@ -7,7 +7,6 @@ part of 'gen_module_test.dart';
 // **************************************************************************
 
 abstract class _$ExampleModuleWithGen extends Module {
-  Logic get b;
   @visibleForOverriding
   set b(Logic b);
 
@@ -52,7 +51,6 @@ abstract class _$NonSuperInputMod extends Module {
 }
 
 abstract class _$GenSubMod extends GenBaseMod {
-  Logic get b;
   @visibleForOverriding
   set b(Logic b);
 
@@ -76,43 +74,34 @@ abstract class _$GenSubMod extends GenBaseMod {
 
 abstract class _$KitchenGenSinkModule extends Module {
   @protected
-  Logic get topIn;
   @visibleForOverriding
   set topIn(Logic topIn);
 
   /// The external source for the [topIn] port.
   late final Logic topInSource;
 
-  Logic get topOut;
   @visibleForOverriding
   set topOut(Logic topOut);
 
-  Logic? get topOutCond;
   @visibleForOverriding
   set topOutCond(Logic? topOutCond);
 
-  Logic get topOutWider;
   @visibleForOverriding
   set topOutWider(Logic topOutWider);
 
-  Logic get topOutDynWidth;
   @visibleForOverriding
   set topOutDynWidth(Logic topOutDynWidth);
 
-  Logic get topOutNewName;
   @visibleForOverriding
   set topOutNewName(Logic topOutNewName);
 
-  LogicArray get topOutArray;
   @visibleForOverriding
   set topOutArray(LogicArray topOutArray);
 
-  LogicArray get topOutArrayUnspecified;
   @visibleForOverriding
   set topOutArrayUnspecified(LogicArray topOutArrayUnspecified);
 
   @protected
-  Logic get topInOut;
   @visibleForOverriding
   set topInOut(Logic topInOut);
 
@@ -184,11 +173,11 @@ abstract class _$KitchenGenSinkModule extends Module {
     topOutNewName = addOutput('top_out_new_name', width: topOutNewNameWidth);
 
     topOutArray = addOutputArray('topOutArray',
-        elementWidth: 4, dimensions: const [2, 3], numUnpackedDimensions: 1);
+        dimensions: const [2, 3], elementWidth: 4, numUnpackedDimensions: 1);
 
     topOutArrayUnspecified = addOutputArray('topOutArrayUnspecified',
-        elementWidth: topOutArrayUnspecifiedElementWidth,
         dimensions: topOutArrayUnspecifiedDimensions,
+        elementWidth: topOutArrayUnspecifiedElementWidth,
         numUnpackedDimensions: topOutArrayUnspecifiedNumUnpackedDimensions);
 
     topInOutSource =

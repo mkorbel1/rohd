@@ -69,17 +69,19 @@ class FormalParameter {
 
 /// A parameter passed to the generated class's super constructor.
 class SuperParameter {
-  String name;
-  ParamType type;
+  final String name;
+  final ParamType type;
+  String? value;
 
-  SuperParameter({required this.name, required this.type});
+  SuperParameter({required this.name, required this.type, this.value});
 
   @override
   String toString() {
+    final valString = value ?? name;
     if (type.isPositional) {
-      return name;
+      return valString;
     } else {
-      return '$name: $name';
+      return '$name: $valString';
     }
   }
 }

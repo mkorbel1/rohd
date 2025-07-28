@@ -124,14 +124,13 @@ String _superArguments(List<SuperParameter> params) {
     throw ArgumentError('Duplicate parameter names found in constructor');
   }
 
-  final positionalArgs =
-      params.where((p) => p.type.isPositional).map((p) => '$p,');
+  final positionalArgs = params.where((p) => p.type.isPositional);
 
-  final namedArgs = params.where((p) => p.type.isNamed).map((p) => '$p,');
+  final namedArgs = params.where((p) => p.type.isNamed);
 
   return [
-    if (positionalArgs.isNotEmpty) '$positionalArgs',
-    if (namedArgs.isNotEmpty) '{${namedArgs.join()}}',
+    if (positionalArgs.isNotEmpty) positionalArgs.join(','),
+    if (namedArgs.isNotEmpty) '{${namedArgs.join(',')}}',
   ].join();
 }
 
