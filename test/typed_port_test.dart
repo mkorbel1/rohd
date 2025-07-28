@@ -1,7 +1,7 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// matched_port_test.dart
+// typed_port_test.dart
 // Tests for matching ports on modules
 //
 // 2025 July
@@ -40,7 +40,7 @@ class SimpleStructModule extends Module {
   late final MyStruct myOut;
 
   SimpleStructModule(MyStruct myIn, {super.name = 'simple_struct_mod'}) {
-    myIn = (myIn.isNet ? addMatchedInOut : addMatchedInput)('myIn', myIn);
+    myIn = (myIn.isNet ? addTypedInOut : addTypedInput)('myIn', myIn);
 
     final internal = myIn.clone(name: 'internal_struct');
     internal.ready <= myIn.valid;
@@ -48,9 +48,9 @@ class SimpleStructModule extends Module {
 
     if (myIn.isNet) {
       myOut = myIn.clone(name: 'myOutExt');
-      addMatchedInOut('myOut', myOut) <= internal;
+      addTypedInOut('myOut', myOut) <= internal;
     } else {
-      myOut = addMatchedOutput('myOut', internal)..gets(internal);
+      myOut = addTypedOutput('myOut', internal.clone)..gets(internal);
     }
   }
 }
@@ -99,11 +99,11 @@ class MatcherModule extends Module {
 
   MatcherModule(Logic anyIn) : isNet = anyIn.isNet {
     if (isNet) {
-      _anyIn = addMatchedInOut('anyIn', anyIn);
-      _innerOut = addMatchedInOut('anyOut', anyIn.clone());
+      _anyIn = addTypedInOut('anyIn', anyIn);
+      _innerOut = addTypedInOut('anyOut', anyIn.clone());
     } else {
-      _anyIn = addMatchedInput('anyIn', anyIn);
-      _innerOut = addMatchedOutput('anyOut', _anyIn);
+      _anyIn = addTypedInput('anyIn', anyIn);
+      _innerOut = addTypedOutput('anyOut', _anyIn.clone);
     }
 
     _makeLogic();
@@ -133,12 +133,19 @@ class MatcherPassThrough extends MatcherModule {
 
 class PartialLogicNetStructAssignment extends Module {
   PartialLogicNetStructAssignment(MyStruct a) {
-    a = addMatchedInOut('a', a);
+    a = addTypedInOut('a', a);
 
-    final b = addMatchedInOut('b', a.clone());
+    final b = addTypedInOut('b', a.clone());
 
     b.valid <= a.valid;
   }
+}
+
+class StructWithConst extends LogicStructure {
+  StructWithConst({super.name}) : super([Logic(), Const(1)]);
+
+  @override
+  StructWithConst clone({String? name}) => StructWithConst(name: name);
 }
 
 void main() {
@@ -166,7 +173,7 @@ void main() {
     SimCompare.checkIverilogVector(mod, vectors);
   });
 
-  test('matched array is an array', () async {
+  test('typed array is an array', () async {
     final mod = MatcherPassThrough(LogicArray([4], 2));
     await mod.build();
 
@@ -177,6 +184,57 @@ void main() {
     expect(sv, contains('input logic [3:0][1:0] anyIn'));
     expect(sv, contains('output logic [3:0][1:0] anyOut'));
     expect(sv, contains('assign anyOut = anyIn;'));
+  });
+
+  group('const typed ports', () {
+    final typedPortCreators = {
+      'input': <LogicType extends Logic>(LogicType logic) =>
+          DummyModule().addTypedInput<LogicType>('p', logic),
+      'output': <LogicType extends Logic>(LogicType logic) => DummyModule()
+          .addTypedOutput<LogicType>(
+              'p', logic.clone as LogicType Function({String name})),
+      'inOut': <LogicType extends Logic>(LogicType logic) =>
+          DummyModule().addTypedInOut<LogicType>('p', logic),
+    };
+
+    for (final MapEntry(key: portType, value: creator)
+        in typedPortCreators.entries) {
+      test('$portType with const', () {
+        expect(
+          () => creator(Const(1)),
+          throwsA(isA<PortTypeException>()),
+        );
+      });
+
+      test('$portType with const but param as Logic', () {
+        var failed = false;
+        try {
+          creator<Logic>(Const(1));
+        } on PortTypeException {
+          failed = true;
+        }
+
+        expect(failed, portType == 'inOut');
+      });
+
+      test('$portType with struct containing const', () {
+        expect(
+          () => creator(StructWithConst()),
+          throwsA(isA<PortTypeException>()),
+        );
+      });
+
+      test('$portType with struct containing const but param as Logic', () {
+        var failed = false;
+        try {
+          creator<Logic>(StructWithConst());
+        } on PortTypeException {
+          failed = true;
+        }
+
+        expect(failed, portType == 'inOut');
+      });
+    }
   });
 
   group('simple struct module with nets', () {
@@ -221,15 +279,15 @@ void main() {
   });
 
   group('illegal match port creations', () {
-    final matchedPortCreators = {
-      'input': (Logic logic) => DummyModule().addMatchedInput('p', logic),
-      'output': (Logic logic) => DummyModule().addMatchedOutput('p', logic),
-      'inOut': (Logic logic) => DummyModule().addMatchedInOut('p', logic),
+    final typedPortCreators = {
+      'input': (Logic logic) => DummyModule().addTypedInput('p', logic),
+      'output': (Logic logic) => DummyModule().addTypedOutput('p', logic.clone),
+      'inOut': (Logic logic) => DummyModule().addTypedInOut('p', logic),
     };
 
     group('struct with partial nets fails', () {
       for (final MapEntry(key: portType, value: creator)
-          in matchedPortCreators.entries) {
+          in typedPortCreators.entries) {
         test(portType, () {
           expect(
             () => creator(LogicStructure([Logic(), LogicNet()])),
@@ -241,7 +299,7 @@ void main() {
 
     group('struct with missing clone name fails', () {
       for (final MapEntry(key: portType, value: creator)
-          in matchedPortCreators.entries) {
+          in typedPortCreators.entries) {
         test(portType, () {
           try {
             creator(CloneNoNameStruct(asNet: portType == 'inOut'));

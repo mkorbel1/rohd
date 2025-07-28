@@ -16,30 +16,39 @@ When connecting an `Interface` to a `Module`, you should always create a new ins
 
 The `connectIO` function under the hood calls `addInput` and `addOutput` directly on the `Module` and connects those `Module` ports to the correct ports on the `Interface`s.  Connection is based on signal names.  You can use the `uniquify` Function argument in `connectIO` to uniquify inputs and outputs in case you have multiple instances of the same `Interface` connected to your module.
 
-`Module` has functions called `connectInterface` and `connectPairInterface` which conveniently call `connectIO` and `pairConnectIO` and return the "internal" copy of the interface to use within the `Module`. For these to work, all `Interface`s must implement a `clone()` method so that an internal copy can be created.
+`Module` has functions called `addInterfacePorts` and `addPairInterfacePorts` which conveniently call `connectIO` and `pairConnectIO` and return the "internal" copy of the interface to use within the `Module`. For these to work, all `Interface`s must implement a `clone()` method so that an internal copy can be created.
 
 ```dart
 // Define a set of legal directions for this interface, and pass as parameter to Interface
-enum CounterDirection {IN, OUT}
+enum CounterDirection { inward, outward, misc }
 
 class CounterInterface extends Interface<CounterDirection> {
-
-  // include the getters in the interface so any user can access them
   Logic get en => port('en');
   Logic get reset => port('reset');
   Logic get val => port('val');
+  Logic get clk => port('clk');
 
   final int width;
-  CounterInterface(this.width) {
-    // register ports to a specific direction
+  CounterInterface({this.width = 8}) {
+    // register ports to a specific direction or group
     setPorts([
       Logic.port('en'), // Logic.port factory returns Logic
-      Logic.port('reset')
-    ], [CounterDirection.IN]);  // inputs to the counter
+    ], [
+      CounterDirection.inward // inputs to the counter
+    ]);
 
     setPorts([
       Logic.port('val', width),
-    ], [CounterDirection.OUT]); // outputs from the counter
+    ], [
+      CounterDirection.outward // outputs from the counter
+    ]);
+
+    setPorts([
+      Logic.port('clk'),
+      Logic.port('reset'),
+    ], [
+      CounterDirection.misc // other miscellaneous ports
+    ]);
   }
 
   @override
@@ -47,30 +56,21 @@ class CounterInterface extends Interface<CounterDirection> {
 }
 
 class Counter extends Module {
+  late final CounterInterface _intf;
 
-  late final CounterInterface intf;
-  Counter(CounterInterface intf) {
-    this.intf = connectInterface(intf,
+  Counter(CounterInterface intf) : super(name: 'counter') {
+    _intf = addInterfacePorts(intf,
         // map inputs and outputs to appropriate directions
         inputTags: {CounterDirection.inward, CounterDirection.misc},
         outputTags: {CounterDirection.outward});
 
-    _buildLogic();
-  }
-
-  void _buildLogic() {
-    var nextVal = Logic(name: 'nextVal', width: intf.width);
-
     // access signals directly from the interface
-    nextVal <= intf.val + 1;
-
-    Sequential( SimpleClockGenerator(10).clk, [
-      If(intf.reset, then:[
-        intf.val < 0
-      ], orElse: [If(intf.en, then: [
-        intf.val < nextVal
-      ])])
-    ]);
+    _intf.val <=
+        flop(
+          _intf.clk,
+          reset: _intf.reset,
+          (_intf.val + 1).named('nextVal'),
+        );
   }
 }
 ```
@@ -104,7 +104,7 @@ Note that it comes with helpers in the super constructor for grouping ports as w
 class SimpleProvider extends Module {
   late final SimpleInterface _intf;
   SimpleProvider(SimpleInterface intf) {
-    _intf = connectPairInterface(intf, PairRole.provider);
+    _intf = addPairInterfacePorts(intf, PairRole.provider);
 
     SimpleSubProvider(_intf);
   }
@@ -113,14 +113,14 @@ class SimpleProvider extends Module {
 class SimpleSubProvider extends Module {
   late final SimpleInterface _intf;
   SimpleSubProvider(SimpleInterface intf) {
-    _intf = connectPairInterface(intf, PairRole.provider);
+    _intf = addPairInterfacePorts(intf, PairRole.provider);
   }
 }
 
 class SimpleConsumer extends Module {
   late final SimpleInterface _intf;
   SimpleConsumer(SimpleInterface intf) {
-    _intf = connectPairInterface(intf, PairRole.consumer);
+    _intf = addPairInterfacePorts(intf, PairRole.consumer);
   }
 }
 
