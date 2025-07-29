@@ -116,6 +116,8 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
         typeName: annotatedClassElement.name,
         logicName: annotatedClassElement.name);
 
+    //TODO: if it only has super and this arguments in the base constructor, can we still just generate it?
+
     if (constructorCall == null || defaultConstructorInfo.anyOthers) {
       // we can't reliably generate a clone for this class which carries the
       // name, just return super and warn that they need to make it themselves
