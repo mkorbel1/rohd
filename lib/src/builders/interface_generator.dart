@@ -1,4 +1,4 @@
-import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:collection/collection.dart';
 import 'package:rohd/builder.dart';
@@ -28,18 +28,21 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
       {};
 
   static Map<String, List<GenInfoExtracted>> _extractPortsFromClass(
-      Element element) {
+      Element2 element) {
     final ports = <String, List<GenInfoExtracted>>{};
     const annotationType = 'IntfPort';
-    if (element is ClassElement) {
-      for (final field in element.fields) {
+    if (element is ClassElement2) {
+      for (final field in element.fields2) {
         final genInfo =
             GenInfoExtracted.ofAnnotatedField(field, annotationType);
 
         if (genInfo != null) {
-          final annotation = field.metadata.firstWhere(
-            (m) => m.element2?.enclosingElement2?.name3 == annotationType,
-          );
+          final annotation = extractAnnotation(field, annotationType);
+
+          if (annotation == null) {
+            continue;
+          }
+
           final tagAnnotationConst =
               annotation.computeConstantValue()!.getField('tag')!;
 
@@ -59,10 +62,10 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
   @override
   String generateForAnnotatedElement(
       // ignore: deprecated_member_use
-      Element element,
+      Element2 element,
       ConstantReader annotation,
       BuildStep buildStep) {
-    final sourceClassName = element.name!;
+    final sourceClassName = element.name3!;
     final genClassName = '_\$$sourceClassName';
 
     final superParams = <SuperParameter>[];

@@ -1,6 +1,5 @@
-import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
-import 'package:collection/collection.dart';
 import 'package:rohd/builder.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/builders/gen_info.dart';
@@ -11,10 +10,10 @@ import 'package:source_gen/source_gen.dart';
 //TODO: support lists of things?
 
 class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
-  static List<GenInfoExtracted> _extractFieldsFromClass(Element element) {
+  static List<GenInfoExtracted> _extractFieldsFromClass(Element2 element) {
     final fields = <GenInfoExtracted>[];
-    if (element is ClassElement) {
-      for (final field in element.fields) {
+    if (element is ClassElement2) {
+      for (final field in element.fields2) {
         final genInfo = GenInfoExtracted.ofAnnotatedField(field, 'StructField');
 
         if (genInfo != null) {
@@ -27,8 +26,8 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
 
   @override
   String generateForAnnotatedElement(
-      Element element, ConstantReader annotation, BuildStep buildStep) {
-    final sourceClassName = element.name!;
+      Element2 element, ConstantReader annotation, BuildStep buildStep) {
+    final sourceClassName = element.name3!;
     final genClassName = '_\$$sourceClassName';
 
     final superParams = <SuperParameter>[];
@@ -89,7 +88,7 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
     ));
 
     buffer.writeln(_genClone(
-      element as ClassElement,
+      element as ClassElement2,
       sourceClassName: sourceClassName,
     ));
 
@@ -101,7 +100,7 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
   static String _genConstructorContents(List<GenInfoExtracted> fields) =>
       _genFieldAssignments(fields);
 
-  static String _genClone(ClassElement annotatedClassElement,
+  static String _genClone(ClassElement2 annotatedClassElement,
       {required String sourceClassName}) {
     final buffer = StringBuffer();
 
@@ -113,8 +112,8 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
 
     final constructorCall = GenInfoExtracted.genStructConstructorCall(
         defaultConstructorInfo.structDefaultConstructorType,
-        typeName: annotatedClassElement.name,
-        logicName: annotatedClassElement.name);
+        typeName: annotatedClassElement.name3!,
+        logicName: annotatedClassElement.name3!);
 
     //TODO: if it only has super and this arguments in the base constructor, can we still just generate it?
 

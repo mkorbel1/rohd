@@ -1,16 +1,9 @@
-import 'package:analyzer/dart/constant/value.dart';
-import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/element/type.dart';
-import 'package:analyzer/dart/element/nullability_suffix.dart';
+import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
-import 'package:collection/collection.dart';
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
-import 'package:rohd/src/builders/gen_info.dart';
-
 import 'package:rohd/src/builders/annotations.dart';
+import 'package:rohd/src/builders/gen_info.dart';
 import 'package:rohd/src/builders/generator_utils.dart';
-import 'package:rohd/src/builders/interface_generator.dart';
 import 'package:rohd/src/builders/parameters.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -210,7 +203,7 @@ class _PortInfo {
     return buffer.toString();
   }
 
-  static _PortInfo? ofAnnotatedParameter(ParameterElement param) {
+  static _PortInfo? ofAnnotatedParameter(FormalParameterElement param) {
     final genInfo = GenInfoExtracted.ofAnnotatedParameter(param);
     if (genInfo == null) {
       return null;
@@ -236,7 +229,7 @@ class _PortInfo {
 
   //TODO: add support for List<Logic> things, will be convenient I think.
 
-  static _PortInfo? ofAnnotatedField(FieldElement field) {
+  static _PortInfo? ofAnnotatedField(FieldElement2 field) {
     for (final portDirection in _PortDirection.values) {
       final genInfo = GenInfoExtracted.ofAnnotatedField(
         field,
@@ -257,9 +250,9 @@ class _PortInfo {
 
 class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
   static List<_PortInfo> _extractPortsFromConstructor(
-      ConstructorElement constructor) {
+      ConstructorElement2 constructor) {
     final portInfos = <_PortInfo>[];
-    for (final param in constructor.parameters) {
+    for (final param in constructor.formalParameters) {
       final portInfo = _PortInfo.ofAnnotatedParameter(param);
       if (portInfo != null) {
         portInfos.add(portInfo);
@@ -292,10 +285,10 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
   //   return portInfos;
   // }
 
-  static List<_PortInfo> _extractPortsFromAnnotatedFields(Element element) {
+  static List<_PortInfo> _extractPortsFromAnnotatedFields(Element2 element) {
     final portInfos = <_PortInfo>[];
-    if (element is ClassElement) {
-      for (final field in element.fields) {
+    if (element is ClassElement2) {
+      for (final field in element.fields2) {
         final portInfo = _PortInfo.ofAnnotatedField(field);
 
         if (portInfo != null) {
@@ -308,8 +301,8 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
 
   @override
   String generateForAnnotatedElement(
-      Element element, ConstantReader annotation, BuildStep buildStep) {
-    final sourceClassName = element.name!;
+      Element2 element, ConstantReader annotation, BuildStep buildStep) {
+    final sourceClassName = element.name3!;
     final genClassName = '_\$$sourceClassName';
 
     final superParams = <SuperParameter>[];
@@ -320,9 +313,9 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
       ..._extractPortsFromAnnotatedFields(element),
     ];
 
-    final classElement = element as ClassElement;
+    final classElement = element as ClassElement2;
 
-    for (final constructor in classElement.constructors
+    for (final constructor in classElement.constructors2
         .where((c) => !c.isFactory && !c.isSynthetic)) {
       portInfos.addAll(_extractPortsFromConstructor(constructor));
     }

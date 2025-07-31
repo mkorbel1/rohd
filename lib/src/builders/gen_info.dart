@@ -1,8 +1,8 @@
-import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/builders/generator_utils.dart';
 import 'package:rohd/src/builders/parameters.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -214,16 +214,14 @@ class GenInfoExtracted extends GenInfo {
 
   /// Returns `null` if the field does not have any annotation.
   static GenInfoExtracted? ofAnnotatedField(
-      FieldElement field, String annotationName) {
-    final annotation = field.metadata.firstWhereOrNull(
-      (m) => m.element2?.enclosingElement2?.name3 == annotationName,
-    );
+      FieldElement2 field, String annotationName) {
+    final annotation = extractAnnotation(field, annotationName);
 
     if (annotation == null) {
       return null;
     }
 
-    final name = field.name;
+    final name = field.name3!;
     final isNullable =
         field.type.nullabilitySuffix == NullabilitySuffix.question;
 
@@ -319,9 +317,9 @@ class GenInfoExtracted extends GenInfo {
   static ({
     StructDefaultConstructorType structDefaultConstructorType,
     bool anyOthers
-  }) extractStructDefaultConstructorTypeForCloning(ClassElement element) {
+  }) extractStructDefaultConstructorTypeForCloning(ClassElement2 element) {
     final defaultConstructor =
-        element.constructors.firstWhereOrNull((c) => c.name == 'new');
+        element.constructors2.firstWhereOrNull((c) => c.name3 == 'new');
 
     if (defaultConstructor == null) {
       return (
@@ -331,7 +329,7 @@ class GenInfoExtracted extends GenInfo {
     }
 
     var anyOthers = false;
-    if (element.constructors.length > 1) {
+    if (element.constructors2.length > 1) {
       // if there's another way to construct it, also need to avoid
       anyOthers = true;
     }
@@ -340,8 +338,8 @@ class GenInfoExtracted extends GenInfo {
     var hasPositionalName = false;
     var hasNonNameRequiredArgs = false;
 
-    for (final formalParam in defaultConstructor.parameters) {
-      if (formalParam.name == 'name') {
+    for (final formalParam in defaultConstructor.formalParameters) {
+      if (formalParam.name3 == 'name') {
         if (formalParam.isPositional) {
           hasPositionalName = true;
         } else {
@@ -377,11 +375,8 @@ class GenInfoExtracted extends GenInfo {
   }
 
   /// Returns `null` if the parameter does not have any port annotation.
-  static GenInfoExtracted? ofAnnotatedParameter(ParameterElement param) {
-    final annotation = param.metadata.firstWhereOrNull(
-      //TODO: make this look at class instead??
-      (meta) => meta.element?.displayName == 'Input',
-    );
+  static GenInfoExtracted? ofAnnotatedParameter(FormalParameterElement param) {
+    final annotation = extractAnnotation(param, 'Input');
 
     if (annotation == null) {
       return null;
@@ -391,7 +386,7 @@ class GenInfoExtracted extends GenInfo {
       throw Exception('Cannot have a default value for a port argument.');
     }
 
-    final name = param.name;
+    final name = param.name3!;
     final isNullable =
         param.type.nullabilitySuffix == NullabilitySuffix.question;
 

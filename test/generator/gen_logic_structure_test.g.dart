@@ -23,39 +23,24 @@ abstract class _$ExampleStructWithGen extends LogicStructure {
   }
 
   @override
-  // This clone method does not create the matching type.
+  // This clone method does not properly rename the clone.
   @mustBeOverridden
-  LogicStructure clone({String? name}) => super.clone(name: name);
+  ExampleStructWithGen clone({String? name}) => ExampleStructWithGen();
 }
 
 abstract class _$KitchenSinkStruct extends LogicStructure {
-  set struct(ExampleStructWithGen struct);
-  set array(LogicArray array);
   set basic(Logic basic);
 
   _$KitchenSinkStruct({
     super.name = 'KitchenSinkStruct',
-    int arrayElementWidth = 1,
-    List<int> arrayDimensions = const [1],
-    int arrayNumUnpackedDimensions = 0,
     int basicWidth = 1,
   }) : super([
-          ExampleStructWithGen(),
-          LogicArray(
-              name: 'array',
-              arrayDimensions,
-              arrayElementWidth,
-              numUnpackedDimensions: arrayNumUnpackedDimensions,
-              naming: Naming.mergeable),
           Logic(name: 'basic', width: basicWidth, naming: Naming.mergeable)
         ]) {
-    this.struct = elements[0] as ExampleStructWithGen;
-    this.array = elements[1] as LogicArray;
-    this.basic = elements[2] as Logic;
+    this.basic = elements[0] as Logic;
   }
 
   @override
-  // This clone method does not create the matching type.
-  @mustBeOverridden
-  LogicStructure clone({String? name}) => super.clone(name: name);
+  KitchenSinkStruct clone({String? name}) =>
+      KitchenSinkStruct(name: 'KitchenSinkStruct');
 }

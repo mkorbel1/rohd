@@ -96,10 +96,7 @@ abstract class _$KitchenGenSinkModule extends Module {
   set topOutNewName(Logic topOutNewName);
 
   @visibleForOverriding
-  set topOutArray(LogicArray topOutArray);
-
-  @visibleForOverriding
-  set topOutArrayUnspecified(LogicArray topOutArrayUnspecified);
+  set topOutArrayUnspecDims(LogicArray topOutArrayUnspecDims);
 
   @protected
   @visibleForOverriding
@@ -147,9 +144,9 @@ abstract class _$KitchenGenSinkModule extends Module {
     int topOutCondWidth = 1,
     int topOutDynWidthWidth = 1,
     int topOutNewNameWidth = 1,
-    int topOutArrayUnspecifiedElementWidth = 1,
-    List<int> topOutArrayUnspecifiedDimensions = const [1],
-    int topOutArrayUnspecifiedNumUnpackedDimensions = 0,
+    int topOutArrayUnspecDimsElementWidth = 1,
+    List<int> topOutArrayUnspecDimsDimensions = const [1],
+    int topOutArrayUnspecDimsNumUnpackedDimensions = 0,
     int topInOutWidth = 1,
     int? botInPosWidth,
     int? botInPosNullableWidth,
@@ -172,13 +169,10 @@ abstract class _$KitchenGenSinkModule extends Module {
 
     topOutNewName = addOutput('top_out_new_name', width: topOutNewNameWidth);
 
-    topOutArray = addOutputArray('topOutArray',
-        dimensions: const [2, 3], elementWidth: 4, numUnpackedDimensions: 1);
-
-    topOutArrayUnspecified = addOutputArray('topOutArrayUnspecified',
-        dimensions: topOutArrayUnspecifiedDimensions,
-        elementWidth: topOutArrayUnspecifiedElementWidth,
-        numUnpackedDimensions: topOutArrayUnspecifiedNumUnpackedDimensions);
+    topOutArrayUnspecDims = addOutputArray('topOutArrayUnspecDims',
+        dimensions: topOutArrayUnspecDimsDimensions,
+        elementWidth: topOutArrayUnspecDimsElementWidth,
+        numUnpackedDimensions: topOutArrayUnspecDimsNumUnpackedDimensions);
 
     topInOutSource =
         Logic(name: 'topInOut', width: topInOutWidth, naming: Naming.mergeable);
