@@ -281,6 +281,11 @@ class PairInterface extends Interface<PairDirection> {
     _subInterfaces[name] = _SubPairInterface(subInterface, reverse: reverse);
     return subInterface;
   }
+
+  @override
+  @mustBeOverridden
+  // ignore: deprecated_member_use_from_same_package
+  PairInterface clone() => PairInterface.clone(this);
 }
 
 /// An internal tracking object for sub-interfaces and characteristics useful
