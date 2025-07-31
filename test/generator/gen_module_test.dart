@@ -19,9 +19,7 @@ class ExampleModule extends Module {
   }
 }
 
-@GenModule(
-    // outputs: [GenLogic('b')]
-    )
+@GenModule()
 class ExampleModuleWithGen extends _$ExampleModuleWithGen {
   @Output()
   late final Logic b;
@@ -31,7 +29,7 @@ class ExampleModuleWithGen extends _$ExampleModuleWithGen {
   }
 }
 
-@GenModule() // no outputs specified
+@GenModule()
 class NonSuperInputMod extends _$NonSuperInputMod {
   // input is not calling super, but passes it up to the parent class
   NonSuperInputMod(@Input() Logic a) : super(a);
@@ -42,34 +40,18 @@ class GenBaseMod extends Module {
   GenBaseMod({required this.myFlag});
 }
 
-@GenModule(
-    // outputs: [GenLogic('b')],
-    baseConstructor: GenBaseMod.new)
+@GenModule(baseConstructor: GenBaseMod.new)
 class GenSubMod extends _$GenSubMod {
   @override
   @Output()
   late final Logic b;
 
-  GenSubMod(@Input() super.a, {required super.myFlag});
+  GenSubMod(@Input() super.a, {required super.myFlag}) {
+    b <= ~a;
+  }
 }
 
-@GenModule(
-//   inputs: [GenLogic('topIn')],
-//   outputs: [
-//     GenLogic('topOut', description: 'This is the top output'),
-//     GenLogic('topOutCond', isConditional: true),
-//     GenLogic('topOutWider', width: 8, description: '''
-// This is a wider output.
-
-// It has a multi-line description, as well.
-// '''),
-//     GenLogic('topOutDynWidth', width: null),
-//     GenLogic('topOutNewName', logicName: 'top_out_new_name'),
-//     GenLogic.array('topOutArray',
-//         dimensions: [2, 3], elementWidth: 4, numUnpackedDimensions: 1),
-//   ],
-//   inOuts: [GenLogic('topInOut')],
-    )
+@GenModule()
 class KitchenGenSinkModule extends _$KitchenGenSinkModule {
   @Input()
   late final Logic topIn;
@@ -91,6 +73,9 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
 
   @Output.array(dimensions: [2, 3], elementWidth: 4, numUnpackedDimensions: 1)
   late final LogicArray topOutArray;
+
+  @Output()
+  late final LogicArray topOutArrayUnspecDims;
 
   @Output.array()
   late final LogicArray topOutArrayUnspecified;
