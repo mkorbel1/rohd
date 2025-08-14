@@ -77,7 +77,7 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     final annotationTypeString =
         annotation.objectValue.type!.getDisplayString();
 
-    final typeArgMatch = RegExp(r'GenInterface<([A-Za-z0-9_<>., ]+)>')
+    final typeArgMatch = RegExp('GenInterface<([A-Za-z0-9_<>., ]+)>')
         .firstMatch(annotationTypeString);
     final extractedTypeArg = typeArgMatch?.group(1);
 

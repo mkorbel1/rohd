@@ -22,3 +22,6 @@ targets:
         enabled: true
       source_gen|combining_builder:
         enabled: true
+        options:
+          ignore_for_file:
+            - avoid_setters_without_getters

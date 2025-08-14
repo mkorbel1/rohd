@@ -104,8 +104,6 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
       {required String sourceClassName}) {
     final buffer = StringBuffer();
 
-    buffer.writeln('@override');
-
     final defaultConstructorInfo =
         GenInfoExtracted.extractStructDefaultConstructorTypeForCloning(
             annotatedClassElement);
@@ -116,6 +114,8 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
         logicName: annotatedClassElement.name3!);
 
     //TODO: if it only has super and this arguments in the base constructor, can we still just generate it?
+
+    buffer.writeln('@override');
 
     if (constructorCall == null || defaultConstructorInfo.anyOthers) {
       // we can't reliably generate a clone for this class which carries the

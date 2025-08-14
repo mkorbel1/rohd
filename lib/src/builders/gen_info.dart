@@ -236,6 +236,10 @@ class GenInfoExtracted extends GenInfo {
         ? null
         : annotationConst.getField('width')!.toIntValue();
 
+    final description = annotationConst.getField('description')!.isNull
+        ? null
+        : annotationConst.getField('description')!.toStringValue();
+
     final typeName = field.type.getDisplayString().replaceAll('?', '');
 
     final dimensions = annotationConst.getField('dimensions')!.isNull
@@ -272,6 +276,7 @@ class GenInfoExtracted extends GenInfo {
       numUnpackedDimensions: numUnpackedDimensions,
       referenceName: null,
       structDefaultConstructorType: structDefaultConstructorType,
+      description: description,
       //TODO rest of the fields
     );
   }

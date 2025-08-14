@@ -105,7 +105,6 @@ class _PortInfo {
     }
 
     if (origin == _PortInfoOrigin.fieldAnnotation) {
-      // TODO description
       buffer.writeln('@visibleForOverriding '
           'set ${genInfo.name}($type ${genInfo.name});');
     } else {
@@ -157,7 +156,7 @@ class _PortInfo {
         },
     };
 
-    final sourceStr = switch (genInfo.logicType) {
+    var sourceStr = switch (genInfo.logicType) {
       LogicType.logic || LogicType.array => switch (direction) {
           _PortDirection.input || _PortDirection.inOut => ', $sourceName',
           _PortDirection.output => '',
@@ -173,7 +172,15 @@ class _PortInfo {
             final constructorCall =
                 //TODO: what about when struct can't be made?
                 genInfo.genConstructorCall(naming: Naming.mergeable);
-            buffer.writeln('$sourceName = $constructorCall;');
+
+            switch (genInfo.isConditional) {
+              case true:
+                buffer.writeln('$sourceName ='
+                    ' $createConditionName ? $constructorCall : null;');
+                sourceStr += '!';
+              case false:
+                buffer.writeln('$sourceName = $constructorCall;');
+            }
 
           case _PortDirection.output:
             break;
