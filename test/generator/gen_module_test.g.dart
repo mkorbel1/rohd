@@ -147,6 +147,12 @@ abstract class _$KitchenGenSinkModule extends Module {
   Logic get botInPosSource => inputSource('botInPos');
 
   @protected
+  Logic get botInPosWidthed => input('botInPosWidthed');
+
+  /// The external source for the [botInPosWidthed] port.
+  Logic get botInPosWidthedSource => inputSource('botInPosWidthed');
+
+  @protected
   Logic? get botInPosNullable => tryInput('botInPosNullable');
 
   /// The external source for the [botInPosNullable] port.
@@ -166,6 +172,7 @@ abstract class _$KitchenGenSinkModule extends Module {
 
   _$KitchenGenSinkModule(
     Logic botInPos,
+    Logic botInPosWidthed,
     Logic? botInPosNullable, {
     required Logic botInNamed,
     Logic? botInNamedOptional,
@@ -244,6 +251,8 @@ abstract class _$KitchenGenSinkModule extends Module {
     topInOut = addInOut('topInOut', topInOutSource, width: topInOutWidth);
 
     addInput('botInPos', botInPos, width: botInPosWidth ?? botInPos.width);
+
+    addInput('botInPosWidthed', botInPosWidthed, width: 7);
 
     if (botInPosNullable != null) {
       addInput('botInPosNullable', botInPosNullable,

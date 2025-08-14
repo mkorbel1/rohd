@@ -105,6 +105,7 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
 
   KitchenGenSinkModule(
     @Input() super.botInPos,
+    @Input(width: 7) super.botInPosWidthed,
     @Input() Logic? super.botInPosNullable, {
     @Input() required super.botInNamed,
     @Input() Logic? super.botInNamedOptional,
@@ -115,6 +116,7 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
     super.reserveName,
     super.reserveDefinitionName,
     super.definitionName,
+    super.botInPosWidth,
   });
 
   //TODO: also need to test positional optional inputs
@@ -152,11 +154,18 @@ void main() {
   });
 
   test('kitchen sink gen module', () async {
-    final dut = KitchenGenSinkModule(Logic(), Logic(),
-        botInNamed: Logic(), botInNamedOptional: Logic());
+    final dut = KitchenGenSinkModule(
+      Logic(width: 5),
+      Logic(width: 7),
+      Logic(),
+      botInNamed: Logic(),
+      botInNamedOptional: Logic(),
+    );
 
     final dutAdjusted = KitchenGenSinkModule(
-      Logic(),
+      Logic(width: 12),
+      botInPosWidth: 12,
+      Logic(width: 7),
       Logic(),
       botInNamed: Logic(),
       botInNamedOptional: Logic(),
@@ -214,5 +223,13 @@ void main() {
     expect(dut.topOut.name, 'topOut');
     expect(dut.topOut.width, 1);
     // expect(genFileContents, contains('/// This is the top output'));
+
+    expect(dut.botInPos.isInput, isTrue);
+    expect(dut.botInPos.width, 5);
+
+    expect(dutAdjusted.botInPos.width, 12);
+
+    expect(dut.botInPosWidthed.isInput, isTrue);
+    expect(dut.botInPosWidthed.width, 7);
   });
 }
