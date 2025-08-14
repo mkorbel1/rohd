@@ -75,8 +75,17 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
       logicName: 'top_in_array_specd',
       elementWidth: 4,
       dimensions: [7, 6],
-      numUnpackedDimensions: 1)
+      numUnpackedDimensions: 1,
+      description: '''
+top in array specified
+in multiple lines
+
+with a blank line later too
+''')
   late final LogicArray topInArraySpecd;
+
+  @Input.array()
+  late final LogicArray? topInArrayCond;
 
   @Output()
   late final Logic topOut;
@@ -120,6 +129,7 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
     @Input() required super.botInNamed,
     @Input() Logic? super.botInNamedOptional,
     super.topInCondIsPresent = true,
+    super.topInArrayCondIsPresent = true,
     super.topOutCondIsPresent = true,
     super.topInWidth,
     super.topInArrayElementWidth,
@@ -184,6 +194,7 @@ void main() {
       botInNamedOptional: Logic(),
       topInCondIsPresent: false,
       topOutCondIsPresent: false,
+      topInArrayCondIsPresent: false,
       topInWidth: 16,
       topInArrayElementWidth: 4,
       topInArrayDimensions: const [5, 6],
@@ -255,6 +266,18 @@ void main() {
     expect(dut.topInArraySpecd.numUnpackedDimensions, 1);
     expect(dut.topInArraySpecd.srcConnections.first,
         dut.topInArraySpecdSource.leafElements.first);
+    expect(genFileContents, contains('/// top in array specified'));
+    expect(genFileContents, contains('/// in multiple lines'));
+    expect(genFileContents, contains('/// with a blank line later too'));
+
+    expect(dut.topInArrayCond, isNotNull);
+    expect(dut.topInArrayCondSource, isNotNull);
+    expect(dut.topInArrayCond!.isInput, isTrue);
+    expect(dut.topInArrayCond!.srcConnections.first,
+        dut.topInArrayCondSource!.leafElements.first);
+
+    expect(dutAdjusted.topInArrayCond, isNull);
+    expect(dutAdjusted.topInArrayCondSource, isNull);
 
     expect(dut.topOut.isOutput, isTrue);
     expect(dut.topOut.name, 'topOut');

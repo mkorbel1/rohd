@@ -15,7 +15,7 @@ abstract class _$ExampleModuleWithGen extends Module {
   @protected
   Logic get a => input('a');
 
-  /// The external source for the [a] port.
+  /// The [inputSource] for the [a] port.
   Logic get aSource => inputSource('a');
 
   _$ExampleModuleWithGen(
@@ -37,7 +37,7 @@ abstract class _$NonSuperInputMod extends Module {
   @protected
   Logic get a => input('a');
 
-  /// The external source for the [a] port.
+  /// The [inputSource] for the [a] port.
   Logic get aSource => inputSource('a');
 
   _$NonSuperInputMod(
@@ -59,7 +59,7 @@ abstract class _$GenSubMod extends GenBaseMod {
   @protected
   Logic get a => input('a');
 
-  /// The external source for the [a] port.
+  /// The [inputSource] for the [a] port.
   Logic get aSource => inputSource('a');
 
   _$GenSubMod(
@@ -79,21 +79,21 @@ abstract class _$KitchenGenSinkModule extends Module {
   @visibleForOverriding
   set topIn(Logic topIn);
 
-  /// The external source for the [topIn] port.
+  /// The [inputSource] for the [topIn] port.
   late final Logic topInSource;
 
   @protected
   @visibleForOverriding
   set topInNewName(Logic topInNewName);
 
-  /// The external source for the [topInNewName] port.
+  /// The [inputSource] for the [topInNewName] port.
   late final Logic topInNewNameSource;
 
   @protected
   @visibleForOverriding
   set topIn8bit(Logic topIn8bit);
 
-  /// The external source for the [topIn8bit] port.
+  /// The [inputSource] for the [topIn8bit] port.
   late final Logic topIn8bitSource;
 
   /// top in desc
@@ -101,29 +101,40 @@ abstract class _$KitchenGenSinkModule extends Module {
   @visibleForOverriding
   set topInDesc(Logic topInDesc);
 
-  /// The external source for the [topInDesc] port.
+  /// The [inputSource] for the [topInDesc] port.
   late final Logic topInDescSource;
 
   @protected
   @visibleForOverriding
   set topInCond(Logic? topInCond);
 
-  /// The external source for the [topInCond] port.
+  /// The [tryInputSource] for the [topInCond] port.
   late final Logic? topInCondSource;
 
   @protected
   @visibleForOverriding
   set topInArray(LogicArray topInArray);
 
-  /// The external source for the [topInArray] port.
+  /// The [inputSource] for the [topInArray] port.
   late final LogicArray topInArraySource;
 
+  /// top in array specified
+  /// in multiple lines
+  ///
+  /// with a blank line later too
   @protected
   @visibleForOverriding
   set topInArraySpecd(LogicArray topInArraySpecd);
 
-  /// The external source for the [topInArraySpecd] port.
+  /// The [inputSource] for the [topInArraySpecd] port.
   late final LogicArray topInArraySpecdSource;
+
+  @protected
+  @visibleForOverriding
+  set topInArrayCond(LogicArray? topInArrayCond);
+
+  /// The [tryInputSource] for the [topInArrayCond] port.
+  late final LogicArray? topInArrayCondSource;
 
   @visibleForOverriding
   set topOut(Logic topOut);
@@ -157,37 +168,37 @@ abstract class _$KitchenGenSinkModule extends Module {
   @visibleForOverriding
   set topInOut(Logic topInOut);
 
-  /// The external source for the [topInOut] port.
+  /// The [inOutSource] for the [topInOut] port.
   late final Logic topInOutSource;
 
   @protected
   Logic get botInPos => input('botInPos');
 
-  /// The external source for the [botInPos] port.
+  /// The [inputSource] for the [botInPos] port.
   Logic get botInPosSource => inputSource('botInPos');
 
   @protected
   Logic get botInPosWidthed => input('botInPosWidthed');
 
-  /// The external source for the [botInPosWidthed] port.
+  /// The [inputSource] for the [botInPosWidthed] port.
   Logic get botInPosWidthedSource => inputSource('botInPosWidthed');
 
   @protected
   Logic? get botInPosNullable => tryInput('botInPosNullable');
 
-  /// The external source for the [botInPosNullable] port.
+  /// The [tryInputSource] for the [botInPosNullable] port.
   Logic? get botInPosNullableSource => tryInputSource('botInPosNullable');
 
   @protected
   Logic get botInNamed => input('botInNamed');
 
-  /// The external source for the [botInNamed] port.
+  /// The [inputSource] for the [botInNamed] port.
   Logic get botInNamedSource => inputSource('botInNamed');
 
   @protected
   Logic? get botInNamedOptional => tryInput('botInNamedOptional');
 
-  /// The external source for the [botInNamedOptional] port.
+  /// The [tryInputSource] for the [botInNamedOptional] port.
   Logic? get botInNamedOptionalSource => tryInputSource('botInNamedOptional');
 
   _$KitchenGenSinkModule(
@@ -201,6 +212,7 @@ abstract class _$KitchenGenSinkModule extends Module {
     super.definitionName,
     super.reserveDefinitionName,
     required bool topInCondIsPresent,
+    required bool topInArrayCondIsPresent,
     required bool topOutCondIsPresent,
     int topInWidth = 1,
     int topInNewNameWidth = 1,
@@ -209,6 +221,9 @@ abstract class _$KitchenGenSinkModule extends Module {
     int topInArrayElementWidth = 1,
     List<int> topInArrayDimensions = const [1],
     int topInArrayNumUnpackedDimensions = 0,
+    int topInArrayCondElementWidth = 1,
+    List<int> topInArrayCondDimensions = const [1],
+    int topInArrayCondNumUnpackedDimensions = 0,
     int topOutWidth = 1,
     int topOutNewNameWidth = 1,
     int topOutDescWidth = 1,
@@ -272,6 +287,21 @@ abstract class _$KitchenGenSinkModule extends Module {
         naming: Naming.mergeable);
     topInArraySpecd = addInputArray('top_in_array_specd', topInArraySpecdSource,
         dimensions: const [7, 6], elementWidth: 4, numUnpackedDimensions: 1);
+
+    topInArrayCondSource = topInArrayCondIsPresent
+        ? LogicArray(
+            name: 'topInArrayCond',
+            topInArrayCondDimensions,
+            topInArrayCondElementWidth,
+            numUnpackedDimensions: topInArrayCondNumUnpackedDimensions,
+            naming: Naming.mergeable)
+        : null;
+    topInArrayCond = topInArrayCondIsPresent
+        ? addInputArray('topInArrayCond', topInArrayCondSource!,
+            dimensions: topInArrayCondDimensions,
+            elementWidth: topInArrayCondElementWidth,
+            numUnpackedDimensions: topInArrayCondNumUnpackedDimensions)
+        : null;
 
     topOut = addOutput('topOut', width: topOutWidth);
 

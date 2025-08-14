@@ -115,7 +115,8 @@ class _PortInfo {
     if (direction == _PortDirection.input ||
         direction == _PortDirection.inOut) {
       // we need to declare the source variable
-      buffer.writeln('/// The external source for the [${genInfo.name}] port.');
+      buffer.writeln(
+          '/// The [${accessorFunction}Source] for the [${genInfo.name}] port.');
 
       switch (origin) {
         case _PortInfoOrigin.constructorArgAnnotation:
