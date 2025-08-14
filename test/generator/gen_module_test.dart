@@ -56,7 +56,7 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
   @Input()
   late final Logic topIn;
 
-  @Input(logicName: 'top_in_new_name')
+  @Input(name: 'top_in_new_name')
   late final Logic topInNewName;
 
   @Input(width: 8)
@@ -72,7 +72,7 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
   late final LogicArray topInArray;
 
   @Input.array(
-      logicName: 'top_in_array_specd',
+      name: 'top_in_array_specd',
       elementWidth: 4,
       dimensions: [7, 6],
       numUnpackedDimensions: 1,
@@ -90,7 +90,7 @@ with a blank line later too
   @Output()
   late final Logic topOut;
 
-  @Output(logicName: 'top_out_new_name')
+  @Output(name: 'top_out_new_name')
   late final Logic topOutNewName;
 
   @Output(width: 8)
@@ -146,6 +146,8 @@ with a blank line later too
 }
 
 //TODO: test with Logic instead of super
+
+//TODO: what happens with multiple constructors?
 
 void main() {
   group('simple module', () {

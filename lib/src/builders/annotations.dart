@@ -3,35 +3,35 @@ import 'package:rohd/src/builders/gen_info.dart';
 
 class Input extends GenInfo {
   const Input({
-    super.logicName,
+    super.name,
     super.width, //TODO: default is 1? nullable still is dynamic?
     super.description,
   }) : super(logicType: LogicType.logic);
 
   const Input.array({
-    super.logicName,
+    super.name,
     int? elementWidth,
     super.dimensions,
     super.numUnpackedDimensions,
     super.description,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
-  const Input.struct({
+  const Input.typed({
     super.description,
-    super.logicName,
-  }) : super(logicType: LogicType.struct);
+    super.name,
+  }) : super(logicType: LogicType.typed);
 }
 
 class Output extends GenInfo {
   const Output({
-    super.logicName,
+    super.name,
     super.width,
     super.description,
     // super.isNet,
   }) : super(logicType: LogicType.logic);
 
   const Output.array({
-    super.logicName,
+    super.name,
     int? elementWidth,
     super.dimensions,
     super.numUnpackedDimensions,
@@ -39,32 +39,32 @@ class Output extends GenInfo {
     // super.isNet,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
-  const Output.struct({
+  const Output.typed({
     super.description,
-    super.logicName,
+    super.name,
     // super.isNet,
-  }) : super(logicType: LogicType.struct);
+  }) : super(logicType: LogicType.typed);
 }
 
 class InOut extends GenInfo {
   const InOut({
-    super.logicName,
+    super.name,
     super.width,
     super.description,
   }) : super(logicType: LogicType.logic);
 
   const InOut.array({
-    super.logicName,
+    super.name,
     int? elementWidth,
     super.dimensions,
     super.numUnpackedDimensions,
     super.description,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
-  const InOut.struct({
+  const InOut.typed({
     super.description,
-    super.logicName,
-  }) : super(logicType: LogicType.struct);
+    super.name,
+  }) : super(logicType: LogicType.typed);
 }
 
 // TODO: annotation for adding interfaces to modules
@@ -74,21 +74,21 @@ class Intf {}
 
 class StructField extends GenInfo {
   const StructField({
-    super.logicName,
+    super.name,
     super.width,
   }) : super(logicType: LogicType.logic);
 
   const StructField.array({
-    super.logicName,
+    super.name,
     super.dimensions,
     super.numUnpackedDimensions,
     int? elementWidth,
     // super.isNet,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
-  const StructField.struct({
-    super.logicName,
-  }) : super(logicType: LogicType.struct);
+  const StructField.typed({
+    super.name,
+  }) : super(logicType: LogicType.typed);
 }
 
 // TODO: consider name: InterfacePort, but then Intf above?
@@ -97,22 +97,22 @@ class IntfPort<TagType extends Enum> extends GenInfo {
 
   const IntfPort(
     this.tag, {
-    super.logicName,
+    super.name,
     super.width,
   }) : super(logicType: LogicType.logic);
 
   const IntfPort.array(
     this.tag, {
-    super.logicName,
+    super.name,
     int? elementWidth,
     super.dimensions,
     super.numUnpackedDimensions,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
-  const IntfPort.struct(
+  const IntfPort.typed(
     this.tag, {
-    super.logicName,
-  }) : super(logicType: LogicType.struct);
+    super.name,
+  }) : super(logicType: LogicType.typed);
 }
 
 //TODO: InOut

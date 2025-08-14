@@ -32,7 +32,7 @@ class KitchenSinkStruct extends _$KitchenSinkStruct {
   @StructField.array()
   late final LogicArray array;
 
-  @StructField.struct()
+  @StructField.typed()
   late final ExampleStructWithGen struct;
 
   KitchenSinkStruct({super.name});

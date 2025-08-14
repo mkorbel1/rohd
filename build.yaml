@@ -25,3 +25,4 @@ targets:
         options:
           ignore_for_file:
             - avoid_setters_without_getters
+            - unused_element_parameter

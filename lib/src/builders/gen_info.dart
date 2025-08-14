@@ -14,7 +14,7 @@ enum LogicType {
   array,
 
   /// a [LogicStructure], or some other derivative class
-  struct;
+  typed;
 
   static LogicType fromTypeName(String typeName) {
     switch (typeName) {
@@ -24,7 +24,7 @@ enum LogicType {
       case 'LogicArray':
         return LogicType.array;
       default:
-        return LogicType.struct;
+        return LogicType.typed;
     }
   }
 
@@ -34,7 +34,7 @@ enum LogicType {
         return 'Logic';
       case LogicType.array:
         return 'LogicArray';
-      case LogicType.struct:
+      case LogicType.typed:
         return null; // Structs don't have a specific type name
     }
   }
@@ -43,7 +43,7 @@ enum LogicType {
 class GenInfo {
   //TODO: should run sanitizer on the name?
 
-  /// The name to use for the [Logic], if different from the variable [name].
+  /// The name to use for the [Logic].
   final String? logicName;
 
   final String? description; //TODO: test multi-line descriptions
@@ -61,13 +61,13 @@ class GenInfo {
 
   const GenInfo({
     required this.logicType,
-    this.logicName,
+    String? name,
     this.width,
     this.dimensions,
     this.numUnpackedDimensions,
     this.description,
     // this.isNet = false,
-  });
+  }) : logicName = name;
 }
 
 class GenInfoExtracted extends GenInfo {
@@ -91,7 +91,7 @@ class GenInfoExtracted extends GenInfo {
 
   GenInfoExtracted({
     required this.name,
-    required super.logicName,
+    required String? logicName,
     required this.paramType,
     super.width,
     super.description,
@@ -102,27 +102,30 @@ class GenInfoExtracted extends GenInfo {
     this.annotationName,
     this.structDefaultConstructorType,
     required this.referenceName,
-  }) : super(logicType: LogicType.fromTypeName(typeName));
+  }) : super(
+          logicType: LogicType.fromTypeName(typeName),
+          name: logicName,
+        );
 
   /// The `width` or `elementWidth` argument, if any, passed in from the
   /// module's constructor.
   String? get widthName => switch (logicType) {
         LogicType.logic => width != null ? null : '${name}Width',
         LogicType.array => width != null ? null : '${name}ElementWidth',
-        LogicType.struct => null, // structs don't have width
+        LogicType.typed => null, // structs don't have width
       };
 
   String? get numUnpackedDimensionsName => switch (logicType) {
         LogicType.logic => null, // logic doesn't have dimensions
         LogicType.array =>
           numUnpackedDimensions == null ? '${name}NumUnpackedDimensions' : null,
-        LogicType.struct => null, // structs don't have dimensions
+        LogicType.typed => null, // structs don't have dimensions
       };
 
   String? get dimensionsName => switch (logicType) {
         LogicType.logic => null, // logic doesn't have dimensions
         LogicType.array => dimensions == null ? '${name}Dimensions' : null,
-        LogicType.struct => null, // structs don't have dimensions
+        LogicType.typed => null, // structs don't have dimensions
       };
 
   String _referenceWidthAdjustment(String widthArgName) {
@@ -176,7 +179,7 @@ class GenInfoExtracted extends GenInfo {
                   isNamed: true,
                 ),
             },
-        LogicType.struct => '',
+        LogicType.typed => '',
       };
 
   List<FormalParameter> get configurationParameters {
@@ -499,7 +502,7 @@ class GenInfoExtracted extends GenInfo {
     );
   }
 
-  /// If [logicType] is [LogicType.struct], the type of default constructor
+  /// If [logicType] is [LogicType.typed], the type of default constructor
   /// available, else `null`.
   StructDefaultConstructorType? structDefaultConstructorType;
 
@@ -509,7 +512,7 @@ class GenInfoExtracted extends GenInfo {
   /// must be provided.
   String? genConstructorCall({Naming? naming}) {
     switch (logicType) {
-      case LogicType.struct:
+      case LogicType.typed:
         return genStructConstructorCall(
           structDefaultConstructorType!,
           typeName: typeName,

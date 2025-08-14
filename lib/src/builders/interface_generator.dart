@@ -101,7 +101,7 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     }
 
     for (final structPort in ports.values.flattened
-        .where((e) => e.logicType == LogicType.struct)) {
+        .where((e) => e.logicType == LogicType.typed)) {
       final isOptional = structPort.isConditional ||
           structPort.structDefaultConstructorType! !=
               StructDefaultConstructorType.unusable;
@@ -166,7 +166,7 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
 
         final constructorString = genLogic.genConstructorCall();
 
-        if (genLogic.logicType == LogicType.struct) {
+        if (genLogic.logicType == LogicType.typed) {
           if (constructorString == null) {
             portString = genLogic.name;
           } else {

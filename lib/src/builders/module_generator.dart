@@ -143,17 +143,17 @@ class _PortInfo {
       _PortDirection.input => switch (genInfo.logicType) {
           LogicType.logic => 'addInput',
           LogicType.array => 'addInputArray',
-          LogicType.struct => 'addMatchedInput',
+          LogicType.typed => 'addMatchedInput',
         },
       _PortDirection.output => switch (genInfo.logicType) {
           LogicType.logic => 'addOutput',
           LogicType.array => 'addOutputArray',
-          LogicType.struct => 'addMatchedOutput',
+          LogicType.typed => 'addMatchedOutput',
         },
       _PortDirection.inOut => switch (genInfo.logicType) {
           LogicType.logic => 'addInOut',
           LogicType.array => 'addInOutArray',
-          LogicType.struct => 'addMatchedInOut',
+          LogicType.typed => 'addMatchedInOut',
         },
     };
 
@@ -162,7 +162,7 @@ class _PortInfo {
           _PortDirection.input || _PortDirection.inOut => ', $sourceName',
           _PortDirection.output => '',
         },
-      LogicType.struct => ', $sourceName',
+      LogicType.typed => ', $sourceName',
     };
 
     // create the source here, if necessary
