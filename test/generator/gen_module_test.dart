@@ -110,6 +110,11 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
     @Input() Logic? super.botInNamedOptional,
     super.topInCondIsPresent = true,
     super.topOutCondIsPresent = true,
+    super.topInWidth,
+    super.name,
+    super.reserveName,
+    super.reserveDefinitionName,
+    super.definitionName,
   });
 
   //TODO: also need to test positional optional inputs
@@ -150,13 +155,18 @@ void main() {
     final dut = KitchenGenSinkModule(Logic(), Logic(),
         botInNamed: Logic(), botInNamedOptional: Logic());
 
-    final dutNoConds = KitchenGenSinkModule(
+    final dutAdjusted = KitchenGenSinkModule(
       Logic(),
       Logic(),
       botInNamed: Logic(),
       botInNamedOptional: Logic(),
       topInCondIsPresent: false,
       topOutCondIsPresent: false,
+      topInWidth: 16,
+      name: 'adjusted',
+      reserveName: true,
+      definitionName: 'adjusted_definition',
+      reserveDefinitionName: true,
     );
 
     await dut.build();
@@ -164,10 +174,17 @@ void main() {
     final genFileContents =
         File('test/generator/gen_module_test.g.dart').readAsStringSync();
 
+    expect(dutAdjusted.name, 'adjusted');
+    expect(dutAdjusted.reserveName, isTrue);
+    expect(dutAdjusted.definitionName, 'adjusted_definition');
+    expect(dutAdjusted.reserveDefinitionName, isTrue);
+
     expect(dut.topIn.isInput, isTrue);
     expect(dut.topIn.name, 'topIn');
     expect(dut.topIn.width, 1);
     expect(dut.topIn.srcConnection, dut.topInSource);
+
+    expect(dutAdjusted.topIn.width, 16);
 
     expect(dut.topInNewName.isInput, isTrue);
     expect(dut.topInNewName.name, 'top_in_new_name');
@@ -190,8 +207,8 @@ void main() {
     expect(dut.topInCond!.width, 1);
     expect(dut.topInCond!.srcConnection, dut.topInCondSource);
 
-    expect(dutNoConds.topInCond, isNull);
-    expect(dutNoConds.topInCondSource, isNull);
+    expect(dutAdjusted.topInCond, isNull);
+    expect(dutAdjusted.topInCondSource, isNull);
 
     expect(dut.topOut.isOutput, isTrue);
     expect(dut.topOut.name, 'topOut');
