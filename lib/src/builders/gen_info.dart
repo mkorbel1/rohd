@@ -153,25 +153,28 @@ class GenInfoExtracted extends GenInfo {
             1 => '',
             _ => ', width: $width',
           },
-        LogicType.array => switch (dimensions) {
-              null => _widthSettingWithReferenceAdjustment(
-                  'dimensions', dimensionsName!,
-                  isNamed: !isLogicConstructor),
-              _ => ', dimensions: const $dimensions',
-            } +
+        LogicType.array => _widthSettingWithReferenceAdjustment(
+              'dimensions',
+              dimensions == null ? dimensionsName! : 'const $dimensions',
+              isNamed: !isLogicConstructor,
+            ) +
             switch (width) {
-              null => _widthSettingWithReferenceAdjustment(
-                  'elementWidth', widthName!,
-                  isNamed: !isLogicConstructor),
               1 => '',
-              _ => ', elementWidth: $width',
+              _ => _widthSettingWithReferenceAdjustment(
+                  'elementWidth',
+                  width == null ? widthName! : '$width',
+                  isNamed: !isLogicConstructor,
+                ),
             } +
             switch (numUnpackedDimensions) {
-              null => _widthSettingWithReferenceAdjustment(
-                  'numUnpackedDimensions', numUnpackedDimensionsName!,
-                  isNamed: true),
               0 => '',
-              _ => ', numUnpackedDimensions: $numUnpackedDimensions',
+              _ => _widthSettingWithReferenceAdjustment(
+                  'numUnpackedDimensions',
+                  numUnpackedDimensions == null
+                      ? numUnpackedDimensionsName!
+                      : '$numUnpackedDimensions',
+                  isNamed: true,
+                ),
             },
         LogicType.struct => '',
       };

@@ -31,15 +31,29 @@ abstract class _$ExampleStructWithGen extends LogicStructure {
 }
 
 abstract class _$KitchenSinkStruct extends LogicStructure {
+  set struct(ExampleStructWithGen struct);
+  set array(LogicArray array);
   set basic(Logic basic);
 
   _$KitchenSinkStruct({
     super.name = 'KitchenSinkStruct',
+    int arrayElementWidth = 1,
+    List<int> arrayDimensions = const [1],
+    int arrayNumUnpackedDimensions = 0,
     int basicWidth = 1,
   }) : super([
+          ExampleStructWithGen(),
+          LogicArray(
+              name: 'array',
+              arrayDimensions,
+              arrayElementWidth,
+              numUnpackedDimensions: arrayNumUnpackedDimensions,
+              naming: Naming.mergeable),
           Logic(name: 'basic', width: basicWidth, naming: Naming.mergeable)
         ]) {
-    this.basic = elements[0] as Logic;
+    this.struct = elements[0] as ExampleStructWithGen;
+    this.array = elements[1] as LogicArray;
+    this.basic = elements[2] as Logic;
   }
 
   @override

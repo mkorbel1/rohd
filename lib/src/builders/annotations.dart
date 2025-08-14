@@ -12,6 +12,7 @@ class Input extends GenInfo {
     super.logicName,
     int? elementWidth,
     super.dimensions,
+    super.numUnpackedDimensions,
     super.description,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
@@ -56,6 +57,7 @@ class InOut extends GenInfo {
     super.logicName,
     int? elementWidth,
     super.dimensions,
+    super.numUnpackedDimensions,
     super.description,
   }) : super(width: elementWidth, logicType: LogicType.array);
 

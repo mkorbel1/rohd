@@ -93,8 +93,8 @@ import 'package:rohd/src/builders/parameters.dart';
 ElementAnnotation? extractAnnotation(
         Annotatable field, String annotationName) =>
     //TODO: make this look at class instead??
-    field.metadata2.annotations
-        .firstWhereOrNull((a) => a.element2?.displayName == annotationName);
+    field.metadata2.annotations.firstWhereOrNull(
+        (a) => a.element2?.enclosingElement2?.displayName == annotationName);
 
 /// Creates a string to put into the constructor args.
 String _constructorArguments(List<FormalParameter> params) {

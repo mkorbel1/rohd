@@ -68,6 +68,16 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
   @Input()
   late final Logic? topInCond;
 
+  @Input.array()
+  late final LogicArray topInArray;
+
+  @Input.array(
+      logicName: 'top_in_array_specd',
+      elementWidth: 4,
+      dimensions: [7, 6],
+      numUnpackedDimensions: 1)
+  late final LogicArray topInArraySpecd;
+
   @Output()
   late final Logic topOut;
 
@@ -112,6 +122,9 @@ class KitchenGenSinkModule extends _$KitchenGenSinkModule {
     super.topInCondIsPresent = true,
     super.topOutCondIsPresent = true,
     super.topInWidth,
+    super.topInArrayElementWidth,
+    super.topInArrayDimensions,
+    super.topInArrayNumUnpackedDimensions,
     super.name,
     super.reserveName,
     super.reserveDefinitionName,
@@ -172,6 +185,9 @@ void main() {
       topInCondIsPresent: false,
       topOutCondIsPresent: false,
       topInWidth: 16,
+      topInArrayElementWidth: 4,
+      topInArrayDimensions: const [5, 6],
+      topInArrayNumUnpackedDimensions: 1,
       name: 'adjusted',
       reserveName: true,
       definitionName: 'adjusted_definition',
@@ -218,6 +234,27 @@ void main() {
 
     expect(dutAdjusted.topInCond, isNull);
     expect(dutAdjusted.topInCondSource, isNull);
+
+    expect(dut.topInArray.isInput, isTrue);
+    expect(dut.topInArray.name, 'topInArray');
+    expect(dut.topInArray.width, 1);
+    expect(dut.topInArray.elementWidth, 1);
+    expect(dut.topInArray.dimensions, const [1]);
+    expect(dut.topInArray.numUnpackedDimensions, 0);
+    expect(dut.topInArray.srcConnections.first,
+        dut.topInArraySource.elements.first);
+
+    expect(dutAdjusted.topInArray.elementWidth, 4);
+    expect(dutAdjusted.topInArray.dimensions, const [5, 6]);
+    expect(dutAdjusted.topInArray.numUnpackedDimensions, 1);
+
+    expect(dut.topInArraySpecd.isInput, isTrue);
+    expect(dut.topInArraySpecd.name, 'top_in_array_specd');
+    expect(dut.topInArraySpecd.elementWidth, 4);
+    expect(dut.topInArraySpecd.dimensions, const [7, 6]);
+    expect(dut.topInArraySpecd.numUnpackedDimensions, 1);
+    expect(dut.topInArraySpecd.srcConnections.first,
+        dut.topInArraySpecdSource.leafElements.first);
 
     expect(dut.topOut.isOutput, isTrue);
     expect(dut.topOut.name, 'topOut');
