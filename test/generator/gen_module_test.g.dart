@@ -594,7 +594,7 @@ abstract class _$KitchenGenSinkModule extends Module {
             width: topInOutCondWidth)
         : null;
 
-    topInOutArraySource = LogicArray(
+    topInOutArraySource = LogicArray.net(
         name: 'top_in_out_arr',
         const [2, 3],
         4,
@@ -603,7 +603,7 @@ abstract class _$KitchenGenSinkModule extends Module {
     topInOutArray = addInOutArray('top_in_out_arr', topInOutArraySource,
         dimensions: const [2, 3], elementWidth: 4, numUnpackedDimensions: 1);
 
-    topInOutArrayUnspecifiedSource = LogicArray(
+    topInOutArrayUnspecifiedSource = LogicArray.net(
         name: 'topInOutArrayUnspecified',
         topInOutArrayUnspecifiedDimensions,
         topInOutArrayUnspecifiedElementWidth,
@@ -616,7 +616,7 @@ abstract class _$KitchenGenSinkModule extends Module {
         numUnpackedDimensions: topInOutArrayUnspecifiedNumUnpackedDimensions);
 
     topInOutArrayCondSource = topInOutArrayCondIsPresent
-        ? LogicArray(
+        ? LogicArray.net(
             name: 'topInOutArrayCond',
             topInOutArrayCondDimensions,
             topInOutArrayCondElementWidth,

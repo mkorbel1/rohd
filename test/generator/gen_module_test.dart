@@ -273,8 +273,8 @@ with a blank line later too
     super.topInOutArrayUnspecifiedElementWidth,
     super.topInOutArrayUnspecifiedDimensions,
     super.topInOutArrayUnspecifiedNumUnpackedDimensions,
-    super.topInOutArrayCondIsPresent,
-    super.topInOutStructCondIsPresent,
+    super.topInOutArrayCondIsPresent = true,
+    super.topInOutStructCondIsPresent = true,
   }) : super(
           requiredNonNameArgsStructSource: RequiredNonNameArgsStruct(
               aWidth: 9, name: 'specified_super_name'),
@@ -605,7 +605,7 @@ void main() {
     expect(dut.topInOutArrayCond!.name, 'topInOutArrayCond');
     expect(dut.topInOutArrayCond!.srcConnections.first,
         dut.topInOutArrayCondSource!.leafElements.first);
-    expect(dut.topInOutArrayCondSource, isA<LogicNet>());
+    expect(dut.topInOutArrayCondSource, isA<LogicArray>());
     expect(dut.topInOutArrayCondSource!.isNet, isTrue);
 
     expect(dutAdjusted.topInOutArrayCond, isNull);
@@ -615,17 +615,16 @@ void main() {
     expect(dut.topInOutStruct.isNet, isTrue);
     expect(dut.topInOutStruct, isA<InOutStruct>());
     expect(dut.topInOutStruct.name, 'top_in_out_struct');
-    expect(dut.topInOutStruct.srcConnection, dut.topInOutStructSource);
+    expect(dut.topInOutStruct.elements.first.srcConnections.first,
+        dut.topInOutStructSource.leafElements.first);
     expect(dut.topInOutStructSource, isA<InOutStruct>());
     expect(dut.topInOutStructSource.isNet, isTrue);
     expect(genFileContents, contains('/// top in out struct desc'));
-    expect(dut.topInOutStruct.elements.first.srcConnection,
-        dut.topInOutStructSource.elements.first);
 
     expect(dut.topInOutStructCond!.isInOut, isTrue);
     expect(dut.topInOutStructCond, isA<InOutStruct>());
     expect(dut.topInOutStructCond!.name, 'topInOutStructCond');
-    expect(dut.topInOutStructCond!.elements.first.srcConnection,
+    expect(dut.topInOutStructCond!.elements.first.srcConnections.first,
         dut.topInOutStructCondSource!.leafElements.first);
     expect(dut.topInOutStructCondSource, isA<InOutStruct>());
     expect(dut.topInOutStructCondSource!.isNet, isTrue);

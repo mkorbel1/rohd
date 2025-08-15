@@ -28,12 +28,12 @@ enum LogicType {
     }
   }
 
-  String? toTypeName({required bool isNet}) {
+  String? toConstructorName({required bool isNet}) {
     switch (this) {
       case LogicType.logic:
         return isNet ? 'LogicNet' : 'Logic';
       case LogicType.array:
-        return 'LogicArray';
+        return isNet ? 'LogicArray.net' : 'LogicArray';
       case LogicType.typed:
         return null; // Structs don't have a specific type name
     }
@@ -504,7 +504,7 @@ class GenInfoExtracted extends GenInfo {
       case LogicType.logic || LogicType.array:
         final namingStr = naming == null ? '' : ', naming: $naming';
         final nameStr = nameVariable ?? "'$logicName'";
-        return '${logicType.toTypeName(isNet: isNet)}(name: $nameStr'
+        return '${logicType.toConstructorName(isNet: isNet)}(name: $nameStr'
             ' ${widthString(isLogicConstructor: true)} $namingStr)';
     }
   }
