@@ -188,6 +188,20 @@ abstract class _$KitchenGenSinkModule extends Module {
   /// The [inputSource] for the [namedNameableStructSpecd] port.
   late final NamedNameableStruct namedNameableStructSpecdSource;
 
+  @protected
+  @visibleForOverriding
+  set topTypedLogicIn(Logic topTypedLogicIn);
+
+  /// The [inputSource] for the [topTypedLogicIn] port.
+  late final Logic topTypedLogicInSource;
+
+  @protected
+  @visibleForOverriding
+  set topTypedLogicArrayIn(LogicArray topTypedLogicArrayIn);
+
+  /// The [inputSource] for the [topTypedLogicArrayIn] port.
+  late final LogicArray topTypedLogicArrayInSource;
+
   @visibleForOverriding
   set topOut(Logic topOut);
 
@@ -257,12 +271,12 @@ abstract class _$KitchenGenSinkModule extends Module {
     Logic botInPos,
     Logic botInPosWidthed,
     Logic? botInPosNullable, {
-    required Logic botInNamed,
+    required this.requiredNonNameArgsStructSource,
     required bool topOutCondIsPresent,
     required bool topInArrayCondIsPresent,
     required bool topInCondIsPresent,
-    required this.requiredNonNameArgsStructSource,
-    OptionalNonNameArgsStruct? optionalNonNameArgsStructSource,
+    required Logic botInNamed,
+    NamedNameableStruct? namedNameableStructSpecdSource,
     Logic? botInNamedOptional,
     super.name,
     super.reserveName,
@@ -270,9 +284,9 @@ abstract class _$KitchenGenSinkModule extends Module {
     NamedNameableStruct? namedNameableStructSource,
     PosNameableStruct? posNameableStructSource,
     OptPosNameableStruct? optPosNameableStructSource,
+    OptionalNonNameArgsStruct? optionalNonNameArgsStructSource,
     super.definitionName,
     super.reserveDefinitionName,
-    NamedNameableStruct? namedNameableStructSpecdSource,
     int topInWidth = 1,
     int topInNewNameWidth = 1,
     int topInDescWidth = 1,
@@ -283,8 +297,12 @@ abstract class _$KitchenGenSinkModule extends Module {
     int topInArrayCondElementWidth = 1,
     List<int> topInArrayCondDimensions = const [1],
     int topInArrayCondNumUnpackedDimensions = 0,
-    int topOutWidth = 1,
+    int topTypedLogicInWidth = 1,
+    int topTypedLogicArrayInElementWidth = 1,
+    List<int> topTypedLogicArrayInDimensions = const [1],
     int? botInNamedOptionalWidth,
+    int topOutWidth = 1,
+    int topOutNewNameWidth = 1,
     int topOutDescWidth = 1,
     int topOutCondWidth = 1,
     int topOutDynWidthWidth = 1,
@@ -298,7 +316,7 @@ abstract class _$KitchenGenSinkModule extends Module {
     int? botInPosWidth,
     int? botInPosNullableWidth,
     int? botInNamedWidth,
-    int topOutNewNameWidth = 1,
+    int topTypedLogicArrayInNumUnpackedDimensions = 0,
   }) : super() {
     topInSource =
         Logic(name: 'topIn', width: topInWidth, naming: Naming.mergeable);
@@ -392,6 +410,25 @@ abstract class _$KitchenGenSinkModule extends Module {
         namedNameableStructSpecdSource ?? (NamedNameableStruct('specd_struct'));
     namedNameableStructSpecd =
         addTypedInput('specd_struct', this.namedNameableStructSpecdSource);
+
+    topTypedLogicInSource = Logic(
+        name: 'topTypedLogicIn',
+        width: topTypedLogicInWidth,
+        naming: Naming.mergeable);
+    topTypedLogicIn = addInput('topTypedLogicIn', topTypedLogicInSource,
+        width: topTypedLogicInWidth);
+
+    topTypedLogicArrayInSource = LogicArray(
+        name: 'topTypedLogicArrayIn',
+        topTypedLogicArrayInDimensions,
+        topTypedLogicArrayInElementWidth,
+        numUnpackedDimensions: topTypedLogicArrayInNumUnpackedDimensions,
+        naming: Naming.mergeable);
+    topTypedLogicArrayIn = addInputArray(
+        'topTypedLogicArrayIn', topTypedLogicArrayInSource,
+        dimensions: topTypedLogicArrayInDimensions,
+        elementWidth: topTypedLogicArrayInElementWidth,
+        numUnpackedDimensions: topTypedLogicArrayInNumUnpackedDimensions);
 
     topOut = addOutput('topOut', width: topOutWidth);
 

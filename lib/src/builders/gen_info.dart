@@ -456,7 +456,7 @@ class GenInfoExtracted extends GenInfo {
     switch (logicType) {
       case LogicType.typed:
         return genStructConstructorCall(
-          structDefaultConstructorType!,
+          structDefaultConstructorType,
           typeName: typeName,
           logicName: logicName,
         );
@@ -468,10 +468,13 @@ class GenInfoExtracted extends GenInfo {
   }
 
   static String? genStructConstructorCall(
-    StructDefaultConstructorType structDefaultConstructorType, {
+    StructDefaultConstructorType? structDefaultConstructorType, {
     required String typeName,
     required String logicName,
   }) {
+    if (structDefaultConstructorType == null) {
+      return null;
+    }
     switch (structDefaultConstructorType) {
       case StructDefaultConstructorType.unusable:
         return null; // No usable constructor

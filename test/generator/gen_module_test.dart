@@ -159,6 +159,12 @@ with a blank line later too
   @Input.typed(name: 'specd_struct', description: 'specd struct desc')
   late final NamedNameableStruct namedNameableStructSpecd;
 
+  @Input.typed()
+  late final Logic topTypedLogicIn;
+
+  @Input.typed()
+  late final LogicArray topTypedLogicArrayIn;
+
   @Output()
   late final Logic topOut;
 
@@ -213,8 +219,11 @@ with a blank line later too
     super.definitionName,
     super.botInPosWidth,
   }) : super(
-            requiredNonNameArgsStructSource: RequiredNonNameArgsStruct(
-                aWidth: 9, name: 'specified_super_name'));
+          requiredNonNameArgsStructSource: RequiredNonNameArgsStruct(
+              aWidth: 9, name: 'specified_super_name'),
+          topTypedLogicInWidth: 4,
+          topTypedLogicArrayInElementWidth: 5,
+        );
 
   //TODO: also need to test positional optional inputs
 }
@@ -398,6 +407,14 @@ void main() {
     expect(dut.namedNameableStructSpecd.name, 'specd_struct');
     expect(dut.namedNameableStructSpecdSource.name, 'specd_struct');
     expect(genFileContents, contains('/// specd struct desc'));
+
+    expect(dut.topTypedLogicIn.isInput, isTrue);
+    expect(dut.topTypedLogicIn.width, 4);
+    expect(dut.topTypedLogicIn, isA<Logic>());
+
+    expect(dut.topTypedLogicArrayIn.isInput, isTrue);
+    expect(dut.topTypedLogicArrayIn.elementWidth, 5);
+    expect(dut.topTypedLogicArrayIn, isA<LogicArray>());
 
     expect(dut.topOut.isOutput, isTrue);
     expect(dut.topOut.name, 'topOut');
