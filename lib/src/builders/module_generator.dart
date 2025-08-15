@@ -72,6 +72,33 @@ class _PortInfo {
         _PortInfoOrigin.fieldAnnotation => '${genInfo.name}Source',
       };
 
+  /// Indicates that the generated base class should include a [sourceName]
+  /// argument for driving the input/inout.
+  bool get needsSourceParameter =>
+      origin == _PortInfoOrigin.fieldAnnotation &&
+      (direction == _PortDirection.input ||
+          direction == _PortDirection.inOut) &&
+      genInfo.logicType == LogicType.typed;
+
+  FormalParameter? get sourceParameter {
+    if (!needsSourceParameter) {
+      return null;
+    }
+
+    final isRequired = genInfo.structDefaultConstructorType ==
+        StructDefaultConstructorType.unusable;
+
+    return FormalParameter(
+      paramType: isRequired ? ParamType.namedRequired : ParamType.namedOptional,
+      name: sourceName,
+      varLocation:
+          isRequired ? ParamVarLocation.this_ : ParamVarLocation.constructor,
+      type: genInfo.typeName,
+      isNullable: genInfo.structDefaultConstructorType !=
+          StructDefaultConstructorType.unusable,
+    );
+  }
+
   String moduleAccessor() {
     // TODO: handle structs
     var accessorFunction = switch (direction) {
@@ -143,17 +170,17 @@ class _PortInfo {
       _PortDirection.input => switch (genInfo.logicType) {
           LogicType.logic => 'addInput',
           LogicType.array => 'addInputArray',
-          LogicType.typed => 'addMatchedInput',
+          LogicType.typed => 'addTypedInput',
         },
       _PortDirection.output => switch (genInfo.logicType) {
           LogicType.logic => 'addOutput',
           LogicType.array => 'addOutputArray',
-          LogicType.typed => 'addMatchedOutput',
+          LogicType.typed => 'addTypedOutput',
         },
       _PortDirection.inOut => switch (genInfo.logicType) {
           LogicType.logic => 'addInOut',
           LogicType.array => 'addInOutArray',
-          LogicType.typed => 'addMatchedInOut',
+          LogicType.typed => 'addTypedInOut',
         },
     };
 
@@ -174,13 +201,31 @@ class _PortInfo {
                 //TODO: what about when struct can't be made?
                 genInfo.genConstructorCall(naming: Naming.mergeable);
 
-            switch (genInfo.isConditional) {
-              case true:
-                buffer.writeln('$sourceName ='
-                    ' $createConditionName ? $constructorCall : null;');
-                sourceStr += '!';
-              case false:
-                buffer.writeln('$sourceName = $constructorCall;');
+            //TODO: doc that if source is provided, then create/`Present` is not relevant
+
+            final sourceConstructionString = switch (genInfo.isConditional) {
+              true => ' $createConditionName ? $constructorCall : null',
+              false => constructorCall,
+            };
+
+            if (genInfo.logicType == LogicType.typed) {
+              assert(
+                  needsSourceParameter, 'Should only get here if we need it.');
+
+              if (!sourceParameter!.paramType.isRequired) {
+                // if it's required, we don't need to do anything, `this.`
+                final addSourceName = 'this.$sourceName';
+                sourceStr = ', $addSourceName';
+
+                buffer.writeln('$addSourceName ='
+                    ' $sourceName ?? ($sourceConstructionString);');
+              }
+            } else {
+              buffer.writeln('$sourceName = $sourceConstructionString;');
+            }
+
+            if (genInfo.isConditional) {
+              sourceStr += '!';
             }
 
           case _PortDirection.output:
@@ -211,36 +256,14 @@ class _PortInfo {
     return buffer.toString();
   }
 
-  static _PortInfo? ofAnnotatedParameter(FormalParameterElement param) {
-    final genInfo = GenInfoExtracted.ofAnnotatedParameter(param);
-    if (genInfo == null) {
-      return null;
-    }
-
-    return _PortInfo(
-      genInfo: genInfo,
-      direction: _PortDirection.ofAnnotationName(genInfo.annotationName!),
-      origin: _PortInfoOrigin.constructorArgAnnotation,
-    );
-  }
-
-  // static _PortInfo ofGenLogicConstReader(
-  //     ConstantReader oConst, _PortDirection direction) {
-  //   final genInfo = GenInfoExtracted.ofGenLogicConstReader(oConst);
-
-  //   return _PortInfo(
-  //     genInfo: genInfo,
-  //     direction: direction,
-  //     origin: _PortInfoOrigin.classAnnotation,
-  //   );
-  // }
-
-  //TODO: add support for List<Logic> things, will be convenient I think.
-
-  static _PortInfo? ofAnnotatedField(FieldElement2 field) {
+  static _PortInfo? ofAnnotated<T>(
+    T t,
+    GenInfoExtracted? Function(T, String annotationName) ofT,
+    _PortInfoOrigin origin,
+  ) {
     for (final portDirection in _PortDirection.values) {
-      final genInfo = GenInfoExtracted.ofAnnotatedField(
-        field,
+      final genInfo = ofT(
+        t,
         portDirection.toAnnotationName(),
       );
 
@@ -248,12 +271,21 @@ class _PortInfo {
         return _PortInfo(
           genInfo: genInfo,
           direction: portDirection,
-          origin: _PortInfoOrigin.fieldAnnotation,
+          origin: origin,
         );
       }
     }
     return null;
   }
+
+  static _PortInfo? ofAnnotatedParameter(FormalParameterElement param) =>
+      ofAnnotated(param, GenInfoExtracted.ofAnnotatedParameter,
+          _PortInfoOrigin.constructorArgAnnotation);
+
+  static _PortInfo? ofAnnotatedField(FieldElement2 field) => ofAnnotated(field,
+      GenInfoExtracted.ofAnnotatedField, _PortInfoOrigin.fieldAnnotation);
+
+  //TODO: add support for List<Logic> things, will be convenient I think.
 }
 
 class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
@@ -268,30 +300,6 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     }
     return portInfos;
   }
-
-  // static List<_PortInfo> _extractPortsFromAnnotation(
-  //     ConstantReader annotation) {
-  //   final portInfos = <_PortInfo>[];
-
-  //   final annotationFieldToDirection = {
-  //     'inputs': _PortDirection.input,
-  //     'outputs': _PortDirection.output,
-  //     'inOuts': _PortDirection.inOut,
-  //   };
-
-  //   for (final MapEntry(key: field, value: direction)
-  //       in annotationFieldToDirection.entries) {
-  //     final dirPortInfos = annotation.peek(field)?.listValue.map((o) {
-  //           final oConst = ConstantReader(o);
-  //           return _PortInfo.ofGenLogicConstReader(oConst, direction);
-  //         }).toList() ??
-  //         [];
-
-  //     portInfos.addAll(dirPortInfos);
-  //   }
-
-  //   return portInfos;
-  // }
 
   static List<_PortInfo> _extractPortsFromAnnotatedFields(Element2 element) {
     final portInfos = <_PortInfo>[];
@@ -372,9 +380,8 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     }
 
     // Add arguments for all the optional presence of ports
-    for (final portInfo in portInfos.where((p) =>
-        // p.origin == _PortInfoOrigin.classAnnotation ||
-        p.origin == _PortInfoOrigin.fieldAnnotation)) {
+    for (final portInfo in portInfos
+        .where((p) => p.origin == _PortInfoOrigin.fieldAnnotation)) {
       if (portInfo.genInfo.isConditional) {
         constructorParams.add(FormalParameter(
           paramType: ParamType.namedRequired,
@@ -383,6 +390,11 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
           type: 'bool',
         ));
       }
+    }
+
+    // Add arguments for typed/struct ports from field annotations
+    for (final portInfo in portInfos.where((p) => p.needsSourceParameter)) {
+      constructorParams.add(portInfo.sourceParameter!);
     }
 
     for (final portInfo in portInfos) {

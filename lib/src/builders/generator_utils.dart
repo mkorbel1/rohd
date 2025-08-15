@@ -92,7 +92,6 @@ import 'package:rohd/src/builders/parameters.dart';
 
 ElementAnnotation? extractAnnotation(
         Annotatable field, String annotationName) =>
-    //TODO: make this look at class instead??
     field.metadata2.annotations.firstWhereOrNull(
         (a) => a.element2?.enclosingElement2?.displayName == annotationName);
 
@@ -112,8 +111,9 @@ String _constructorArguments(List<FormalParameter> params) {
       .map((p) => '$p,')
       .join();
 
-  final namedArgs =
-      params.where((p) => p.paramType.isNamed).map((p) => '$p,').join();
+  final namedArgs = (params.where((p) => p.paramType.isNamed).toList()..sort())
+      .map((p) => '$p,')
+      .join();
 
   if (namedArgs.isNotEmpty && optionalPositionalArgs.isNotEmpty) {
     throw ArgumentError(

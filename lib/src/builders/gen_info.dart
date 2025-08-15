@@ -82,6 +82,8 @@ class GenInfoExtracted extends GenInfo {
 
   final bool isConditional;
 
+  final bool isInitialized;
+
   /// If provided, the name of a reference variable that can be used for
   /// construction of [widthString], etc.
   final String? referenceName;
@@ -102,6 +104,7 @@ class GenInfoExtracted extends GenInfo {
     this.annotationName,
     this.structDefaultConstructorType,
     required this.referenceName,
+    required this.isInitialized,
   }) : super(
           logicType: LogicType.fromTypeName(typeName),
           name: logicName,
@@ -283,6 +286,7 @@ class GenInfoExtracted extends GenInfo {
       referenceName: null,
       structDefaultConstructorType: structDefaultConstructorType,
       description: description,
+      isInitialized: field.hasInitializer,
       //TODO rest of the fields
     );
   }
@@ -321,7 +325,7 @@ class GenInfoExtracted extends GenInfo {
     } else if (hasPositionalName) {
       return StructDefaultConstructorType.namePositional;
     } else {
-      return StructDefaultConstructorType.none;
+      return StructDefaultConstructorType.noName;
     }
   }
 
@@ -376,7 +380,7 @@ class GenInfoExtracted extends GenInfo {
       structDefaultConstructorType =
           StructDefaultConstructorType.namePositional;
     } else {
-      structDefaultConstructorType = StructDefaultConstructorType.none;
+      structDefaultConstructorType = StructDefaultConstructorType.noName;
     }
 
     return (
@@ -386,8 +390,9 @@ class GenInfoExtracted extends GenInfo {
   }
 
   /// Returns `null` if the parameter does not have any port annotation.
-  static GenInfoExtracted? ofAnnotatedParameter(FormalParameterElement param) {
-    final annotation = extractAnnotation(param, 'Input');
+  static GenInfoExtracted? ofAnnotatedParameter(
+      FormalParameterElement param, String annotationName) {
+    final annotation = extractAnnotation(param, annotationName);
 
     if (annotation == null) {
       return null;
@@ -431,74 +436,11 @@ class GenInfoExtracted extends GenInfo {
       name: name,
       logicName: logicName ?? name,
       paramType: paramType,
-      annotationName: 'Input', //TODO: for other types
+      annotationName: annotationName,
       isConditional: isNullable,
       width: width,
       referenceName: name,
-    );
-  }
-
-  // TODO: delete this whole thing?
-  factory GenInfoExtracted.ofGenLogicConstReader(ConstantReader oConst) {
-    final name =
-        oConst.read('name').isNull ? null : oConst.read('name').stringValue;
-
-    if (name == null) {
-      throw ArgumentError('Port name cannot be null');
-    }
-
-    final logicName = oConst.read('logicName').isNull
-        ? name
-        : oConst.read('logicName').stringValue;
-
-    final width =
-        oConst.read('width').isNull ? null : oConst.read('width').intValue;
-
-    final description = oConst.read('description').isNull
-        ? null
-        : oConst.read('description').stringValue;
-    final isConditional = oConst.read('isConditional').boolValue;
-    // final isNullable = oConst.read('isNullable').boolValue;
-    final dimensions = oConst.read('dimensions').isNull
-        ? null
-        : oConst
-            .read('dimensions')
-            .listValue
-            .map((e) => e.toIntValue()!)
-            .toList();
-
-    var typeName = oConst.read('type').isNull
-        ? 'Logic'
-        : oConst.read('type').typeValue.getDisplayString();
-
-    // Attempt to extract constructor arguments from the type, if available
-    StructDefaultConstructorType? structDefaultConstructorType;
-    if (typeName != 'Logic' &&
-        typeName != 'LogicArray' &&
-        !oConst.read('type').isNull) {
-      final typeObj = oConst.read('type').typeValue;
-      final element = typeObj.element3;
-      if (element is ClassElement2) {
-        structDefaultConstructorType =
-            extractStructDefaultConstructorType(element);
-      }
-    }
-
-    if (dimensions != null) {
-      typeName = 'LogicArray';
-    }
-
-    return GenInfoExtracted(
-      name: name,
-      logicName: logicName,
-      width: width,
-      description: description,
-      isConditional: isConditional,
-      paramType: null, // Not a constructor parameter
-      dimensions: dimensions,
-      typeName: typeName,
-      structDefaultConstructorType: structDefaultConstructorType,
-      referenceName: null,
+      isInitialized: true, // since it's always provided
     );
   }
 
@@ -533,7 +475,7 @@ class GenInfoExtracted extends GenInfo {
     switch (structDefaultConstructorType) {
       case StructDefaultConstructorType.unusable:
         return null; // No usable constructor
-      case StructDefaultConstructorType.none:
+      case StructDefaultConstructorType.noName:
         return '$typeName()';
       case StructDefaultConstructorType.namePositional:
         return "$typeName('$logicName')";
@@ -549,8 +491,8 @@ enum StructDefaultConstructorType {
   unusable,
 
   /// The struct has a default constructor that can be used to construct it,
-  /// with no arguments passed.
-  none,
+  /// with no arguments passed.  A `name` argument is not available.
+  noName,
 
   /// The struct has a default constructor that can be used to construct it,
   /// with positional `name` passed as the first argument.

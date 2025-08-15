@@ -126,7 +126,7 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
       buffer.writeln(
           'LogicStructure clone({String? name}) => super.clone(name: name);');
     } else if (defaultConstructorInfo.structDefaultConstructorType ==
-        StructDefaultConstructorType.none) {
+        StructDefaultConstructorType.noName) {
       buffer.writeln(
           '  // This clone method does not properly rename the clone.');
       buffer.writeln('@mustBeOverridden');

@@ -136,6 +136,58 @@ abstract class _$KitchenGenSinkModule extends Module {
   /// The [tryInputSource] for the [topInArrayCond] port.
   late final LogicArray? topInArrayCondSource;
 
+  @protected
+  @visibleForOverriding
+  set noArgStruct(NoArgStruct noArgStruct);
+
+  /// The [inputSource] for the [noArgStruct] port.
+  late final NoArgStruct noArgStructSource;
+
+  @protected
+  @visibleForOverriding
+  set namedNameableStruct(NamedNameableStruct namedNameableStruct);
+
+  /// The [inputSource] for the [namedNameableStruct] port.
+  late final NamedNameableStruct namedNameableStructSource;
+
+  @protected
+  @visibleForOverriding
+  set posNameableStruct(PosNameableStruct posNameableStruct);
+
+  /// The [inputSource] for the [posNameableStruct] port.
+  late final PosNameableStruct posNameableStructSource;
+
+  @protected
+  @visibleForOverriding
+  set optPosNameableStruct(OptPosNameableStruct optPosNameableStruct);
+
+  /// The [inputSource] for the [optPosNameableStruct] port.
+  late final OptPosNameableStruct optPosNameableStructSource;
+
+  @protected
+  @visibleForOverriding
+  set optionalNonNameArgsStruct(
+      OptionalNonNameArgsStruct optionalNonNameArgsStruct);
+
+  /// The [inputSource] for the [optionalNonNameArgsStruct] port.
+  late final OptionalNonNameArgsStruct optionalNonNameArgsStructSource;
+
+  @protected
+  @visibleForOverriding
+  set requiredNonNameArgsStruct(
+      RequiredNonNameArgsStruct requiredNonNameArgsStruct);
+
+  /// The [inputSource] for the [requiredNonNameArgsStruct] port.
+  late final RequiredNonNameArgsStruct requiredNonNameArgsStructSource;
+
+  /// specd struct desc
+  @protected
+  @visibleForOverriding
+  set namedNameableStructSpecd(NamedNameableStruct namedNameableStructSpecd);
+
+  /// The [inputSource] for the [namedNameableStructSpecd] port.
+  late final NamedNameableStruct namedNameableStructSpecdSource;
+
   @visibleForOverriding
   set topOut(Logic topOut);
 
@@ -206,14 +258,21 @@ abstract class _$KitchenGenSinkModule extends Module {
     Logic botInPosWidthed,
     Logic? botInPosNullable, {
     required Logic botInNamed,
+    required bool topOutCondIsPresent,
+    required bool topInArrayCondIsPresent,
+    required bool topInCondIsPresent,
+    required this.requiredNonNameArgsStructSource,
+    OptionalNonNameArgsStruct? optionalNonNameArgsStructSource,
     Logic? botInNamedOptional,
     super.name,
     super.reserveName,
+    NoArgStruct? noArgStructSource,
+    NamedNameableStruct? namedNameableStructSource,
+    PosNameableStruct? posNameableStructSource,
+    OptPosNameableStruct? optPosNameableStructSource,
     super.definitionName,
     super.reserveDefinitionName,
-    required bool topInCondIsPresent,
-    required bool topInArrayCondIsPresent,
-    required bool topOutCondIsPresent,
+    NamedNameableStruct? namedNameableStructSpecdSource,
     int topInWidth = 1,
     int topInNewNameWidth = 1,
     int topInDescWidth = 1,
@@ -225,7 +284,7 @@ abstract class _$KitchenGenSinkModule extends Module {
     List<int> topInArrayCondDimensions = const [1],
     int topInArrayCondNumUnpackedDimensions = 0,
     int topOutWidth = 1,
-    int topOutNewNameWidth = 1,
+    int? botInNamedOptionalWidth,
     int topOutDescWidth = 1,
     int topOutCondWidth = 1,
     int topOutDynWidthWidth = 1,
@@ -239,7 +298,7 @@ abstract class _$KitchenGenSinkModule extends Module {
     int? botInPosWidth,
     int? botInPosNullableWidth,
     int? botInNamedWidth,
-    int? botInNamedOptionalWidth,
+    int topOutNewNameWidth = 1,
   }) : super() {
     topInSource =
         Logic(name: 'topIn', width: topInWidth, naming: Naming.mergeable);
@@ -302,6 +361,37 @@ abstract class _$KitchenGenSinkModule extends Module {
             elementWidth: topInArrayCondElementWidth,
             numUnpackedDimensions: topInArrayCondNumUnpackedDimensions)
         : null;
+
+    this.noArgStructSource = noArgStructSource ?? (NoArgStruct());
+    noArgStruct = addTypedInput('noArgStruct', this.noArgStructSource);
+
+    this.namedNameableStructSource = namedNameableStructSource ??
+        (NamedNameableStruct('namedNameableStruct'));
+    namedNameableStruct =
+        addTypedInput('namedNameableStruct', this.namedNameableStructSource);
+
+    this.posNameableStructSource = posNameableStructSource ??
+        (PosNameableStruct(name: 'posNameableStruct'));
+    posNameableStruct =
+        addTypedInput('posNameableStruct', this.posNameableStructSource);
+
+    this.optPosNameableStructSource = optPosNameableStructSource ??
+        (OptPosNameableStruct('optPosNameableStruct'));
+    optPosNameableStruct =
+        addTypedInput('optPosNameableStruct', this.optPosNameableStructSource);
+
+    this.optionalNonNameArgsStructSource = optionalNonNameArgsStructSource ??
+        (OptionalNonNameArgsStruct(name: 'optionalNonNameArgsStruct'));
+    optionalNonNameArgsStruct = addTypedInput(
+        'optionalNonNameArgsStruct', this.optionalNonNameArgsStructSource);
+
+    requiredNonNameArgsStruct = addTypedInput(
+        'requiredNonNameArgsStruct', requiredNonNameArgsStructSource);
+
+    this.namedNameableStructSpecdSource =
+        namedNameableStructSpecdSource ?? (NamedNameableStruct('specd_struct'));
+    namedNameableStructSpecd =
+        addTypedInput('specd_struct', this.namedNameableStructSpecdSource);
 
     topOut = addOutput('topOut', width: topOutWidth);
 

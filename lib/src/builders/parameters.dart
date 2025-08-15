@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 enum ParamType {
   requiredPositional(isRequired: true, isPositional: true),
   optionalPositional(isPositional: true),
@@ -17,18 +19,19 @@ enum ParamVarLocation {
 }
 
 /// A parameter of the generated class's constructor.
-class FormalParameter {
-  ParamType paramType;
+@immutable
+class FormalParameter implements Comparable<FormalParameter> {
+  final ParamType paramType;
 
-  String name;
+  final String name;
 
-  String? type;
+  final String? type;
 
-  bool isNullable;
+  final bool isNullable;
 
-  String? defaultValue;
+  final String? defaultValue;
 
-  ParamVarLocation varLocation;
+  final ParamVarLocation varLocation;
 
   FormalParameter({
     required this.paramType,
@@ -59,7 +62,7 @@ class FormalParameter {
         return '${requiredPrefix}super.$name$defaultSuffix';
 
       case ParamVarLocation.this_:
-        return 'this.$name$defaultSuffix';
+        return '${requiredPrefix}this.$name$defaultSuffix';
 
       case ParamVarLocation.constructor:
         final nullableSuffix = isNullable ? '?' : '';
@@ -67,6 +70,15 @@ class FormalParameter {
         return '$requiredPrefix $type $nullableSuffix $name$defaultSuffix';
     }
   }
+
+  @override
+  int compareTo(FormalParameter other) =>
+      // make it so required args come before non-required ones
+      other.paramType.isRequired
+          ? 1
+          : paramType.isRequired
+              ? -1
+              : 0;
 }
 
 /// A parameter passed to the generated class's super constructor.

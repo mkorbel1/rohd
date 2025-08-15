@@ -11,22 +11,6 @@ import 'package:source_gen/source_gen.dart';
 //TODO allow sub-interfaces to be added in the generator (but only to pair interfaces?)
 
 class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
-  static Map<String, List<GenInfoExtracted>> _extractPortsFromAnnotation(
-          ConstantReader annotation) =>
-      annotation.peek('ports')?.mapValue.map((key, value) {
-        final genLogics = value?.toListValue()?.map((o) {
-              final oConst = ConstantReader(o);
-              return GenInfoExtracted.ofGenLogicConstReader(oConst);
-            }).toList() ??
-            [];
-
-        final keyTypeName = key!.type!.getDisplayString();
-        final keyValueName = ConstantReader(key.getField('_name')).stringValue;
-
-        return MapEntry('$keyTypeName.$keyValueName', genLogics);
-      }) ??
-      {};
-
   static Map<String, List<GenInfoExtracted>> _extractPortsFromClass(
       Element2 element) {
     final ports = <String, List<GenInfoExtracted>>{};

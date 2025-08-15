@@ -10,6 +10,57 @@ import 'package:test/test.dart';
 
 part 'gen_module_test.g.dart';
 
+class NoArgStruct extends LogicStructure {
+  NoArgStruct() : super([Logic(name: 'a')]);
+
+  NoArgStruct._({super.name}) : super([Logic(name: 'a')]);
+
+  @override
+  NoArgStruct clone({String? name}) => NoArgStruct._(name: name);
+}
+
+class NamedNameableStruct extends LogicStructure {
+  NamedNameableStruct(String name) : super([Logic(name: 'a')], name: name);
+
+  @override
+  NamedNameableStruct clone({String? name}) =>
+      NamedNameableStruct(name ?? this.name);
+}
+
+class PosNameableStruct extends LogicStructure {
+  PosNameableStruct({super.name}) : super([Logic(name: 'a')]);
+
+  @override
+  PosNameableStruct clone({String? name}) =>
+      PosNameableStruct(name: name ?? this.name);
+}
+
+class OptPosNameableStruct extends LogicStructure {
+  OptPosNameableStruct([String? name]) : super([Logic(name: 'a')], name: name);
+
+  @override
+  OptPosNameableStruct clone({String? name}) =>
+      OptPosNameableStruct(name ?? this.name);
+}
+
+class OptionalNonNameArgsStruct extends LogicStructure {
+  OptionalNonNameArgsStruct({super.name, int aWidth = 5})
+      : super([Logic(name: 'a', width: aWidth)]);
+
+  @override
+  OptionalNonNameArgsStruct clone({String? name}) => OptionalNonNameArgsStruct(
+      name: name ?? this.name, aWidth: elements.first.width);
+}
+
+class RequiredNonNameArgsStruct extends LogicStructure {
+  RequiredNonNameArgsStruct({super.name, required int aWidth})
+      : super([Logic(name: 'a', width: aWidth)]);
+
+  @override
+  RequiredNonNameArgsStruct clone({String? name}) => RequiredNonNameArgsStruct(
+      name: name ?? this.name, aWidth: elements.first.width);
+}
+
 class ExampleModule extends Module {
   Logic get b => output('b');
   ExampleModule(Logic a) {
@@ -87,6 +138,27 @@ with a blank line later too
   @Input.array()
   late final LogicArray? topInArrayCond;
 
+  @Input.typed()
+  late final NoArgStruct noArgStruct;
+
+  @Input.typed()
+  late final NamedNameableStruct namedNameableStruct;
+
+  @Input.typed()
+  late final PosNameableStruct posNameableStruct;
+
+  @Input.typed()
+  late final OptPosNameableStruct optPosNameableStruct;
+
+  @Input.typed()
+  late final OptionalNonNameArgsStruct optionalNonNameArgsStruct;
+
+  @Input.typed()
+  late final RequiredNonNameArgsStruct requiredNonNameArgsStruct;
+
+  @Input.typed(name: 'specd_struct', description: 'specd struct desc')
+  late final NamedNameableStruct namedNameableStructSpecd;
+
   @Output()
   late final Logic topOut;
 
@@ -140,7 +212,9 @@ with a blank line later too
     super.reserveDefinitionName,
     super.definitionName,
     super.botInPosWidth,
-  });
+  }) : super(
+            requiredNonNameArgsStructSource: RequiredNonNameArgsStruct(
+                aWidth: 9, name: 'specified_super_name'));
 
   //TODO: also need to test positional optional inputs
 }
@@ -280,6 +354,50 @@ void main() {
 
     expect(dutAdjusted.topInArrayCond, isNull);
     expect(dutAdjusted.topInArrayCondSource, isNull);
+
+    expect(dut.noArgStruct.isInput, isTrue);
+    expect(dut.noArgStruct, isA<NoArgStruct>());
+    expect(dut.noArgStruct.elements.first.srcConnection,
+        dut.noArgStructSource.elements.first);
+
+    expect(dut.namedNameableStruct.isInput, isTrue);
+    expect(dut.namedNameableStruct, isA<NamedNameableStruct>());
+    expect(dut.namedNameableStruct.elements.first.srcConnection,
+        dut.namedNameableStructSource.elements.first);
+    expect(dut.namedNameableStruct.name, 'namedNameableStruct');
+    expect(dut.namedNameableStructSource.name, 'namedNameableStruct');
+
+    expect(dut.posNameableStruct.isInput, isTrue);
+    expect(dut.posNameableStruct, isA<PosNameableStruct>());
+    expect(dut.posNameableStruct.elements.first.srcConnection,
+        dut.posNameableStructSource.elements.first);
+    expect(dut.posNameableStruct.name, 'posNameableStruct');
+    expect(dut.posNameableStructSource.name, 'posNameableStruct');
+
+    expect(dut.optPosNameableStruct.isInput, isTrue);
+    expect(dut.optPosNameableStruct, isA<OptPosNameableStruct>());
+    expect(dut.optPosNameableStruct.elements.first.srcConnection,
+        dut.optPosNameableStructSource.elements.first);
+    expect(dut.optPosNameableStruct.name, 'optPosNameableStruct');
+    expect(dut.optPosNameableStructSource.name, 'optPosNameableStruct');
+
+    expect(dut.optionalNonNameArgsStruct.isInput, isTrue);
+    expect(dut.optionalNonNameArgsStruct, isA<OptionalNonNameArgsStruct>());
+    expect(dut.optionalNonNameArgsStruct.elements.first.srcConnection,
+        dut.optionalNonNameArgsStructSource.elements.first);
+    expect(dut.optionalNonNameArgsStruct.name, 'optionalNonNameArgsStruct');
+    expect(
+        dut.optionalNonNameArgsStructSource.name, 'optionalNonNameArgsStruct');
+
+    expect(dut.requiredNonNameArgsStruct.isInput, isTrue);
+    expect(dut.requiredNonNameArgsStruct.width, 9);
+    expect(dut.requiredNonNameArgsStruct, isA<RequiredNonNameArgsStruct>());
+    expect(dut.requiredNonNameArgsStruct.name, 'requiredNonNameArgsStruct');
+    expect(dut.requiredNonNameArgsStructSource.name, 'specified_super_name');
+
+    expect(dut.namedNameableStructSpecd.name, 'specd_struct');
+    expect(dut.namedNameableStructSpecdSource.name, 'specd_struct');
+    expect(genFileContents, contains('/// specd struct desc'));
 
     expect(dut.topOut.isOutput, isTrue);
     expect(dut.topOut.name, 'topOut');
