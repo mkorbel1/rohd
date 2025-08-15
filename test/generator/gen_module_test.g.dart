@@ -190,6 +190,21 @@ abstract class _$KitchenGenSinkModule extends Module {
 
   @protected
   @visibleForOverriding
+  set namedNameableStructCond(NamedNameableStruct? namedNameableStructCond);
+
+  /// The [tryInputSource] for the [namedNameableStructCond] port.
+  late final NamedNameableStruct? namedNameableStructCondSource;
+
+  @protected
+  @visibleForOverriding
+  set requiredNonNameArgsStructCond(
+      RequiredNonNameArgsStruct? requiredNonNameArgsStructCond);
+
+  /// The [tryInputSource] for the [requiredNonNameArgsStructCond] port.
+  late final RequiredNonNameArgsStruct? requiredNonNameArgsStructCondSource;
+
+  @protected
+  @visibleForOverriding
   set topTypedLogicIn(Logic topTypedLogicIn);
 
   /// The [inputSource] for the [topTypedLogicIn] port.
@@ -223,6 +238,20 @@ abstract class _$KitchenGenSinkModule extends Module {
 
   @visibleForOverriding
   set topOutArrayUnspecified(LogicArray topOutArrayUnspecified);
+
+  @visibleForOverriding
+  set topOutStruct(NamedNameableStruct topOutStruct);
+
+  @visibleForOverriding
+  set topOutStructCond(NamedNameableStruct? topOutStructCond);
+
+  @visibleForOverriding
+  set topOutRequiredNonNameArgsStruct(
+      RequiredNonNameArgsStruct topOutRequiredNonNameArgsStruct);
+
+  @visibleForOverriding
+  set topOutRequiredNonNameArgsStructCond(
+      RequiredNonNameArgsStruct? topOutRequiredNonNameArgsStructCond);
 
   @protected
   @visibleForOverriding
@@ -265,22 +294,34 @@ abstract class _$KitchenGenSinkModule extends Module {
     Logic botInPos,
     Logic botInPosWidthed,
     Logic? botInPosNullable, {
-    required Logic botInNamed,
-    required bool topOutCondIsPresent,
-    required bool topInArrayCondIsPresent,
-    required bool topInCondIsPresent,
+    required this.requiredNonNameArgsStructCondSource,
     required this.requiredNonNameArgsStructSource,
+    required Logic botInNamed,
+    required RequiredNonNameArgsStruct Function({String? name})
+        topOutRequiredNonNameArgsStructCondGenerator,
+    required RequiredNonNameArgsStruct Function({String? name})
+        topOutRequiredNonNameArgsStructGenerator,
     OptionalNonNameArgsStruct? optionalNonNameArgsStructSource,
+    bool topInCondIsPresent = true,
+    bool topInArrayCondIsPresent = true,
     Logic? botInNamedOptional,
-    super.name,
-    super.reserveName,
+    bool requiredNonNameArgsStructCondIsPresent = true,
+    bool topOutCondIsPresent = true,
+    bool? topOutStructCondIsPresent,
+    bool topOutRequiredNonNameArgsStructCondIsPresent = true,
     NoArgStruct? noArgStructSource,
     NamedNameableStruct? namedNameableStructSource,
     PosNameableStruct? posNameableStructSource,
     OptPosNameableStruct? optPosNameableStructSource,
-    super.definitionName,
-    super.reserveDefinitionName,
+    super.name,
+    super.reserveName,
     NamedNameableStruct? namedNameableStructSpecdSource,
+    NamedNameableStruct? namedNameableStructCondSource,
+    super.definitionName,
+    NamedNameableStruct Function({String? name})? topOutStructGenerator,
+    NamedNameableStruct Function({String? name})? topOutStructCondGenerator,
+    super.reserveDefinitionName,
+    bool? namedNameableStructCondIsPresent,
     int topInWidth = 1,
     int topInNewNameWidth = 1,
     int topInDescWidth = 1,
@@ -288,11 +329,11 @@ abstract class _$KitchenGenSinkModule extends Module {
     int topInArrayElementWidth = 1,
     List<int> topInArrayDimensions = const [1],
     int topInArrayNumUnpackedDimensions = 0,
-    int topInArrayCondElementWidth = 1,
+    int? botInNamedOptionalWidth,
     List<int> topInArrayCondDimensions = const [1],
     int topInArrayCondNumUnpackedDimensions = 0,
     int topTypedLogicInWidth = 1,
-    int? botInNamedOptionalWidth,
+    int topTypedLogicArrayInElementWidth = 1,
     List<int> topTypedLogicArrayInDimensions = const [1],
     int topTypedLogicArrayInNumUnpackedDimensions = 0,
     int topOutWidth = 1,
@@ -306,14 +347,14 @@ abstract class _$KitchenGenSinkModule extends Module {
     int? botInPosWidth,
     int? botInPosNullableWidth,
     int? botInNamedWidth,
-    int topTypedLogicArrayInElementWidth = 1,
+    int topInArrayCondElementWidth = 1,
   }) : super() {
     topInSource =
         Logic(name: 'topIn', width: topInWidth, naming: Naming.mergeable);
     topIn = addInput('topIn', topInSource, width: topInWidth);
 
     topInNewNameSource = Logic(
-        name: 'topInNewName',
+        name: 'top_in_new_name',
         width: topInNewNameWidth,
         naming: Naming.mergeable);
     topInNewName = addInput('top_in_new_name', topInNewNameSource,
@@ -347,7 +388,7 @@ abstract class _$KitchenGenSinkModule extends Module {
         numUnpackedDimensions: topInArrayNumUnpackedDimensions);
 
     topInArraySpecdSource = LogicArray(
-        name: 'topInArraySpecd',
+        name: 'top_in_array_specd',
         const [7, 6],
         4,
         numUnpackedDimensions: 1,
@@ -401,6 +442,21 @@ abstract class _$KitchenGenSinkModule extends Module {
     namedNameableStructSpecd =
         addTypedInput('specd_struct', this.namedNameableStructSpecdSource);
 
+    namedNameableStructCondIsPresent ??= namedNameableStructCondSource != null;
+    this.namedNameableStructCondSource = namedNameableStructCondIsPresent
+        ? namedNameableStructCondSource ??
+            (NamedNameableStruct('named_nameable_struct_cond'))
+        : null;
+    namedNameableStructCond = namedNameableStructCondIsPresent
+        ? addTypedInput(
+            'named_nameable_struct_cond', this.namedNameableStructCondSource!)
+        : null;
+
+    requiredNonNameArgsStructCond = requiredNonNameArgsStructCondIsPresent
+        ? addTypedInput('requiredNonNameArgsStructCond',
+            requiredNonNameArgsStructCondSource!)
+        : null;
+
     topTypedLogicInSource = Logic(
         name: 'topTypedLogicIn',
         width: topTypedLogicInWidth,
@@ -439,6 +495,33 @@ abstract class _$KitchenGenSinkModule extends Module {
         dimensions: topOutArrayUnspecifiedDimensions,
         elementWidth: topOutArrayUnspecifiedElementWidth,
         numUnpackedDimensions: topOutArrayUnspecifiedNumUnpackedDimensions);
+
+    topOutStructGenerator = topOutStructGenerator ??
+        (topOutStructGenerator ??
+            (({String? name}) =>
+                NamedNameableStruct(name ?? 'top_out_struct')));
+    topOutStruct = addTypedOutput('top_out_struct', topOutStructGenerator);
+
+    topOutStructCondIsPresent ??= topOutStructCondGenerator != null;
+    topOutStructCondGenerator = topOutStructCondGenerator ??
+        (topOutStructCondIsPresent
+            ? topOutStructCondGenerator ??
+                (({String? name}) =>
+                    NamedNameableStruct(name ?? 'topOutStructCond'))
+            : null);
+    topOutStructCond = topOutStructCondIsPresent
+        ? addTypedOutput('topOutStructCond', topOutStructCondGenerator!)
+        : null;
+
+    topOutRequiredNonNameArgsStruct = addTypedOutput(
+        'topOutRequiredNonNameArgsStruct',
+        topOutRequiredNonNameArgsStructGenerator);
+
+    topOutRequiredNonNameArgsStructCond =
+        topOutRequiredNonNameArgsStructCondIsPresent
+            ? addTypedOutput('topOutRequiredNonNameArgsStructCond',
+                topOutRequiredNonNameArgsStructCondGenerator)
+            : null;
 
     topInOutSource =
         Logic(name: 'topInOut', width: topInOutWidth, naming: Naming.mergeable);

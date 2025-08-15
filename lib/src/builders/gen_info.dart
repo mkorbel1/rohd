@@ -452,17 +452,21 @@ class GenInfoExtracted extends GenInfo {
   ///
   /// If it is not possible, it will return `null`, signalling an implementation
   /// must be provided.
-  String? genConstructorCall({Naming? naming}) {
+  ///
+  /// If a [nameVariable] is provided, then it will use that instead of [name].
+  String? genConstructorCall({Naming? naming, String? nameVariable}) {
     switch (logicType) {
       case LogicType.typed:
         return genStructConstructorCall(
           structDefaultConstructorType,
           typeName: typeName,
           logicName: logicName,
+          nameVariable: nameVariable,
         );
       case LogicType.logic || LogicType.array:
         final namingStr = naming == null ? '' : ', naming: $naming';
-        return "${logicType.toTypeName()}(name: '$name'"
+        final nameStr = nameVariable ?? "'$logicName'";
+        return '${logicType.toTypeName()}(name: $nameStr'
             ' ${widthString(isLogicConstructor: true)} $namingStr)';
     }
   }
@@ -471,19 +475,23 @@ class GenInfoExtracted extends GenInfo {
     StructDefaultConstructorType? structDefaultConstructorType, {
     required String typeName,
     required String logicName,
+    String? nameVariable,
   }) {
     if (structDefaultConstructorType == null) {
       return null;
     }
+
+    final name = nameVariable ?? "'$logicName'";
+
     switch (structDefaultConstructorType) {
       case StructDefaultConstructorType.unusable:
         return null; // No usable constructor
       case StructDefaultConstructorType.noName:
         return '$typeName()';
       case StructDefaultConstructorType.namePositional:
-        return "$typeName('$logicName')";
+        return '$typeName($name)';
       case StructDefaultConstructorType.nameNamed:
-        return "$typeName(name: '$logicName')";
+        return '$typeName(name: $name)';
     }
   }
 }

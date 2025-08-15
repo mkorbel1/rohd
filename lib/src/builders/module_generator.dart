@@ -12,6 +12,8 @@ enum _PortDirection {
   output(),
   inOut(forInternalUsage: true);
 
+  /// Whether this represents one of the port types that can only be used inside
+  /// of the module and requires a separate external source (i.e. input/inOut).
   final bool forInternalUsage;
 
   const _PortDirection({this.forInternalUsage = false});
@@ -46,7 +48,6 @@ enum _PortDirection {
 
 enum _PortInfoOrigin {
   constructorArgAnnotation,
-  // classAnnotation, // TODO: remove this?
   fieldAnnotation,
 }
 
@@ -65,19 +66,32 @@ class _PortInfo {
       ? '${genInfo.name}IsPresent'
       : throw Exception('Should not be called for non-conditional ports');
 
+  bool get createConditionNullable =>
+      genInfo.isConditional &&
+      needsSourceParameter &&
+      !sourceParameter!.paramType.isRequired;
+
   /// The name of a signal to use as the source for addInput, addInOut, etc.
   String get sourceName => switch (origin) {
-        // _PortInfoOrigin.classAnnotation => '${genInfo.name}Source',
-        _PortInfoOrigin.constructorArgAnnotation => genInfo.name,
-        _PortInfoOrigin.fieldAnnotation => '${genInfo.name}Source',
+        _PortInfoOrigin.constructorArgAnnotation =>
+          genInfo.name, // no typed here
+        _PortInfoOrigin.fieldAnnotation => switch (direction) {
+            _PortDirection.input ||
+            _PortDirection.inOut =>
+              '${genInfo.name}Source',
+            _PortDirection.output => '${genInfo.name}Generator',
+          },
+      };
+
+  String get sourceType => switch (direction) {
+        _PortDirection.input || _PortDirection.inOut => genInfo.typeName,
+        _PortDirection.output => '${genInfo.typeName} Function({String? name})',
       };
 
   /// Indicates that the generated base class should include a [sourceName]
   /// argument for driving the input/inout.
   bool get needsSourceParameter =>
       origin == _PortInfoOrigin.fieldAnnotation &&
-      (direction == _PortDirection.input ||
-          direction == _PortDirection.inOut) &&
       genInfo.logicType == LogicType.typed;
 
   FormalParameter? get sourceParameter {
@@ -91,9 +105,10 @@ class _PortInfo {
     return FormalParameter(
       paramType: isRequired ? ParamType.namedRequired : ParamType.namedOptional,
       name: sourceName,
-      varLocation:
-          isRequired ? ParamVarLocation.this_ : ParamVarLocation.constructor,
-      type: genInfo.typeName,
+      varLocation: (isRequired && direction.forInternalUsage)
+          ? ParamVarLocation.this_
+          : ParamVarLocation.constructor,
+      type: sourceType,
       isNullable: genInfo.structDefaultConstructorType !=
           StructDefaultConstructorType.unusable,
     );
@@ -198,14 +213,21 @@ class _PortInfo {
         switch (direction) {
           case _PortDirection.input || _PortDirection.inOut:
             final constructorCall =
-                //TODO: what about when struct can't be made?
                 genInfo.genConstructorCall(naming: Naming.mergeable);
 
-            //TODO: doc that if source is provided, then create/`Present` is not relevant
+            if (needsSourceParameter &&
+                genInfo.isConditional &&
+                createConditionNullable) {
+              buffer.writeln('$createConditionName ??= $sourceName != null;');
+            }
+
+            final sourceOrConstructorCall = needsSourceParameter
+                ? ' $sourceName ?? ($constructorCall)'
+                : constructorCall;
 
             final sourceConstructionString = switch (genInfo.isConditional) {
-              true => ' $createConditionName ? $constructorCall : null',
-              false => constructorCall,
+              true => ' $createConditionName ? $sourceOrConstructorCall : null',
+              false => sourceOrConstructorCall,
             };
 
             if (genInfo.logicType == LogicType.typed) {
@@ -217,10 +239,15 @@ class _PortInfo {
                 final addSourceName = 'this.$sourceName';
                 sourceStr = ', $addSourceName';
 
-                buffer.writeln('$addSourceName ='
-                    ' $sourceName ?? ($sourceConstructionString);');
+                assert(sourceConstructionString != null,
+                    'Should not have null constructor here.');
+
+                buffer.writeln('$addSourceName = $sourceConstructionString;');
               }
             } else {
+              assert(sourceConstructionString != null,
+                  'Should not have null constructor here.');
+
               buffer.writeln('$sourceName = $sourceConstructionString;');
             }
 
@@ -229,7 +256,43 @@ class _PortInfo {
             }
 
           case _PortDirection.output:
-            break;
+            if (genInfo.logicType == LogicType.typed) {
+              const genName = 'name';
+              final constructorCall = genInfo.genConstructorCall(
+                  naming: Naming.mergeable,
+                  nameVariable: "$genName ?? '${genInfo.logicName}'");
+              final defaultGeneratorCall =
+                  '({String? $genName}) => $constructorCall';
+
+              assert(
+                  needsSourceParameter, 'Should only get here if we need it.');
+
+              if (genInfo.isConditional && createConditionNullable) {
+                buffer.writeln('$createConditionName ??= $sourceName != null;');
+              }
+
+              final sourceOrConstructorCall = needsSourceParameter
+                  ? ' $sourceName ?? ($defaultGeneratorCall)'
+                  : defaultGeneratorCall;
+
+              final sourceConstructionString = switch (genInfo.isConditional) {
+                true =>
+                  ' $createConditionName ? $sourceOrConstructorCall : null',
+                false => sourceOrConstructorCall,
+              };
+
+              if (!sourceParameter!.paramType.isRequired) {
+                // if it's required, we don't need to do anything
+                sourceStr = ', $sourceName';
+
+                buffer.writeln('$sourceName ='
+                    ' $sourceName ?? ($sourceConstructionString);');
+
+                if (genInfo.isConditional) {
+                  sourceStr += '!';
+                }
+              }
+            }
         }
 
       case _PortInfoOrigin.constructorArgAnnotation:
@@ -384,10 +447,11 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
         .where((p) => p.origin == _PortInfoOrigin.fieldAnnotation)) {
       if (portInfo.genInfo.isConditional) {
         constructorParams.add(FormalParameter(
-          paramType: ParamType.namedRequired,
+          paramType: ParamType.namedOptional,
           name: portInfo.createConditionName,
           varLocation: ParamVarLocation.constructor,
-          type: 'bool',
+          type: 'bool${portInfo.createConditionNullable ? '?' : ''}',
+          defaultValue: portInfo.createConditionNullable ? null : 'true',
         ));
       }
     }

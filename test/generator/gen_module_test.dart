@@ -159,6 +159,12 @@ with a blank line later too
   @Input.typed(name: 'specd_struct', description: 'specd struct desc')
   late final NamedNameableStruct namedNameableStructSpecd;
 
+  @Input.typed(name: 'named_nameable_struct_cond')
+  late final NamedNameableStruct? namedNameableStructCond;
+
+  @Input.typed()
+  late final RequiredNonNameArgsStruct? requiredNonNameArgsStructCond;
+
   @Input.typed()
   late final Logic topTypedLogicIn;
 
@@ -186,7 +192,19 @@ with a blank line later too
   @Output.array()
   late final LogicArray topOutArrayUnspecified;
 
-  //TODO: array with unspecified args needs args passed into super constructor or match?
+  @Output.typed(name: 'top_out_struct')
+  late final NamedNameableStruct topOutStruct;
+
+  @Output.typed()
+  late final NamedNameableStruct? topOutStructCond;
+
+  @Output.typed()
+  late final RequiredNonNameArgsStruct topOutRequiredNonNameArgsStruct;
+
+  @Output.typed()
+  late final RequiredNonNameArgsStruct? topOutRequiredNonNameArgsStructCond;
+
+  //TODO: also test output struct typed with name override
 
   @InOut()
   late final Logic topInOut;
@@ -203,6 +221,10 @@ with a blank line later too
     super.topInCondIsPresent = true,
     super.topInArrayCondIsPresent = true,
     super.topOutCondIsPresent = true,
+    super.topOutStructCondIsPresent = true,
+    super.namedNameableStructCondIsPresent = true,
+    super.requiredNonNameArgsStructCondIsPresent = true,
+    super.topOutRequiredNonNameArgsStructCondIsPresent = true,
     super.topInWidth,
     super.topInArrayElementWidth,
     super.topInArrayDimensions,
@@ -222,6 +244,14 @@ with a blank line later too
               aWidth: 9, name: 'specified_super_name'),
           topTypedLogicInWidth: 4,
           topTypedLogicArrayInElementWidth: 5,
+          requiredNonNameArgsStructCondSource: RequiredNonNameArgsStruct(
+              aWidth: 9, name: 'specified_super_name'),
+          topOutRequiredNonNameArgsStructCondGenerator:
+              RequiredNonNameArgsStruct(aWidth: 9, name: 'specified_super_name')
+                  .clone,
+          topOutRequiredNonNameArgsStructGenerator:
+              RequiredNonNameArgsStruct(aWidth: 9, name: 'specified_super_name')
+                  .clone,
         );
 
   //TODO: also need to test positional optional inputs
@@ -292,9 +322,14 @@ void main() {
       topOutArrayUnspecifiedElementWidth: 18,
       topOutArrayUnspecifiedDimensions: [7, 8, 9],
       topOutArrayUnspecifiedNumUnpackedDimensions: 2,
+      topOutRequiredNonNameArgsStructCondIsPresent: false,
+      topOutStructCondIsPresent: false,
+      namedNameableStructCondIsPresent: false,
+      requiredNonNameArgsStructCondIsPresent: false,
     );
 
     await dut.build();
+    await dutAdjusted.build();
 
     final genFileContents =
         File('test/generator/gen_module_test.g.dart').readAsStringSync();
@@ -414,6 +449,13 @@ void main() {
 
     expect(dutAdjusted.namedNameableStructSource.name, 'adjusted_named_named');
 
+    expect(dut.namedNameableStructCond!.isInput, isTrue);
+    expect(dut.namedNameableStructCond!.name, 'named_nameable_struct_cond');
+    expect(dutAdjusted.namedNameableStructCond, isNull);
+
+    expect(dut.requiredNonNameArgsStructCond!.isInput, isTrue);
+    expect(dutAdjusted.requiredNonNameArgsStructCond, isNull);
+
     expect(dut.topTypedLogicIn.isInput, isTrue);
     expect(dut.topTypedLogicIn.width, 4);
     expect(dut.topTypedLogicIn, isA<Logic>());
@@ -454,6 +496,22 @@ void main() {
     expect(dutAdjusted.topOutArrayUnspecified.dimensions, [7, 8, 9]);
     expect(dutAdjusted.topOutArrayUnspecified.elementWidth, 18);
     expect(dutAdjusted.topOutArrayUnspecified.numUnpackedDimensions, 2);
+
+    expect(dut.topOutStruct.isOutput, isTrue);
+    expect(dut.topOutStruct.name, 'top_out_struct');
+
+    expect(dut.topOutStructCond!.isOutput, isTrue);
+    expect(dut.topOutStructCond!.name, 'topOutStructCond');
+    expect(dutAdjusted.topOutStructCond, isNull);
+
+    expect(dut.topOutRequiredNonNameArgsStruct.isOutput, isTrue);
+    expect(dut.topOutRequiredNonNameArgsStruct.name,
+        'topOutRequiredNonNameArgsStruct');
+
+    expect(dut.topOutRequiredNonNameArgsStructCond!.isOutput, isTrue);
+    expect(dut.topOutRequiredNonNameArgsStructCond!.name,
+        'topOutRequiredNonNameArgsStructCond');
+    expect(dutAdjusted.topOutRequiredNonNameArgsStructCond, isNull);
 
     expect(dut.botInPos.isInput, isTrue);
     expect(dut.botInPos.width, 5);
