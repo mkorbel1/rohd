@@ -61,6 +61,13 @@ class RequiredNonNameArgsStruct extends LogicStructure {
       name: name ?? this.name, aWidth: elements.first.width);
 }
 
+class InOutStruct extends LogicStructure {
+  InOutStruct({super.name}) : super([LogicNet(name: 'a')]);
+
+  @override
+  InOutStruct clone({String? name}) => InOutStruct(name: name ?? this.name);
+}
+
 class ExampleModule extends Module {
   Logic get b => output('b');
   ExampleModule(Logic a) {
@@ -206,8 +213,31 @@ with a blank line later too
 
   //TODO: also test output struct typed with name override
 
+  @InOut(name: 'top_in_out', description: 'top in out desc', width: 3)
+  late final LogicNet topInOut;
+
   @InOut()
-  late final Logic topInOut;
+  late final LogicNet? topInOutCond;
+
+  @InOut.array(
+      name: 'top_in_out_arr',
+      description: 'top in out arr desc',
+      elementWidth: 4,
+      dimensions: [2, 3],
+      numUnpackedDimensions: 1)
+  late final LogicArray topInOutArray;
+
+  @InOut()
+  late final LogicArray topInOutArrayUnspecified;
+
+  @InOut()
+  late final LogicArray? topInOutArrayCond;
+
+  @InOut.typed(name: 'top_in_out_struct', description: 'top in out struct desc')
+  late final InOutStruct topInOutStruct;
+
+  @InOut.typed()
+  late final InOutStruct? topInOutStructCond;
 
   //TODO: structs
   //TODO: enums
@@ -239,6 +269,12 @@ with a blank line later too
     super.topOutArrayUnspecifiedElementWidth,
     super.topOutArrayUnspecifiedDimensions,
     super.topOutArrayUnspecifiedNumUnpackedDimensions,
+    super.topInOutCondIsPresent,
+    super.topInOutArrayUnspecifiedElementWidth,
+    super.topInOutArrayUnspecifiedDimensions,
+    super.topInOutArrayUnspecifiedNumUnpackedDimensions,
+    super.topInOutArrayCondIsPresent,
+    super.topInOutStructCondIsPresent,
   }) : super(
           requiredNonNameArgsStructSource: RequiredNonNameArgsStruct(
               aWidth: 9, name: 'specified_super_name'),
@@ -326,6 +362,12 @@ void main() {
       topOutStructCondIsPresent: false,
       namedNameableStructCondIsPresent: false,
       requiredNonNameArgsStructCondIsPresent: false,
+      topInOutCondIsPresent: false,
+      topInOutArrayCondIsPresent: false,
+      topInOutStructCondIsPresent: false,
+      topInOutArrayUnspecifiedElementWidth: 15,
+      topInOutArrayUnspecifiedDimensions: [8, 9],
+      topInOutArrayUnspecifiedNumUnpackedDimensions: 1,
     );
 
     await dut.build();
@@ -512,6 +554,84 @@ void main() {
     expect(dut.topOutRequiredNonNameArgsStructCond!.name,
         'topOutRequiredNonNameArgsStructCond');
     expect(dutAdjusted.topOutRequiredNonNameArgsStructCond, isNull);
+
+    expect(dut.topInOut.isInOut, isTrue);
+    expect(dut.topInOut, isA<LogicNet>());
+    expect(dut.topInOut.isNet, isTrue);
+    expect(dut.topInOut.name, 'top_in_out');
+    expect(dut.topInOut.width, 3);
+    expect(dut.topInOut.srcConnections.first, dut.topInOutSource);
+    expect(dut.topInOutSource, isA<LogicNet>());
+    expect(dut.topInOutSource.isNet, isTrue);
+    expect(genFileContents, contains('/// top in out desc'));
+
+    expect(dut.topInOutCond!.isInOut, isTrue);
+    expect(dut.topInOutCond!.name, 'topInOutCond');
+    expect(dut.topInOutCond!.srcConnections.first, dut.topInOutCondSource);
+    expect(dut.topInOutCondSource, isA<LogicNet>());
+    expect(dut.topInOutCondSource!.isNet, isTrue);
+    expect(dutAdjusted.topInOutCond, isNull);
+    expect(dutAdjusted.topInOutCondSource, isNull);
+
+    expect(dut.topInOutArray.isInOut, isTrue);
+    expect(dut.topInOutArray.name, 'top_in_out_arr');
+    expect(dut.topInOutArray.elementWidth, 4);
+    expect(dut.topInOutArray.dimensions, [2, 3]);
+    expect(dut.topInOutArray.numUnpackedDimensions, 1);
+    expect(genFileContents, contains('/// top in out arr desc'));
+    expect(dut.topInOutArray.srcConnections.first,
+        dut.topInOutArraySource.leafElements.first);
+    expect(dut.topInOutArraySource, isA<LogicArray>());
+    expect(dut.topInOutArraySource.isNet, isTrue);
+
+    expect(dut.topInOutArrayUnspecified.isInOut, isTrue);
+    expect(dut.topInOutArrayUnspecified.name, 'topInOutArrayUnspecified');
+    expect(dut.topInOutArrayUnspecified.elementWidth, 1);
+    expect(dut.topInOutArrayUnspecified.dimensions, [1]);
+    expect(dut.topInOutArrayUnspecified.numUnpackedDimensions, 0);
+    expect(dut.topInOutArrayUnspecified.srcConnections.first,
+        dut.topInOutArrayUnspecifiedSource.leafElements.first);
+    expect(dut.topInOutArrayUnspecifiedSource, isA<LogicArray>());
+    expect(dut.topInOutArrayUnspecifiedSource.isNet, isTrue);
+    expect(dutAdjusted.topInOutArrayUnspecified.isInOut, isTrue);
+    expect(dutAdjusted.topInOutArrayUnspecified.elementWidth, 15);
+    expect(dutAdjusted.topInOutArrayUnspecified.dimensions, [8, 9]);
+    expect(dutAdjusted.topInOutArrayUnspecified.numUnpackedDimensions, 1);
+
+    expect(dut.topInOutArrayCond, isNotNull);
+    expect(dut.topInOutArrayCondSource, isNotNull);
+    expect(dut.topInOutArrayCond!.isInOut, isTrue);
+    expect(dut.topInOutArrayCond!.isNet, isTrue);
+    expect(dut.topInOutArrayCond!.name, 'topInOutArrayCond');
+    expect(dut.topInOutArrayCond!.srcConnections.first,
+        dut.topInOutArrayCondSource!.leafElements.first);
+    expect(dut.topInOutArrayCondSource, isA<LogicNet>());
+    expect(dut.topInOutArrayCondSource!.isNet, isTrue);
+
+    expect(dutAdjusted.topInOutArrayCond, isNull);
+    expect(dutAdjusted.topInOutArrayCondSource, isNull);
+
+    expect(dut.topInOutStruct.isInOut, isTrue);
+    expect(dut.topInOutStruct.isNet, isTrue);
+    expect(dut.topInOutStruct, isA<InOutStruct>());
+    expect(dut.topInOutStruct.name, 'top_in_out_struct');
+    expect(dut.topInOutStruct.srcConnection, dut.topInOutStructSource);
+    expect(dut.topInOutStructSource, isA<InOutStruct>());
+    expect(dut.topInOutStructSource.isNet, isTrue);
+    expect(genFileContents, contains('/// top in out struct desc'));
+    expect(dut.topInOutStruct.elements.first.srcConnection,
+        dut.topInOutStructSource.elements.first);
+
+    expect(dut.topInOutStructCond!.isInOut, isTrue);
+    expect(dut.topInOutStructCond, isA<InOutStruct>());
+    expect(dut.topInOutStructCond!.name, 'topInOutStructCond');
+    expect(dut.topInOutStructCond!.elements.first.srcConnection,
+        dut.topInOutStructCondSource!.leafElements.first);
+    expect(dut.topInOutStructCondSource, isA<InOutStruct>());
+    expect(dut.topInOutStructCondSource!.isNet, isTrue);
+
+    expect(dutAdjusted.topInOutStructCond, isNull);
+    expect(dutAdjusted.topInOutStructCondSource, isNull);
 
     expect(dut.botInPos.isInput, isTrue);
     expect(dut.botInPos.width, 5);

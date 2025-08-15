@@ -13,9 +13,9 @@ abstract class _$ExampleStructWithGen extends LogicStructure {
   set a(Logic a);
 
   _$ExampleStructWithGen({
-    super.name = 'ExampleStructWithGen',
-    int bWidth = 1,
     int aWidth = 1,
+    int bWidth = 1,
+    super.name = 'ExampleStructWithGen',
   }) : super([
           Logic(name: 'b', width: bWidth, naming: Naming.mergeable),
           Logic(name: 'a', width: aWidth, naming: Naming.mergeable)
@@ -36,11 +36,11 @@ abstract class _$KitchenSinkStruct extends LogicStructure {
   set basic(Logic basic);
 
   _$KitchenSinkStruct({
-    super.name = 'KitchenSinkStruct',
-    int arrayElementWidth = 1,
     List<int> arrayDimensions = const [1],
+    int arrayElementWidth = 1,
     int arrayNumUnpackedDimensions = 0,
     int basicWidth = 1,
+    super.name = 'KitchenSinkStruct',
   }) : super([
           ExampleStructWithGen(),
           LogicArray(

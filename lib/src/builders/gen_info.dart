@@ -28,10 +28,10 @@ enum LogicType {
     }
   }
 
-  String? toTypeName() {
+  String? toTypeName({required bool isNet}) {
     switch (this) {
       case LogicType.logic:
-        return 'Logic';
+        return isNet ? 'LogicNet' : 'Logic';
       case LogicType.array:
         return 'LogicArray';
       case LogicType.typed:
@@ -57,7 +57,7 @@ class GenInfo {
   final List<int>? dimensions;
   final int? numUnpackedDimensions;
 
-  // final bool isNet; //TODO: need this?
+  final bool? isNet;
 
   const GenInfo({
     required this.logicType,
@@ -66,7 +66,7 @@ class GenInfo {
     this.dimensions,
     this.numUnpackedDimensions,
     this.description,
-    // this.isNet = false,
+    required this.isNet,
   }) : logicName = name;
 }
 
@@ -91,6 +91,9 @@ class GenInfoExtracted extends GenInfo {
   @override
   String get logicName => super.logicName ?? name;
 
+  @override
+  bool get isNet => super.isNet!;
+
   GenInfoExtracted({
     required this.name,
     required String? logicName,
@@ -100,6 +103,7 @@ class GenInfoExtracted extends GenInfo {
     this.isConditional = false,
     super.dimensions,
     super.numUnpackedDimensions,
+    required bool super.isNet,
     this.typeName = 'Logic',
     this.annotationName,
     this.structDefaultConstructorType,
@@ -249,7 +253,18 @@ class GenInfoExtracted extends GenInfo {
         ? null
         : annotationConst.getField('description')!.toStringValue();
 
+    var isNet = annotationConst.getField('isNet')!.isNull
+        ? null
+        : annotationConst.getField('isNet')!.toBoolValue();
+
     final typeName = field.type.getDisplayString().replaceAll('?', '');
+
+    if (typeName == 'LogicNet') {
+      isNet = true;
+    }
+
+    // if we have no remaining indication that it's a net, its probably not
+    isNet ??= false;
 
     final dimensions = annotationConst.getField('dimensions')!.isNull
         ? null
@@ -265,7 +280,9 @@ class GenInfoExtracted extends GenInfo {
             : annotationConst.getField('numUnpackedDimensions')!.toIntValue();
 
     StructDefaultConstructorType? structDefaultConstructorType;
-    if (typeName != 'Logic' && typeName != 'LogicArray') {
+    if (typeName != 'Logic' &&
+        typeName != 'LogicArray' &&
+        typeName != 'LogicNet') {
       final element = field.type.element3;
 
       if (element is ClassElement2) {
@@ -287,6 +304,7 @@ class GenInfoExtracted extends GenInfo {
       structDefaultConstructorType: structDefaultConstructorType,
       description: description,
       isInitialized: field.hasInitializer,
+      isNet: isNet,
       //TODO rest of the fields
     );
   }
@@ -430,6 +448,24 @@ class GenInfoExtracted extends GenInfo {
         ? null
         : annotationConst.getField('width')!.toIntValue();
 
+    var isNet = annotationConst.getField('isNet')!.isNull
+        ? null
+        : annotationConst.getField('isNet')!.toBoolValue();
+
+    var typeName = param.type.getDisplayString().replaceAll('?', '');
+
+    if (typeName.trim().isEmpty || typeName == 'dynamic') {
+      // assume it's a normal `Logic` if not specified on a parameter
+      typeName = 'Logic';
+    }
+
+    if (typeName == 'LogicNet') {
+      isNet = true;
+    }
+
+    // if we have no remaining indication that it's a net, its probably not
+    isNet ??= false;
+
     //TODO: rest of the fields
 
     return GenInfoExtracted(
@@ -441,6 +477,8 @@ class GenInfoExtracted extends GenInfo {
       width: width,
       referenceName: name,
       isInitialized: true, // since it's always provided
+      isNet: isNet,
+      typeName: typeName,
     );
   }
 
@@ -466,7 +504,7 @@ class GenInfoExtracted extends GenInfo {
       case LogicType.logic || LogicType.array:
         final namingStr = naming == null ? '' : ', naming: $naming';
         final nameStr = nameVariable ?? "'$logicName'";
-        return '${logicType.toTypeName()}(name: $nameStr'
+        return '${logicType.toTypeName(isNet: isNet)}(name: $nameStr'
             ' ${widthString(isLogicConstructor: true)} $namingStr)';
     }
   }

@@ -31,12 +31,12 @@ abstract class _$GenPairIntf extends PairInterface {
   set fc(Logic fc);
   _$GenPairIntf({
     super.commonInOutPorts,
+    int fcWidth = 1,
+    int fpWidth = 1,
     super.modify,
     super.portsFromConsumer,
     super.portsFromProvider,
     super.sharedInputPorts,
-    int fpWidth = 1,
-    int fcWidth = 1,
   }) : super.new() {
     this.fp = setPort(Logic(name: 'fp', width: fpWidth),
         tags: const [PairDirection.fromProvider], name: 'fp');

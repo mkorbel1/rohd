@@ -72,13 +72,14 @@ class FormalParameter implements Comparable<FormalParameter> {
   }
 
   @override
-  int compareTo(FormalParameter other) =>
-      // make it so required args come before non-required ones
-      other.paramType.isRequired
-          ? 1
-          : paramType.isRequired
-              ? -1
-              : 0;
+  int compareTo(FormalParameter other) {
+    // Sort by required first (required before non-required)
+    if (paramType.isRequired != other.paramType.isRequired) {
+      return other.paramType.isRequired ? 1 : -1;
+    }
+    // Then sort by name
+    return name.compareTo(other.name);
+  }
 }
 
 /// A parameter passed to the generated class's super constructor.

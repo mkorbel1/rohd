@@ -6,7 +6,7 @@ class Input extends GenInfo {
     super.name,
     super.width, //TODO: default is 1? nullable still is dynamic?
     super.description,
-  }) : super(logicType: LogicType.logic);
+  }) : super(logicType: LogicType.logic, isNet: false);
 
   const Input.array({
     super.name,
@@ -14,12 +14,12 @@ class Input extends GenInfo {
     super.dimensions,
     super.numUnpackedDimensions,
     super.description,
-  }) : super(width: elementWidth, logicType: LogicType.array);
+  }) : super(width: elementWidth, logicType: LogicType.array, isNet: false);
 
   const Input.typed({
     super.description,
     super.name,
-  }) : super(logicType: LogicType.typed);
+  }) : super(logicType: LogicType.typed, isNet: false);
 }
 
 class Output extends GenInfo {
@@ -28,7 +28,7 @@ class Output extends GenInfo {
     super.width,
     super.description,
     // super.isNet,
-  }) : super(logicType: LogicType.logic);
+  }) : super(logicType: LogicType.logic, isNet: false);
 
   const Output.array({
     super.name,
@@ -37,13 +37,13 @@ class Output extends GenInfo {
     super.numUnpackedDimensions,
     super.description,
     // super.isNet,
-  }) : super(width: elementWidth, logicType: LogicType.array);
+  }) : super(width: elementWidth, logicType: LogicType.array, isNet: false);
 
   const Output.typed({
     super.description,
     super.name,
     // super.isNet,
-  }) : super(logicType: LogicType.typed);
+  }) : super(logicType: LogicType.typed, isNet: false);
 }
 
 class InOut extends GenInfo {
@@ -51,7 +51,7 @@ class InOut extends GenInfo {
     super.name,
     super.width,
     super.description,
-  }) : super(logicType: LogicType.logic);
+  }) : super(logicType: LogicType.logic, isNet: true);
 
   const InOut.array({
     super.name,
@@ -59,12 +59,12 @@ class InOut extends GenInfo {
     super.dimensions,
     super.numUnpackedDimensions,
     super.description,
-  }) : super(width: elementWidth, logicType: LogicType.array);
+  }) : super(width: elementWidth, logicType: LogicType.array, isNet: true);
 
   const InOut.typed({
     super.description,
     super.name,
-  }) : super(logicType: LogicType.typed);
+  }) : super(logicType: LogicType.typed, isNet: true);
 }
 
 // TODO: annotation for adding interfaces to modules
@@ -76,19 +76,19 @@ class StructField extends GenInfo {
   const StructField({
     super.name,
     super.width,
-  }) : super(logicType: LogicType.logic);
+  }) : super(logicType: LogicType.logic, isNet: null);
 
   const StructField.array({
     super.name,
     super.dimensions,
     super.numUnpackedDimensions,
     int? elementWidth,
-    // super.isNet,
+    bool super.isNet = false,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
   const StructField.typed({
     super.name,
-  }) : super(logicType: LogicType.typed);
+  }) : super(logicType: LogicType.typed, isNet: null);
 }
 
 // TODO: consider name: InterfacePort, but then Intf above?
@@ -99,7 +99,7 @@ class IntfPort<TagType extends Enum> extends GenInfo {
     this.tag, {
     super.name,
     super.width,
-  }) : super(logicType: LogicType.logic);
+  }) : super(logicType: LogicType.logic, isNet: null);
 
   const IntfPort.array(
     this.tag, {
@@ -107,15 +107,14 @@ class IntfPort<TagType extends Enum> extends GenInfo {
     int? elementWidth,
     super.dimensions,
     super.numUnpackedDimensions,
+    bool super.isNet = false,
   }) : super(width: elementWidth, logicType: LogicType.array);
 
   const IntfPort.typed(
     this.tag, {
     super.name,
-  }) : super(logicType: LogicType.typed);
+  }) : super(logicType: LogicType.typed, isNet: false);
 }
-
-//TODO: InOut
 
 class GenModule {
   // final List<GenLogic>? inputs;
