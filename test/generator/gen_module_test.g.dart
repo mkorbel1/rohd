@@ -219,9 +219,6 @@ abstract class _$KitchenGenSinkModule extends Module {
   set topOutCond(Logic? topOutCond);
 
   @visibleForOverriding
-  set topOutDynWidth(Logic topOutDynWidth);
-
-  @visibleForOverriding
   set topOutArray(LogicArray topOutArray);
 
   @visibleForOverriding
@@ -305,7 +302,6 @@ abstract class _$KitchenGenSinkModule extends Module {
     int topOutNewNameWidth = 1,
     int topOutDescWidth = 1,
     int topOutCondWidth = 1,
-    int topOutDynWidthWidth = 1,
     int topOutArrayUnspecDimsElementWidth = 1,
     List<int> topOutArrayUnspecDimsDimensions = const [1],
     int topOutArrayUnspecDimsNumUnpackedDimensions = 0,
@@ -441,8 +437,6 @@ abstract class _$KitchenGenSinkModule extends Module {
     topOutCond = topOutCondIsPresent
         ? addOutput('topOutCond', width: topOutCondWidth)
         : null;
-
-    topOutDynWidth = addOutput('topOutDynWidth', width: topOutDynWidthWidth);
 
     topOutArray = addOutputArray('topOutArray',
         dimensions: const [2, 3], elementWidth: 4, numUnpackedDimensions: 1);

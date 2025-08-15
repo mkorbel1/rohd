@@ -180,9 +180,6 @@ with a blank line later too
   @Output()
   late final Logic? topOutCond;
 
-  @Output()
-  late final Logic topOutDynWidth;
-
   @Output.array(dimensions: [2, 3], elementWidth: 4, numUnpackedDimensions: 1)
   late final LogicArray topOutArray;
 
@@ -218,6 +215,8 @@ with a blank line later too
     super.reserveDefinitionName,
     super.definitionName,
     super.botInPosWidth,
+    super.namedNameableStructSource,
+    super.topOutWidth,
   }) : super(
           requiredNonNameArgsStructSource: RequiredNonNameArgsStruct(
               aWidth: 9, name: 'specified_super_name'),
@@ -288,6 +287,8 @@ void main() {
       reserveName: true,
       definitionName: 'adjusted_definition',
       reserveDefinitionName: true,
+      namedNameableStructSource: NamedNameableStruct('adjusted_named_named'),
+      topOutWidth: 7,
     );
 
     await dut.build();
@@ -408,6 +409,8 @@ void main() {
     expect(dut.namedNameableStructSpecdSource.name, 'specd_struct');
     expect(genFileContents, contains('/// specd struct desc'));
 
+    expect(dutAdjusted.namedNameableStructSource.name, 'adjusted_named_named');
+
     expect(dut.topTypedLogicIn.isInput, isTrue);
     expect(dut.topTypedLogicIn.width, 4);
     expect(dut.topTypedLogicIn, isA<Logic>());
@@ -419,7 +422,20 @@ void main() {
     expect(dut.topOut.isOutput, isTrue);
     expect(dut.topOut.name, 'topOut');
     expect(dut.topOut.width, 1);
-    // expect(genFileContents, contains('/// This is the top output'));
+
+    expect(dutAdjusted.topOut.width, 7);
+
+    expect(dut.topOutNewName.isOutput, isTrue);
+    expect(dut.topOutNewName.name, 'top_out_new_name');
+
+    expect(dut.topOutWider.isOutput, isTrue);
+    expect(dut.topOutWider.width, 8);
+
+    expect(dut.topOutDesc.isOutput, isTrue);
+    expect(genFileContents, contains('/// top out desc'));
+
+    expect(dut.topOutCond!.isOutput, isTrue);
+    expect(dutAdjusted.topOutCond, isNull);
 
     expect(dut.botInPos.isInput, isTrue);
     expect(dut.botInPos.width, 5);
