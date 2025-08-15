@@ -222,9 +222,6 @@ abstract class _$KitchenGenSinkModule extends Module {
   set topOutArray(LogicArray topOutArray);
 
   @visibleForOverriding
-  set topOutArrayUnspecDims(LogicArray topOutArrayUnspecDims);
-
-  @visibleForOverriding
   set topOutArrayUnspecified(LogicArray topOutArrayUnspecified);
 
   @protected
@@ -268,12 +265,12 @@ abstract class _$KitchenGenSinkModule extends Module {
     Logic botInPos,
     Logic botInPosWidthed,
     Logic? botInPosNullable, {
-    required this.requiredNonNameArgsStructSource,
+    required Logic botInNamed,
     required bool topOutCondIsPresent,
     required bool topInArrayCondIsPresent,
     required bool topInCondIsPresent,
-    required Logic botInNamed,
-    NamedNameableStruct? namedNameableStructSpecdSource,
+    required this.requiredNonNameArgsStructSource,
+    OptionalNonNameArgsStruct? optionalNonNameArgsStructSource,
     Logic? botInNamedOptional,
     super.name,
     super.reserveName,
@@ -281,9 +278,9 @@ abstract class _$KitchenGenSinkModule extends Module {
     NamedNameableStruct? namedNameableStructSource,
     PosNameableStruct? posNameableStructSource,
     OptPosNameableStruct? optPosNameableStructSource,
-    OptionalNonNameArgsStruct? optionalNonNameArgsStructSource,
     super.definitionName,
     super.reserveDefinitionName,
+    NamedNameableStruct? namedNameableStructSpecdSource,
     int topInWidth = 1,
     int topInNewNameWidth = 1,
     int topInDescWidth = 1,
@@ -295,16 +292,13 @@ abstract class _$KitchenGenSinkModule extends Module {
     List<int> topInArrayCondDimensions = const [1],
     int topInArrayCondNumUnpackedDimensions = 0,
     int topTypedLogicInWidth = 1,
-    int topTypedLogicArrayInElementWidth = 1,
-    List<int> topTypedLogicArrayInDimensions = const [1],
     int? botInNamedOptionalWidth,
+    List<int> topTypedLogicArrayInDimensions = const [1],
+    int topTypedLogicArrayInNumUnpackedDimensions = 0,
     int topOutWidth = 1,
     int topOutNewNameWidth = 1,
     int topOutDescWidth = 1,
     int topOutCondWidth = 1,
-    int topOutArrayUnspecDimsElementWidth = 1,
-    List<int> topOutArrayUnspecDimsDimensions = const [1],
-    int topOutArrayUnspecDimsNumUnpackedDimensions = 0,
     int topOutArrayUnspecifiedElementWidth = 1,
     List<int> topOutArrayUnspecifiedDimensions = const [1],
     int topOutArrayUnspecifiedNumUnpackedDimensions = 0,
@@ -312,7 +306,7 @@ abstract class _$KitchenGenSinkModule extends Module {
     int? botInPosWidth,
     int? botInPosNullableWidth,
     int? botInNamedWidth,
-    int topTypedLogicArrayInNumUnpackedDimensions = 0,
+    int topTypedLogicArrayInElementWidth = 1,
   }) : super() {
     topInSource =
         Logic(name: 'topIn', width: topInWidth, naming: Naming.mergeable);
@@ -440,11 +434,6 @@ abstract class _$KitchenGenSinkModule extends Module {
 
     topOutArray = addOutputArray('topOutArray',
         dimensions: const [2, 3], elementWidth: 4, numUnpackedDimensions: 1);
-
-    topOutArrayUnspecDims = addOutputArray('topOutArrayUnspecDims',
-        dimensions: topOutArrayUnspecDimsDimensions,
-        elementWidth: topOutArrayUnspecDimsElementWidth,
-        numUnpackedDimensions: topOutArrayUnspecDimsNumUnpackedDimensions);
 
     topOutArrayUnspecified = addOutputArray('topOutArrayUnspecified',
         dimensions: topOutArrayUnspecifiedDimensions,

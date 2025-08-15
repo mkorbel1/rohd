@@ -183,9 +183,6 @@ with a blank line later too
   @Output.array(dimensions: [2, 3], elementWidth: 4, numUnpackedDimensions: 1)
   late final LogicArray topOutArray;
 
-  @Output()
-  late final LogicArray topOutArrayUnspecDims;
-
   @Output.array()
   late final LogicArray topOutArrayUnspecified;
 
@@ -217,6 +214,9 @@ with a blank line later too
     super.botInPosWidth,
     super.namedNameableStructSource,
     super.topOutWidth,
+    super.topOutArrayUnspecifiedElementWidth,
+    super.topOutArrayUnspecifiedDimensions,
+    super.topOutArrayUnspecifiedNumUnpackedDimensions,
   }) : super(
           requiredNonNameArgsStructSource: RequiredNonNameArgsStruct(
               aWidth: 9, name: 'specified_super_name'),
@@ -289,6 +289,9 @@ void main() {
       reserveDefinitionName: true,
       namedNameableStructSource: NamedNameableStruct('adjusted_named_named'),
       topOutWidth: 7,
+      topOutArrayUnspecifiedElementWidth: 18,
+      topOutArrayUnspecifiedDimensions: [7, 8, 9],
+      topOutArrayUnspecifiedNumUnpackedDimensions: 2,
     );
 
     await dut.build();
@@ -436,6 +439,21 @@ void main() {
 
     expect(dut.topOutCond!.isOutput, isTrue);
     expect(dutAdjusted.topOutCond, isNull);
+
+    expect(dut.topOutArray.isOutput, isTrue);
+    expect(dut.topOutArray.dimensions, [2, 3]);
+    expect(dut.topOutArray.elementWidth, 4);
+    expect(dut.topOutArray.numUnpackedDimensions, 1);
+
+    expect(dut.topOutArrayUnspecified.isOutput, isTrue);
+    expect(dut.topOutArrayUnspecified.dimensions, [1]);
+    expect(dut.topOutArrayUnspecified.elementWidth, 1);
+    expect(dut.topOutArrayUnspecified.numUnpackedDimensions, 0);
+
+    expect(dutAdjusted.topOutArrayUnspecified.isOutput, isTrue);
+    expect(dutAdjusted.topOutArrayUnspecified.dimensions, [7, 8, 9]);
+    expect(dutAdjusted.topOutArrayUnspecified.elementWidth, 18);
+    expect(dutAdjusted.topOutArrayUnspecified.numUnpackedDimensions, 2);
 
     expect(dut.botInPos.isInput, isTrue);
     expect(dut.botInPos.width, 5);
