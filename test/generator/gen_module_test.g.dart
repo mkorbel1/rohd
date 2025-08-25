@@ -661,3 +661,28 @@ abstract class _$KitchenGenSinkModule extends Module {
     }
   }
 }
+
+abstract class _$OptionalPositionalModule extends Module {
+  @protected
+  Logic? get optPosIn => tryInput('optPosIn');
+
+  /// The [tryInputSource] for the [optPosIn] port.
+  Logic? get optPosInSource => tryInputSource('optPosIn');
+
+  _$OptionalPositionalModule([
+    Logic? optPosIn,
+    String name = 'OptionalPositionalModule_inst',
+    bool reserveName = false,
+    String? definitionName,
+    bool reserveDefinitionName = false,
+    int? optPosInWidth,
+  ]) : super(
+            name: name,
+            reserveName: reserveName,
+            definitionName: definitionName,
+            reserveDefinitionName: reserveDefinitionName) {
+    if (optPosIn != null) {
+      addInput('optPosIn', optPosIn, width: optPosInWidth ?? optPosIn.width);
+    }
+  }
+}

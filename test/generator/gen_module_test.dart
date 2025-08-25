@@ -293,6 +293,13 @@ with a blank line later too
   //TODO: also need to test positional optional inputs
 }
 
+@GenModule()
+class OptionalPositionalModule extends _$OptionalPositionalModule {
+  OptionalPositionalModule([@Input() Logic? optPosIn, int? optPosInWidth])
+      : super(optPosIn, 'renamedOptPos', true, 'renamedOptPosDef', true,
+            optPosInWidth);
+}
+
 //TODO: test with Logic instead of super
 
 //TODO: what happens with multiple constructors?

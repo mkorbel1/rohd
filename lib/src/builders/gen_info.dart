@@ -189,14 +189,14 @@ class GenInfoExtracted extends GenInfo {
         LogicType.typed => '',
       };
 
-  List<FormalParameter> get configurationParameters {
+  List<FormalParameter> configurationParameters(ParamPosition extraPosition) {
     final isNullable = referenceName != null;
 
     return <FormalParameter>[
       if (widthName != null)
         FormalParameter(
           varLocation: ParamVarLocation.constructor,
-          paramType: ParamType.namedOptional,
+          paramType: extraPosition.toParamType(isRequired: false),
           isNullable: isNullable,
           name: widthName!,
           type: 'int',
@@ -205,7 +205,7 @@ class GenInfoExtracted extends GenInfo {
       if (dimensionsName != null)
         FormalParameter(
           varLocation: ParamVarLocation.constructor,
-          paramType: ParamType.namedOptional,
+          paramType: extraPosition.toParamType(isRequired: false),
           isNullable: isNullable,
           name: dimensionsName!,
           type: 'List<int>',
@@ -214,7 +214,7 @@ class GenInfoExtracted extends GenInfo {
       if (numUnpackedDimensionsName != null)
         FormalParameter(
           varLocation: ParamVarLocation.constructor,
-          paramType: ParamType.namedOptional,
+          paramType: extraPosition.toParamType(isRequired: false),
           isNullable: isNullable,
           name: numUnpackedDimensionsName!,
           type: 'int',

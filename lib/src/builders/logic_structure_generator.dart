@@ -33,6 +33,8 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
     final superParams = <SuperParameter>[];
     final constructorParams = <FormalParameter>[];
 
+    const extraPosition = ParamPosition.named;
+
     const baseConstructor = null;
     final String baseClassName;
     final String superConstructor;
@@ -75,7 +77,7 @@ class LogicStructureGenerator extends GeneratorForAnnotation<GenStruct> {
     // TODO: what about struct field creation if not available?
 
     for (final field in fields) {
-      constructorParams.addAll(field.configurationParameters);
+      constructorParams.addAll(field.configurationParameters(extraPosition));
     }
 
     final contents = _genConstructorContents(fields);

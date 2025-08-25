@@ -67,9 +67,7 @@ class _PortInfo {
       : throw Exception('Should not be called for non-conditional ports');
 
   bool get createConditionNullable =>
-      genInfo.isConditional &&
-      needsSourceParameter &&
-      !sourceParameter!.paramType.isRequired;
+      genInfo.isConditional && needsSourceParameter && !sourceParamRequired!;
 
   /// The name of a signal to use as the source for addInput, addInOut, etc.
   String get sourceName => switch (origin) {
@@ -94,16 +92,20 @@ class _PortInfo {
       origin == _PortInfoOrigin.fieldAnnotation &&
       genInfo.logicType == LogicType.typed;
 
-  FormalParameter? get sourceParameter {
+  bool? get sourceParamRequired => needsSourceParameter
+      ? (genInfo.structDefaultConstructorType ==
+          StructDefaultConstructorType.unusable)
+      : null;
+
+  FormalParameter? sourceParameter(ParamPosition extraPosition) {
     if (!needsSourceParameter) {
       return null;
     }
 
-    final isRequired = genInfo.structDefaultConstructorType ==
-        StructDefaultConstructorType.unusable;
+    final isRequired = sourceParamRequired!;
 
     return FormalParameter(
-      paramType: isRequired ? ParamType.namedRequired : ParamType.namedOptional,
+      paramType: extraPosition.toParamType(isRequired: isRequired),
       name: sourceName,
       varLocation: (isRequired && direction.forInternalUsage)
           ? ParamVarLocation.this_
@@ -234,7 +236,7 @@ class _PortInfo {
               assert(
                   needsSourceParameter, 'Should only get here if we need it.');
 
-              if (!sourceParameter!.paramType.isRequired) {
+              if (!sourceParamRequired!) {
                 // if it's required, we don't need to do anything, `this.`
                 final addSourceName = 'this.$sourceName';
                 sourceStr = ', $addSourceName';
@@ -281,7 +283,7 @@ class _PortInfo {
                 false => sourceOrConstructorCall,
               };
 
-              if (!sourceParameter!.paramType.isRequired) {
+              if (!sourceParamRequired!) {
                 // if it's required, we don't need to do anything
                 sourceStr = ', $sourceName';
 
@@ -416,6 +418,11 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     final String baseClassName;
     final String superConstructor;
 
+    final extraPosition = constructorParams
+            .any((cp) => cp.paramType == ParamType.optionalPositional)
+        ? ParamPosition.positional
+        : ParamPosition.named;
+
     if (baseConstructor == null) {
       // can't tear-off `Module.new` since it's abstract, so set up manually
       baseClassName = 'Module';
@@ -426,16 +433,58 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
         'definitionName',
         'reserveDefinitionName',
       ];
-      constructorParams.addAll(moduleBaseParams.map(
-        (name) => FormalParameter(
-          paramType: ParamType.namedOptional,
-          name: name,
-          varLocation: ParamVarLocation.super_,
-          type: null,
-        ),
-      ));
+
+      if (extraPosition == ParamPosition.positional) {
+        // here we need to convert to positional arguments
+        superParams.addAll(moduleBaseParams.map((name) => SuperParameter(
+              name: name,
+              type: ParamType.namedOptional,
+              value: name,
+            )));
+
+        constructorParams.addAll([
+          FormalParameter(
+            paramType: ParamType.optionalPositional,
+            name: 'name',
+            varLocation: ParamVarLocation.constructor,
+            type: 'String',
+            defaultValue: "'${sourceClassName}_inst'",
+          ),
+          FormalParameter(
+            paramType: ParamType.optionalPositional,
+            name: 'reserveName',
+            varLocation: ParamVarLocation.constructor,
+            type: 'bool',
+            defaultValue: 'false',
+          ),
+          FormalParameter(
+            paramType: ParamType.optionalPositional,
+            name: 'definitionName',
+            varLocation: ParamVarLocation.constructor,
+            type: 'String',
+            isNullable: true,
+          ),
+          FormalParameter(
+            paramType: ParamType.optionalPositional,
+            name: 'reserveDefinitionName',
+            varLocation: ParamVarLocation.constructor,
+            type: 'bool',
+            defaultValue: 'false',
+          ),
+        ]);
+      } else {
+        constructorParams.addAll(moduleBaseParams.map(
+          (name) => FormalParameter(
+            paramType: ParamType.namedOptional,
+            name: name,
+            varLocation: ParamVarLocation.super_,
+            type: null,
+          ),
+        ));
+      }
     } else {
-      final parsedBaseConstructor = parseBaseConstructor(baseConstructor);
+      final parsedBaseConstructor =
+          parseBaseConstructor(baseConstructor, extraPosition);
       baseClassName = parsedBaseConstructor.baseClassName;
       superConstructor = parsedBaseConstructor.superConstructor;
       superParams.addAll(parsedBaseConstructor.superParams);
@@ -447,7 +496,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
         .where((p) => p.origin == _PortInfoOrigin.fieldAnnotation)) {
       if (portInfo.genInfo.isConditional) {
         constructorParams.add(FormalParameter(
-          paramType: ParamType.namedOptional,
+          paramType: extraPosition.toParamType(isRequired: false),
           name: portInfo.createConditionName,
           varLocation: ParamVarLocation.constructor,
           type: 'bool${portInfo.createConditionNullable ? '?' : ''}',
@@ -458,11 +507,12 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
 
     // Add arguments for typed/struct ports from field annotations
     for (final portInfo in portInfos.where((p) => p.needsSourceParameter)) {
-      constructorParams.add(portInfo.sourceParameter!);
+      constructorParams.add(portInfo.sourceParameter(extraPosition)!);
     }
 
     for (final portInfo in portInfos) {
-      constructorParams.addAll(portInfo.genInfo.configurationParameters);
+      constructorParams
+          .addAll(portInfo.genInfo.configurationParameters(extraPosition));
     }
 
     final buffer = StringBuffer();

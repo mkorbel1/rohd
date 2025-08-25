@@ -1,15 +1,50 @@
 import 'package:meta/meta.dart';
 
+enum ParamPosition {
+  positional,
+  named;
+
+  static ParamPosition of({required bool isPositional}) =>
+      isPositional ? ParamPosition.positional : ParamPosition.named;
+
+  ParamType toParamType({required bool isRequired}) {
+    switch (this) {
+      case ParamPosition.positional:
+        return isRequired
+            ? ParamType.requiredPositional
+            : ParamType.optionalPositional;
+      case ParamPosition.named:
+        return isRequired ? ParamType.namedRequired : ParamType.namedOptional;
+    }
+  }
+}
+
 enum ParamType {
-  requiredPositional(isRequired: true, isPositional: true),
-  optionalPositional(isPositional: true),
-  namedOptional,
-  namedRequired(isRequired: true);
+  requiredPositional._(
+      isRequired: true, paramPosition: ParamPosition.positional),
+  optionalPositional._(paramPosition: ParamPosition.positional),
+  namedOptional._(),
+  namedRequired._(isRequired: true);
 
   final bool isRequired;
-  final bool isPositional;
-  bool get isNamed => !isPositional;
-  const ParamType({this.isRequired = false, this.isPositional = false});
+
+  final ParamPosition paramPosition;
+
+  bool get isNamed => paramPosition == ParamPosition.named;
+  bool get isPositional => paramPosition == ParamPosition.positional;
+
+  const ParamType._(
+      {this.isRequired = false, this.paramPosition = ParamPosition.named});
+
+  static ParamType of(
+      {required bool isRequired, required ParamPosition paramPosition}) {
+    switch (paramPosition) {
+      case ParamPosition.positional:
+        return isRequired ? requiredPositional : optionalPositional;
+      case ParamPosition.named:
+        return isRequired ? namedRequired : namedOptional;
+    }
+  }
 }
 
 enum ParamVarLocation {

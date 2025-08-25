@@ -69,6 +69,8 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     final String baseClassName;
     final String superConstructor;
 
+    const extraPosition = ParamPosition.named;
+
     if (baseConstructor == null) {
       // no need to tear off Interface.new since it has no args
       baseClassName = [
@@ -77,7 +79,8 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
       ].join();
       superConstructor = 'super';
     } else {
-      final parsedBaseConstructor = parseBaseConstructor(baseConstructor);
+      final parsedBaseConstructor =
+          parseBaseConstructor(baseConstructor, extraPosition);
       baseClassName = parsedBaseConstructor.baseClassName;
       superConstructor = parsedBaseConstructor.superConstructor;
       superParams.addAll(parsedBaseConstructor.superParams);
@@ -101,7 +104,7 @@ class InterfaceGenerator extends GeneratorForAnnotation<GenInterface> {
     }
 
     for (final port in ports.values.flattened) {
-      constructorParams.addAll(port.configurationParameters);
+      constructorParams.addAll(port.configurationParameters(extraPosition));
     }
 
     final buffer = StringBuffer();

@@ -6,12 +6,17 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:collection/collection.dart';
 import 'package:rohd/src/builders/parameters.dart';
 
+/// TODO
+///
+/// The [extraPosition] is where non-[ParamType.requiredPositional] arguments
+/// should go.
 ({
   String baseClassName,
   String superConstructor,
   List<SuperParameter> superParams,
   List<FormalParameter> constructorParams
-}) parseBaseConstructor(DartObject baseConstructor) {
+}) parseBaseConstructor(
+    DartObject baseConstructor, ParamPosition extraPosition) {
   final superParams = <SuperParameter>[];
   final constructorParams = <FormalParameter>[];
   final String baseClassName;
@@ -43,20 +48,25 @@ import 'package:rohd/src/builders/parameters.dart';
       final paramIsNullable =
           param.type.nullabilitySuffix == NullabilitySuffix.question;
 
-      if (param.isPositional) {
-        // for positional arguments, we need to transform them into named
-        // arguments
+      final position = ParamPosition.of(isPositional: param.isPositional);
+      final isRequired = param.isRequired;
 
-        // keep the order the same
+      if (param.isPositional != (extraPosition == ParamPosition.positional)) {
+        // for arguments with the wrong position, we need to transform them into
+        // the proper kind!
         superParams.add(
-          SuperParameter(name: paramName, type: ParamType.requiredPositional),
+          SuperParameter(
+            name: paramName,
+            // keep the type in super as what it needs to be
+            type: ParamType.of(isRequired: isRequired, paramPosition: position),
+            value: paramName,
+          ),
         );
 
         constructorParams.add(
           FormalParameter(
-            paramType: paramDefault == null
-                ? ParamType.namedRequired
-                : ParamType.namedOptional,
+            // in this constructor, use the one we should be using
+            paramType: extraPosition.toParamType(isRequired: isRequired),
             name: paramName,
             isNullable: paramIsNullable,
             defaultValue: paramDefault,
@@ -67,9 +77,8 @@ import 'package:rohd/src/builders/parameters.dart';
       } else {
         constructorParams.add(
           FormalParameter(
-            paramType: param.isRequired
-                ? ParamType.namedRequired
-                : ParamType.namedOptional,
+            paramType:
+                ParamType.of(isRequired: isRequired, paramPosition: position),
             name: paramName,
             isNullable: paramIsNullable,
             varLocation: ParamVarLocation.super_,
@@ -139,7 +148,7 @@ String _superArguments(List<SuperParameter> params) {
 
   return [
     if (positionalArgs.isNotEmpty) positionalArgs.join(','),
-    if (namedArgs.isNotEmpty) '{${namedArgs.join(',')}}',
+    if (namedArgs.isNotEmpty) namedArgs.join(','),
   ].join();
 }
 
