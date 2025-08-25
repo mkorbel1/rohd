@@ -9,6 +9,8 @@ documentation: https://intel.github.io/rohd-website/docs/sample-example/
 environment:
   sdk: '>=3.0.0 <4.0.0'
 
+# TODO split out builder into a separate package
+
 dependencies:
   analyzer: ^7.4.0
   build: ^3.0.0

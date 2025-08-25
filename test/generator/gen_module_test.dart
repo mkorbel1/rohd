@@ -647,4 +647,18 @@ void main() {
     expect(dut.botInPosWidthed.isInput, isTrue);
     expect(dut.botInPosWidthed.width, 7);
   });
+
+  test('opt pos gen module', () async {
+    final dut = OptionalPositionalModule(Logic(width: 5), 5);
+    final dutAdjusted = OptionalPositionalModule();
+
+    expect(dut.optPosIn!.isInput, isTrue);
+    expect(dut.name, 'renamedOptPos');
+    expect(dut.definitionName, 'renamedOptPosDef');
+    expect(dut.reserveDefinitionName, isTrue);
+    expect(dut.reserveName, isTrue);
+    expect(dut.optPosIn!.srcConnection, dut.optPosInSource);
+
+    expect(dutAdjusted.optPosIn, isNull);
+  });
 }
