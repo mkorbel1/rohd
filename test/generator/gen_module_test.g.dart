@@ -363,6 +363,14 @@ abstract class _$KitchenGenSinkModule extends Module {
   LogicArray get botInArraySpecdSource =>
       inputSource('bot_in_array_specd') as LogicArray;
 
+  @protected
+  NamedNameableStruct? get botInSpecificStructCond =>
+      tryInput('botInSpecificStructCond') as NamedNameableStruct?;
+
+  /// The [tryInputSource] for the [botInSpecificStructCond] port.
+  NamedNameableStruct? get botInSpecificStructCondSource =>
+      tryInputSource('botInSpecificStructCond') as NamedNameableStruct?;
+
   _$KitchenGenSinkModule(
     Logic botInPos,
     Logic botInPosWidthed,
@@ -388,6 +396,7 @@ abstract class _$KitchenGenSinkModule extends Module {
     int? botInNamedWidth,
     int? botInPosNullableWidth,
     int? botInPosWidth,
+    NamedNameableStruct? botInSpecificStructCond,
     super.definitionName,
     super.name = 'KitchenGenSinkModule_inst',
     NamedNameableStruct? namedNameableStruct,
@@ -703,6 +712,10 @@ abstract class _$KitchenGenSinkModule extends Module {
 
     addInputArray('bot_in_array_specd', botInArraySpecd,
         dimensions: const [3, 5], elementWidth: 9, numUnpackedDimensions: 1);
+
+    if (botInSpecificStructCond != null) {
+      addTypedInput('botInSpecificStructCond', botInSpecificStructCond);
+    }
   }
 }
 

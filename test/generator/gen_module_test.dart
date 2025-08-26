@@ -267,6 +267,7 @@ with a blank line later too
       numUnpackedDimensions: 1,
     )
     required super.botInArraySpecd,
+    @Input.typed() NamedNameableStruct? super.botInSpecificStructCond,
     super.topInCondIsPresent = true,
     super.topInArrayCondIsPresent = true,
     super.topOutCondIsPresent = true,
@@ -402,6 +403,7 @@ void main() {
       topInOutArrayUnspecifiedNumUnpackedDimensions: 1,
       botInArrayUnspec: LogicArray([2, 4], 3, numUnpackedDimensions: 1),
       botInArraySpecd: LogicArray([3, 5], 9, numUnpackedDimensions: 1),
+      botInSpecificStructCond: NamedNameableStruct('asdf'),
     );
 
     await dut.build();
@@ -706,6 +708,20 @@ void main() {
         dut.botInArraySpecdSource.leafElements.first);
     expect(dut.botInArraySpecd.name, 'bot_in_array_specd');
     expect(genFileContents, contains('/// bot in array specd desc'));
+
+    expect(dut.botInSpecificStructCond, isNull);
+    expect(dut.botInSpecificStructCondSource, isNull);
+
+    expect(dutAdjusted.botInSpecificStructCond, isA<NamedNameableStruct>());
+    expect(dutAdjusted.botInSpecificStructCond!.isInput, isTrue);
+    expect(
+        dutAdjusted.botInSpecificStructCondSource, isA<NamedNameableStruct>());
+    expect(
+        dutAdjusted
+            .botInSpecificStructCond!.leafElements.first.srcConnections.first,
+        dutAdjusted.botInSpecificStructCondSource!.leafElements.first);
+    expect(
+        dutAdjusted.botInSpecificStructCond!.name, 'botInSpecificStructCond');
   });
 
   test('opt pos gen module', () async {
