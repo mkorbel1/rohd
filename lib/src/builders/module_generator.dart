@@ -312,7 +312,11 @@ class _PortInfo {
         }
 
       case _PortInfoOrigin.constructorArgAnnotation:
-        break;
+        if (origin == _PortInfoOrigin.constructorArgAnnotation &&
+            genInfo.logicType == LogicType.typed &&
+            direction == _PortDirection.output) {
+          sourceStr += '.clone';
+        }
     }
 
     final portCreationString = "$creator('${genInfo.logicName}' $sourceStr"
