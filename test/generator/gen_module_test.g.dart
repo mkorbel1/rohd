@@ -335,11 +335,19 @@ abstract class _$KitchenGenSinkModule extends Module {
   /// The [tryInputSource] for the [botInNamedOptional] port.
   Logic? get botInNamedOptionalSource => tryInputSource('botInNamedOptional');
 
+  /// bot in named renamed desc
+  @protected
+  Logic get botInNamedRenamed => input('bot_in_named_renamed');
+
+  /// The [inputSource] for the [botInNamedRenamed] port.
+  Logic get botInNamedRenamedSource => inputSource('bot_in_named_renamed');
+
   _$KitchenGenSinkModule(
     Logic botInPos,
     Logic botInPosWidthed,
     Logic? botInPosNullable, {
     required Logic botInNamed,
+    required Logic botInNamedRenamed,
     required this.requiredNonNameArgsStructCondSource,
     required this.requiredNonNameArgsStructSource,
     required RequiredNonNameArgsStruct Function({String? name})
@@ -348,6 +356,7 @@ abstract class _$KitchenGenSinkModule extends Module {
         topOutRequiredNonNameArgsStructGenerator,
     Logic? botInNamedOptional,
     int? botInNamedOptionalWidth,
+    int? botInNamedRenamedWidth,
     int? botInNamedWidth,
     int? botInPosNullableWidth,
     int? botInPosWidth,
@@ -659,6 +668,9 @@ abstract class _$KitchenGenSinkModule extends Module {
       addInput('botInNamedOptional', botInNamedOptional,
           width: botInNamedOptionalWidth ?? botInNamedOptional.width);
     }
+
+    addInput('bot_in_named_renamed', botInNamedRenamed,
+        width: botInNamedRenamedWidth ?? botInNamedRenamed.width);
   }
 }
 

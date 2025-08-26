@@ -390,7 +390,6 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     final constructorParams = <FormalParameter>[];
 
     final portInfos = <_PortInfo>[
-      // ..._extractPortsFromAnnotation(annotation),
       ..._extractPortsFromAnnotatedFields(element),
     ];
 

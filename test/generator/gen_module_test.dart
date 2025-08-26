@@ -1,4 +1,4 @@
-// ignore_for_file: type_init_formals
+// ignore_for_file: type_init_formals, always_put_required_named_parameters_first
 //TODO: review file ignores
 
 import 'dart:io';
@@ -53,7 +53,7 @@ class OptionalNonNameArgsStruct extends LogicStructure {
 }
 
 class RequiredNonNameArgsStruct extends LogicStructure {
-  RequiredNonNameArgsStruct({super.name, required int aWidth})
+  RequiredNonNameArgsStruct({required int aWidth, super.name})
       : super([Logic(name: 'a', width: aWidth)]);
 
   @override
@@ -90,6 +90,7 @@ class ExampleModuleWithGen extends _$ExampleModuleWithGen {
 @GenModule()
 class NonSuperInputMod extends _$NonSuperInputMod {
   // input is not calling super, but passes it up to the parent class
+  // ignore: use_super_parameters
   NonSuperInputMod(@Input() Logic a) : super(a);
 }
 
@@ -239,8 +240,8 @@ with a blank line later too
   @InOut.typed()
   late final InOutStruct? topInOutStructCond;
 
-  //TODO: structs
-  //TODO: enums
+  //TODO: test typed annotated arg
+  //TODO: test output and inouts in annotated arguments
 
   KitchenGenSinkModule(
     @Input() super.botInPos,
@@ -248,6 +249,11 @@ with a blank line later too
     @Input() Logic? super.botInPosNullable, {
     @Input() required super.botInNamed,
     @Input() Logic? super.botInNamedOptional,
+    @Input(
+      name: 'bot_in_named_renamed',
+      description: 'bot in named renamed desc',
+    )
+    required super.botInNamedRenamed,
     super.topInCondIsPresent = true,
     super.topInArrayCondIsPresent = true,
     super.topOutCondIsPresent = true,
@@ -300,8 +306,6 @@ class OptionalPositionalModule extends _$OptionalPositionalModule {
             optPosInWidth);
 }
 
-//TODO: test with Logic instead of super
-
 //TODO: what happens with multiple constructors?
 
 void main() {
@@ -334,12 +338,14 @@ void main() {
   });
 
   test('kitchen sink gen module', () async {
+    final botInNamedRenamed = Logic();
     final dut = KitchenGenSinkModule(
       Logic(width: 5),
       Logic(width: 7),
       Logic(),
       botInNamed: Logic(),
       botInNamedOptional: Logic(),
+      botInNamedRenamed: botInNamedRenamed,
     );
 
     final dutAdjusted = KitchenGenSinkModule(
@@ -349,6 +355,7 @@ void main() {
       Logic(),
       botInNamed: Logic(),
       botInNamedOptional: Logic(),
+      botInNamedRenamed: Logic(width: 5),
       topInCondIsPresent: false,
       topOutCondIsPresent: false,
       topInArrayCondIsPresent: false,
@@ -646,6 +653,12 @@ void main() {
 
     expect(dut.botInPosWidthed.isInput, isTrue);
     expect(dut.botInPosWidthed.width, 7);
+
+    expect(botInNamedRenamed, dut.botInNamedRenamedSource);
+    expect(dut.botInNamedRenamed.isInput, isTrue);
+    expect(genFileContents, contains('/// bot in named renamed desc'));
+    expect(dut.botInNamedRenamed.srcConnection, botInNamedRenamed);
+    expect(dut.botInNamedRenamed.name, 'bot_in_named_renamed');
   });
 
   test('opt pos gen module', () async {

@@ -1,3 +1,4 @@
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:collection/collection.dart';
@@ -74,9 +75,10 @@ class GenInfoExtracted extends GenInfo {
   /// Type of parameter, or null if it is not an argument to the constructor.
   final ParamType? paramType;
 
+  /// A string like 'Logic' representing the name of the type.
   final String typeName;
 
-  final String? annotationName;
+  final String annotationName;
 
   final String name;
 
@@ -94,19 +96,85 @@ class GenInfoExtracted extends GenInfo {
   @override
   bool get isNet => super.isNet!;
 
+  factory GenInfoExtracted.ofAnnotationConst(
+    DartObject annotationConst, {
+    required String name,
+    required String annotationName,
+    required String typeName,
+    required StructDefaultConstructorType? structDefaultConstructorType,
+    required String? referenceName,
+    required bool isInitialized,
+    required ParamType? paramType,
+    required bool isConditional,
+  }) {
+    var logicName = annotationConst.getField('logicName')!.isNull
+        ? null
+        : annotationConst.getField('logicName')!.toStringValue();
+
+    logicName ??= name;
+
+    final width = annotationConst.getField('width')!.isNull
+        ? null
+        : annotationConst.getField('width')!.toIntValue();
+
+    final description = annotationConst.getField('description')!.isNull
+        ? null
+        : annotationConst.getField('description')!.toStringValue();
+
+    final dimensions = annotationConst.getField('dimensions')!.isNull
+        ? null
+        : annotationConst
+            .getField('dimensions')!
+            .toListValue()!
+            .map((e) => e.toIntValue()!)
+            .toList();
+
+    final numUnpackedDimensions =
+        annotationConst.getField('numUnpackedDimensions')!.isNull
+            ? null
+            : annotationConst.getField('numUnpackedDimensions')!.toIntValue();
+
+    var isNet = annotationConst.getField('isNet')!.isNull
+        ? null
+        : annotationConst.getField('isNet')!.toBoolValue();
+
+    if (typeName == 'LogicNet') {
+      isNet = true;
+    }
+
+    // if we have no remaining indication that it's a net, its probably not
+    isNet ??= false;
+
+    return GenInfoExtracted(
+        name: name,
+        logicName: logicName,
+        paramType: paramType,
+        width: width,
+        description: description,
+        isConditional: isConditional,
+        dimensions: dimensions,
+        numUnpackedDimensions: numUnpackedDimensions,
+        isNet: isNet,
+        annotationName: annotationName,
+        typeName: typeName,
+        structDefaultConstructorType: structDefaultConstructorType,
+        referenceName: referenceName,
+        isInitialized: isInitialized);
+  }
+
   GenInfoExtracted({
     required this.name,
     required String? logicName,
     required this.paramType,
-    super.width,
-    super.description,
-    this.isConditional = false,
-    super.dimensions,
-    super.numUnpackedDimensions,
+    required super.width,
+    required super.description,
+    required this.isConditional,
+    required super.dimensions,
+    required super.numUnpackedDimensions,
     required bool super.isNet,
-    this.typeName = 'Logic',
-    this.annotationName,
-    this.structDefaultConstructorType,
+    required this.annotationName,
+    required this.typeName,
+    required this.structDefaultConstructorType,
     required this.referenceName,
     required this.isInitialized,
   }) : super(
@@ -241,43 +309,7 @@ class GenInfoExtracted extends GenInfo {
     final annotationConst =
         annotation.computeConstantValue()!.getField('(super)')!;
 
-    final logicName = annotationConst.getField('logicName')!.isNull
-        ? null
-        : annotationConst.getField('logicName')!.toStringValue();
-
-    final width = annotationConst.getField('width')!.isNull
-        ? null
-        : annotationConst.getField('width')!.toIntValue();
-
-    final description = annotationConst.getField('description')!.isNull
-        ? null
-        : annotationConst.getField('description')!.toStringValue();
-
-    var isNet = annotationConst.getField('isNet')!.isNull
-        ? null
-        : annotationConst.getField('isNet')!.toBoolValue();
-
     final typeName = field.type.getDisplayString().replaceAll('?', '');
-
-    if (typeName == 'LogicNet') {
-      isNet = true;
-    }
-
-    // if we have no remaining indication that it's a net, its probably not
-    isNet ??= false;
-
-    final dimensions = annotationConst.getField('dimensions')!.isNull
-        ? null
-        : annotationConst
-            .getField('dimensions')!
-            .toListValue()!
-            .map((e) => e.toIntValue()!)
-            .toList();
-
-    final numUnpackedDimensions =
-        annotationConst.getField('numUnpackedDimensions')!.isNull
-            ? null
-            : annotationConst.getField('numUnpackedDimensions')!.toIntValue();
 
     StructDefaultConstructorType? structDefaultConstructorType;
     if (typeName != 'Logic' &&
@@ -291,21 +323,16 @@ class GenInfoExtracted extends GenInfo {
       }
     }
 
-    return GenInfoExtracted(
+    return GenInfoExtracted.ofAnnotationConst(
+      annotationConst,
       name: name,
-      logicName: logicName ?? name,
       paramType: null,
-      width: width,
       isConditional: isNullable,
       typeName: typeName,
-      dimensions: dimensions,
-      numUnpackedDimensions: numUnpackedDimensions,
       referenceName: null,
       structDefaultConstructorType: structDefaultConstructorType,
-      description: description,
       isInitialized: field.hasInitializer,
-      isNet: isNet,
-      //TODO rest of the fields
+      annotationName: annotationName,
     );
   }
 
@@ -440,18 +467,6 @@ class GenInfoExtracted extends GenInfo {
     final annotationConst =
         annotation.computeConstantValue()!.getField('(super)')!;
 
-    final logicName = annotationConst.getField('logicName')!.isNull
-        ? null
-        : annotationConst.getField('logicName')!.toStringValue();
-
-    final width = annotationConst.getField('width')!.isNull
-        ? null
-        : annotationConst.getField('width')!.toIntValue();
-
-    var isNet = annotationConst.getField('isNet')!.isNull
-        ? null
-        : annotationConst.getField('isNet')!.toBoolValue();
-
     var typeName = param.type.getDisplayString().replaceAll('?', '');
 
     if (typeName.trim().isEmpty || typeName == 'dynamic') {
@@ -459,26 +474,16 @@ class GenInfoExtracted extends GenInfo {
       typeName = 'Logic';
     }
 
-    if (typeName == 'LogicNet') {
-      isNet = true;
-    }
-
-    // if we have no remaining indication that it's a net, its probably not
-    isNet ??= false;
-
-    //TODO: rest of the fields
-
-    return GenInfoExtracted(
+    return GenInfoExtracted.ofAnnotationConst(
+      annotationConst,
       name: name,
-      logicName: logicName ?? name,
       paramType: paramType,
       annotationName: annotationName,
       isConditional: isNullable,
-      width: width,
       referenceName: name,
       isInitialized: true, // since it's always provided
-      isNet: isNet,
       typeName: typeName,
+      structDefaultConstructorType: null, // since we can clone
     );
   }
 
