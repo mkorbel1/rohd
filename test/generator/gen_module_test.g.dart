@@ -23,7 +23,7 @@ abstract class _$ExampleModuleWithGen extends Module {
     int? aWidth,
     int bWidth = 1,
     super.definitionName,
-    super.name,
+    super.name = 'ExampleModuleWithGen_inst',
     super.reserveDefinitionName,
     super.reserveName,
   }) : super() {
@@ -44,7 +44,7 @@ abstract class _$NonSuperInputMod extends Module {
     Logic a, {
     int? aWidth,
     super.definitionName,
-    super.name,
+    super.name = 'NonSuperInputMod_inst',
     super.reserveDefinitionName,
     super.reserveName,
   }) : super() {
@@ -361,7 +361,7 @@ abstract class _$KitchenGenSinkModule extends Module {
     int? botInPosNullableWidth,
     int? botInPosWidth,
     super.definitionName,
-    super.name,
+    super.name = 'KitchenGenSinkModule_inst',
     bool? namedNameableStructCondIsPresent,
     NamedNameableStruct? namedNameableStructCondSource,
     NamedNameableStruct? namedNameableStructSource,

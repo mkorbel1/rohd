@@ -478,6 +478,7 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
             name: name,
             varLocation: ParamVarLocation.super_,
             type: null,
+            defaultValue: name == 'name' ? "'${sourceClassName}_inst'" : null,
           ),
         ));
       }

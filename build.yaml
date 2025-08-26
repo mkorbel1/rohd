@@ -13,12 +13,14 @@ targets:
       - $package$
       - lib/**
       - test/**
+      - example/**
     builders:
       rohd|rohd_builder:
         generate_for:
           - $package$
           - lib/**
           - test/**
+          - example/**
         enabled: true
       source_gen|combining_builder:
         enabled: true
