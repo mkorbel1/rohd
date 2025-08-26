@@ -272,6 +272,8 @@ with a blank line later too
     @InOut.array(dimensions: [3, 4]) LogicArray? super.botInOutArray,
     @InOut.typed(name: 'bot_in_out_struct')
     required InOutStruct super.botInOutStruct,
+    @Output() required super.botOut,
+    @Output(name: 'bot_out_cond') Logic? super.botOutCond,
     super.topInCondIsPresent = true,
     super.topInArrayCondIsPresent = true,
     super.topOutCondIsPresent = true,
@@ -358,6 +360,10 @@ void main() {
 
   test('kitchen sink gen module', () async {
     final botInNamedRenamed = Logic();
+
+    final botOutReceiver = Logic(width: 3);
+    final botOutCondReceiver = Logic(width: 3);
+
     final dut = KitchenGenSinkModule(
       Logic(width: 5),
       Logic(width: 7),
@@ -370,6 +376,7 @@ void main() {
       botInArraySpecd: LogicArray([3, 5], 9, numUnpackedDimensions: 1),
       botInOut: LogicNet(),
       botInOutStruct: InOutStruct(),
+      botOut: botOutReceiver,
     );
 
     final dutAdjusted = KitchenGenSinkModule(
@@ -413,6 +420,8 @@ void main() {
       botInOut: LogicNet(),
       botInOutStruct: InOutStruct(),
       botInOutArray: LogicArray.net([3, 4], 1, numUnpackedDimensions: 1),
+      botOut: Logic(width: 3),
+      botOutCond: botOutCondReceiver,
     );
 
     await dut.build();
@@ -782,6 +791,18 @@ void main() {
         dutAdjusted.botInOutStructSource.leafElements.first);
     expect(dutAdjusted.botInOutStructSource, isA<InOutStruct>());
     expect(dutAdjusted.botInOutStructSource.isNet, isTrue);
+
+    expect(dut.botOut.dstConnections.first, botOutReceiver);
+    expect(dut.botOut.isOutput, isTrue);
+    expect(dut.botOut.width, 3);
+    expect(dut.botOut.name, 'botOut');
+    expect(dut.botOutCond, isNull);
+
+    expect(dutAdjusted.botOutCond, isNotNull);
+    expect(dutAdjusted.botOutCond!.isOutput, isTrue);
+    expect(dutAdjusted.botOutCond!.width, 3);
+    expect(dutAdjusted.botOutCond!.dstConnections.first, botOutCondReceiver);
+    expect(dutAdjusted.botOutCond!.name, 'bot_out_cond');
   });
 
   test('opt pos gen module', () async {

@@ -318,17 +318,27 @@ class _PortInfo {
     final portCreationString = "$creator('${genInfo.logicName}' $sourceStr"
         ' ${genInfo.widthString(isLogicConstructor: false)})';
 
-    buffer.writeln(switch (genInfo.isConditional) {
-      true => switch (origin) {
-          _PortInfoOrigin.constructorArgAnnotation =>
-            'if(${genInfo.name} != null) { $portCreationString; }',
-          _PortInfoOrigin.fieldAnnotation => 'this.${genInfo.name} ='
-              ' $createConditionName ? $portCreationString : null;',
+    buffer.writeln(switch (origin) {
+      _PortInfoOrigin.constructorArgAnnotation => switch (
+            genInfo.isConditional) {
+          true => () {
+              final outputAssignment = direction == _PortDirection.output
+                  ? '${genInfo.name} <= this.${genInfo.name}!;'
+                  : '';
+              return 'if(${genInfo.name} != null) {'
+                  ' $portCreationString;$outputAssignment }';
+            }(),
+          false => () {
+              final outputAssignment = direction == _PortDirection.output
+                  ? '${genInfo.name} <= this.${genInfo.name};'
+                  : '';
+              return '$portCreationString;$outputAssignment';
+            }(),
         },
-      false => switch (origin) {
-          _PortInfoOrigin.constructorArgAnnotation => '$portCreationString;',
-          _PortInfoOrigin.fieldAnnotation =>
-            'this.${genInfo.name} = $portCreationString;',
+      _PortInfoOrigin.fieldAnnotation => switch (genInfo.isConditional) {
+          true => 'this.${genInfo.name} = $createConditionName ?'
+              ' $portCreationString : null;',
+          false => 'this.${genInfo.name} = $portCreationString;',
         },
     });
 

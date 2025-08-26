@@ -392,6 +392,10 @@ abstract class _$KitchenGenSinkModule extends Module {
   InOutStruct get botInOutStructSource =>
       inOutSource('bot_in_out_struct') as InOutStruct;
 
+  Logic get botOut => output('botOut');
+
+  Logic? get botOutCond => tryOutput('bot_out_cond');
+
   _$KitchenGenSinkModule(
     Logic botInPos,
     Logic botInPosWidthed,
@@ -402,6 +406,7 @@ abstract class _$KitchenGenSinkModule extends Module {
     required Logic botInNamedRenamed,
     required Logic botInOut,
     required InOutStruct botInOutStruct,
+    required Logic botOut,
     required Logic botTypedInput,
     required RequiredNonNameArgsStruct requiredNonNameArgsStruct,
     required RequiredNonNameArgsStruct requiredNonNameArgsStructCond,
@@ -424,6 +429,9 @@ abstract class _$KitchenGenSinkModule extends Module {
     int? botInPosNullableWidth,
     int? botInPosWidth,
     NamedNameableStruct? botInSpecificStructCond,
+    Logic? botOutCond,
+    int? botOutCondWidth,
+    int? botOutWidth,
     super.definitionName,
     super.name = 'KitchenGenSinkModule_inst',
     NamedNameableStruct? namedNameableStruct,
@@ -755,6 +763,14 @@ abstract class _$KitchenGenSinkModule extends Module {
     }
 
     addTypedInOut('bot_in_out_struct', botInOutStruct);
+
+    addOutput('botOut', width: botOutWidth ?? botOut.width);
+    botOut <= this.botOut;
+
+    if (botOutCond != null) {
+      addOutput('bot_out_cond', width: botOutCondWidth ?? botOutCond.width);
+      botOutCond <= this.botOutCond!;
+    }
   }
 }
 
