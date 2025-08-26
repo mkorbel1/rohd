@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-// ignore_for_file: avoid_setters_without_getters, unused_element_parameter
+// ignore_for_file: avoid_setters_without_getters, unused_element_parameter, unnecessary_this, lines_longer_than_80_chars
 
 part of 'gen_interface_test.dart';
 
@@ -49,9 +49,9 @@ abstract class _$GenIntfWithFancyStruct extends Interface<Enum> {
   @visibleForOverriding
   set a(MyFancyStruct a);
   _$GenIntfWithFancyStruct({
-    MyFancyStruct? a,
+    int aWidth = 1,
   }) : super() {
-    this.a = setPort(a ?? MyFancyStruct(name: 'a'),
+    this.a = setPort(Logic(name: 'a', width: aWidth),
         tags: const [ExampleDir.dir1], name: 'a');
   }
 }
@@ -64,15 +64,15 @@ abstract class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
   @visibleForOverriding
   set c(MyStructWithPosName c);
   _$GenIntfWithSimpleStruct({
-    MyUnrenameableStruct? a,
-    MyStructWithNamedName? b,
-    MyStructWithPosName? c,
+    int aWidth = 1,
+    int bWidth = 1,
+    int cWidth = 1,
   }) : super() {
-    this.a = setPort(a ?? MyUnrenameableStruct(),
+    this.a = setPort(Logic(name: 'a', width: aWidth),
         tags: const [ExampleDir.dir1], name: 'a');
-    this.b = setPort(b ?? MyStructWithNamedName(name: 'b'),
+    this.b = setPort(Logic(name: 'b', width: bWidth),
         tags: const [ExampleDir.dir2], name: 'b');
-    this.c = setPort(c ?? MyStructWithPosName('c'),
+    this.c = setPort(Logic(name: 'c', width: cWidth),
         tags: const [ExampleDir.dir2], name: 'c');
   }
 }
@@ -81,9 +81,9 @@ abstract class _$GenIntfWithUnusableStructConstructor extends Interface<Enum> {
   @visibleForOverriding
   set reqarg(MyStructWithRequiredArgs reqarg);
   _$GenIntfWithUnusableStructConstructor({
-    required MyStructWithRequiredArgs reqarg,
+    int reqargWidth = 1,
   }) : super() {
-    this.reqarg =
-        setPort(reqarg, tags: const [ExampleDir.dir1], name: 'reqarg');
+    this.reqarg = setPort(Logic(name: 'reqarg', width: reqargWidth),
+        tags: const [ExampleDir.dir1], name: 'reqarg');
   }
 }

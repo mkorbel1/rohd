@@ -28,3 +28,5 @@ targets:
           ignore_for_file:
             - avoid_setters_without_getters
             - unused_element_parameter
+            - unnecessary_this
+            - lines_longer_than_80_chars

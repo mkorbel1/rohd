@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-// ignore_for_file: avoid_setters_without_getters, unused_element_parameter
+// ignore_for_file: avoid_setters_without_getters, unused_element_parameter, unnecessary_this, lines_longer_than_80_chars
 
 part of 'gen_logic_structure_test.dart';
 

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-// ignore_for_file: avoid_setters_without_getters, unused_element_parameter
+// ignore_for_file: avoid_setters_without_getters, unused_element_parameter, unnecessary_this, lines_longer_than_80_chars
 
 part of 'gen_module_test.dart';
 
@@ -27,7 +27,7 @@ abstract class _$ExampleModuleWithGen extends Module {
     super.reserveDefinitionName,
     super.reserveName,
   }) : super() {
-    b = addOutput('b', width: bWidth);
+    this.b = addOutput('b', width: bWidth);
 
     addInput('a', a, width: aWidth ?? a.width);
   }
@@ -68,7 +68,7 @@ abstract class _$GenSubMod extends GenBaseMod {
     int? aWidth,
     int bWidth = 1,
   }) : super.new() {
-    b = addOutput('b', width: bWidth);
+    this.b = addOutput('b', width: bWidth);
 
     addInput('a', a, width: aWidth ?? a.width);
   }
@@ -342,18 +342,26 @@ abstract class _$KitchenGenSinkModule extends Module {
   /// The [inputSource] for the [botInNamedRenamed] port.
   Logic get botInNamedRenamedSource => inputSource('bot_in_named_renamed');
 
+  @protected
+  Logic get botTypedInput => input('botTypedInput');
+
+  /// The [inputSource] for the [botTypedInput] port.
+  Logic get botTypedInputSource => inputSource('botTypedInput');
+
   _$KitchenGenSinkModule(
     Logic botInPos,
     Logic botInPosWidthed,
     Logic? botInPosNullable, {
     required Logic botInNamed,
     required Logic botInNamedRenamed,
-    required this.requiredNonNameArgsStructCondSource,
-    required this.requiredNonNameArgsStructSource,
+    required Logic botTypedInput,
+    required RequiredNonNameArgsStruct requiredNonNameArgsStruct,
+    required RequiredNonNameArgsStruct requiredNonNameArgsStructCond,
     required RequiredNonNameArgsStruct Function({String? name})
         topOutRequiredNonNameArgsStructCondGenerator,
     required RequiredNonNameArgsStruct Function({String? name})
         topOutRequiredNonNameArgsStructGenerator,
+    required LogicArray topTypedLogicArrayIn,
     Logic? botInNamedOptional,
     int? botInNamedOptionalWidth,
     int? botInNamedRenamedWidth,
@@ -362,14 +370,14 @@ abstract class _$KitchenGenSinkModule extends Module {
     int? botInPosWidth,
     super.definitionName,
     super.name = 'KitchenGenSinkModule_inst',
+    NamedNameableStruct? namedNameableStruct,
+    NamedNameableStruct? namedNameableStructCond,
     bool? namedNameableStructCondIsPresent,
-    NamedNameableStruct? namedNameableStructCondSource,
-    NamedNameableStruct? namedNameableStructSource,
-    NamedNameableStruct? namedNameableStructSpecdSource,
-    NoArgStruct? noArgStructSource,
-    OptPosNameableStruct? optPosNameableStructSource,
-    OptionalNonNameArgsStruct? optionalNonNameArgsStructSource,
-    PosNameableStruct? posNameableStructSource,
+    NamedNameableStruct? namedNameableStructSpecd,
+    NoArgStruct? noArgStruct,
+    OptPosNameableStruct? optPosNameableStruct,
+    OptionalNonNameArgsStruct? optionalNonNameArgsStruct,
+    PosNameableStruct? posNameableStruct,
     bool requiredNonNameArgsStructCondIsPresent = true,
     super.reserveDefinitionName,
     super.reserveName,
@@ -393,9 +401,9 @@ abstract class _$KitchenGenSinkModule extends Module {
     int topInOutArrayUnspecifiedNumUnpackedDimensions = 0,
     bool topInOutCondIsPresent = true,
     int topInOutCondWidth = 1,
+    InOutStruct? topInOutStruct,
+    InOutStruct? topInOutStructCond,
     bool? topInOutStructCondIsPresent,
-    InOutStruct? topInOutStructCondSource,
-    InOutStruct? topInOutStructSource,
     int topInWidth = 1,
     List<int> topOutArrayUnspecifiedDimensions = const [1],
     int topOutArrayUnspecifiedElementWidth = 1,
@@ -409,35 +417,33 @@ abstract class _$KitchenGenSinkModule extends Module {
     bool? topOutStructCondIsPresent,
     NamedNameableStruct Function({String? name})? topOutStructGenerator,
     int topOutWidth = 1,
-    List<int> topTypedLogicArrayInDimensions = const [1],
-    int topTypedLogicArrayInElementWidth = 1,
-    int topTypedLogicArrayInNumUnpackedDimensions = 0,
-    int topTypedLogicInWidth = 1,
+    Logic? topTypedLogicIn,
   }) : super() {
     topInSource =
         Logic(name: 'topIn', width: topInWidth, naming: Naming.mergeable);
-    topIn = addInput('topIn', topInSource, width: topInWidth);
+    this.topIn = addInput('topIn', topInSource, width: topInWidth);
 
     topInNewNameSource = Logic(
         name: 'top_in_new_name',
         width: topInNewNameWidth,
         naming: Naming.mergeable);
-    topInNewName = addInput('top_in_new_name', topInNewNameSource,
+    this.topInNewName = addInput('top_in_new_name', topInNewNameSource,
         width: topInNewNameWidth);
 
     topIn8bitSource =
         Logic(name: 'topIn8bit', width: 8, naming: Naming.mergeable);
-    topIn8bit = addInput('topIn8bit', topIn8bitSource, width: 8);
+    this.topIn8bit = addInput('topIn8bit', topIn8bitSource, width: 8);
 
     topInDescSource = Logic(
         name: 'topInDesc', width: topInDescWidth, naming: Naming.mergeable);
-    topInDesc = addInput('topInDesc', topInDescSource, width: topInDescWidth);
+    this.topInDesc =
+        addInput('topInDesc', topInDescSource, width: topInDescWidth);
 
     topInCondSource = topInCondIsPresent
         ? Logic(
             name: 'topInCond', width: topInCondWidth, naming: Naming.mergeable)
         : null;
-    topInCond = topInCondIsPresent
+    this.topInCond = topInCondIsPresent
         ? addInput('topInCond', topInCondSource!, width: topInCondWidth)
         : null;
 
@@ -447,7 +453,7 @@ abstract class _$KitchenGenSinkModule extends Module {
         topInArrayElementWidth,
         numUnpackedDimensions: topInArrayNumUnpackedDimensions,
         naming: Naming.mergeable);
-    topInArray = addInputArray('topInArray', topInArraySource,
+    this.topInArray = addInputArray('topInArray', topInArraySource,
         dimensions: topInArrayDimensions,
         elementWidth: topInArrayElementWidth,
         numUnpackedDimensions: topInArrayNumUnpackedDimensions);
@@ -458,7 +464,8 @@ abstract class _$KitchenGenSinkModule extends Module {
         4,
         numUnpackedDimensions: 1,
         naming: Naming.mergeable);
-    topInArraySpecd = addInputArray('top_in_array_specd', topInArraySpecdSource,
+    this.topInArraySpecd = addInputArray(
+        'top_in_array_specd', topInArraySpecdSource,
         dimensions: const [7, 6], elementWidth: 4, numUnpackedDimensions: 1);
 
     topInArrayCondSource = topInArrayCondIsPresent
@@ -469,94 +476,87 @@ abstract class _$KitchenGenSinkModule extends Module {
             numUnpackedDimensions: topInArrayCondNumUnpackedDimensions,
             naming: Naming.mergeable)
         : null;
-    topInArrayCond = topInArrayCondIsPresent
+    this.topInArrayCond = topInArrayCondIsPresent
         ? addInputArray('topInArrayCond', topInArrayCondSource!,
             dimensions: topInArrayCondDimensions,
             elementWidth: topInArrayCondElementWidth,
             numUnpackedDimensions: topInArrayCondNumUnpackedDimensions)
         : null;
 
-    this.noArgStructSource = noArgStructSource ?? (NoArgStruct());
-    noArgStruct = addTypedInput('noArgStruct', this.noArgStructSource);
+    this.noArgStructSource = noArgStruct ?? (NoArgStruct());
+    this.noArgStruct = addTypedInput('noArgStruct', this.noArgStructSource);
 
-    this.namedNameableStructSource = namedNameableStructSource ??
-        (NamedNameableStruct('namedNameableStruct'));
-    namedNameableStruct =
+    this.namedNameableStructSource =
+        namedNameableStruct ?? (NamedNameableStruct('namedNameableStruct'));
+    this.namedNameableStruct =
         addTypedInput('namedNameableStruct', this.namedNameableStructSource);
 
-    this.posNameableStructSource = posNameableStructSource ??
-        (PosNameableStruct(name: 'posNameableStruct'));
-    posNameableStruct =
+    this.posNameableStructSource =
+        posNameableStruct ?? (PosNameableStruct(name: 'posNameableStruct'));
+    this.posNameableStruct =
         addTypedInput('posNameableStruct', this.posNameableStructSource);
 
-    this.optPosNameableStructSource = optPosNameableStructSource ??
-        (OptPosNameableStruct('optPosNameableStruct'));
-    optPosNameableStruct =
+    this.optPosNameableStructSource =
+        optPosNameableStruct ?? (OptPosNameableStruct('optPosNameableStruct'));
+    this.optPosNameableStruct =
         addTypedInput('optPosNameableStruct', this.optPosNameableStructSource);
 
-    this.optionalNonNameArgsStructSource = optionalNonNameArgsStructSource ??
+    this.optionalNonNameArgsStructSource = optionalNonNameArgsStruct ??
         (OptionalNonNameArgsStruct(name: 'optionalNonNameArgsStruct'));
-    optionalNonNameArgsStruct = addTypedInput(
+    this.optionalNonNameArgsStruct = addTypedInput(
         'optionalNonNameArgsStruct', this.optionalNonNameArgsStructSource);
 
-    requiredNonNameArgsStruct = addTypedInput(
+    this.requiredNonNameArgsStructSource = requiredNonNameArgsStruct;
+    this.requiredNonNameArgsStruct = addTypedInput(
         'requiredNonNameArgsStruct', requiredNonNameArgsStructSource);
 
     this.namedNameableStructSpecdSource =
-        namedNameableStructSpecdSource ?? (NamedNameableStruct('specd_struct'));
-    namedNameableStructSpecd =
+        namedNameableStructSpecd ?? (NamedNameableStruct('specd_struct'));
+    this.namedNameableStructSpecd =
         addTypedInput('specd_struct', this.namedNameableStructSpecdSource);
 
-    namedNameableStructCondIsPresent ??= namedNameableStructCondSource != null;
+    namedNameableStructCondIsPresent ??= namedNameableStructCond != null;
     this.namedNameableStructCondSource = namedNameableStructCondIsPresent
-        ? namedNameableStructCondSource ??
+        ? namedNameableStructCond ??
             (NamedNameableStruct('named_nameable_struct_cond'))
         : null;
-    namedNameableStructCond = namedNameableStructCondIsPresent
+    this.namedNameableStructCond = namedNameableStructCondIsPresent
         ? addTypedInput(
             'named_nameable_struct_cond', this.namedNameableStructCondSource!)
         : null;
 
-    requiredNonNameArgsStructCond = requiredNonNameArgsStructCondIsPresent
+    this.requiredNonNameArgsStructCondSource = requiredNonNameArgsStructCond;
+    this.requiredNonNameArgsStructCond = requiredNonNameArgsStructCondIsPresent
         ? addTypedInput('requiredNonNameArgsStructCond',
             requiredNonNameArgsStructCondSource!)
         : null;
 
-    topTypedLogicInSource = Logic(
-        name: 'topTypedLogicIn',
-        width: topTypedLogicInWidth,
-        naming: Naming.mergeable);
-    topTypedLogicIn = addInput('topTypedLogicIn', topTypedLogicInSource,
-        width: topTypedLogicInWidth);
+    this.topTypedLogicInSource =
+        topTypedLogicIn ?? (Logic(name: 'topTypedLogicIn'));
+    this.topTypedLogicIn =
+        addTypedInput('topTypedLogicIn', this.topTypedLogicInSource);
 
-    topTypedLogicArrayInSource = LogicArray(
-        name: 'topTypedLogicArrayIn',
-        topTypedLogicArrayInDimensions,
-        topTypedLogicArrayInElementWidth,
-        numUnpackedDimensions: topTypedLogicArrayInNumUnpackedDimensions,
-        naming: Naming.mergeable);
-    topTypedLogicArrayIn = addInputArray(
-        'topTypedLogicArrayIn', topTypedLogicArrayInSource,
-        dimensions: topTypedLogicArrayInDimensions,
-        elementWidth: topTypedLogicArrayInElementWidth,
-        numUnpackedDimensions: topTypedLogicArrayInNumUnpackedDimensions);
+    this.topTypedLogicArrayInSource = topTypedLogicArrayIn;
+    this.topTypedLogicArrayIn =
+        addTypedInput('topTypedLogicArrayIn', topTypedLogicArrayInSource);
 
-    topOut = addOutput('topOut', width: topOutWidth);
+    this.topOut = addOutput('topOut', width: topOutWidth);
 
-    topOutNewName = addOutput('top_out_new_name', width: topOutNewNameWidth);
+    this.topOutNewName =
+        addOutput('top_out_new_name', width: topOutNewNameWidth);
 
-    topOutWider = addOutput('topOutWider', width: 8);
+    this.topOutWider = addOutput('topOutWider', width: 8);
 
-    topOutDesc = addOutput('topOutDesc', width: topOutDescWidth);
+    this.topOutDesc = addOutput('topOutDesc', width: topOutDescWidth);
 
-    topOutCond = topOutCondIsPresent
+    this.topOutCond = topOutCondIsPresent
         ? addOutput('topOutCond', width: topOutCondWidth)
         : null;
 
-    topOutArray = addOutputArray('topOutArray',
+    this.topOutArray = addOutputArray('topOutArray',
         dimensions: const [2, 3], elementWidth: 4, numUnpackedDimensions: 1);
 
-    topOutArrayUnspecified = addOutputArray('topOutArrayUnspecified',
+    this.topOutArrayUnspecified = addOutputArray('topOutArrayUnspecified',
         dimensions: topOutArrayUnspecifiedDimensions,
         elementWidth: topOutArrayUnspecifiedElementWidth,
         numUnpackedDimensions: topOutArrayUnspecifiedNumUnpackedDimensions);
@@ -565,7 +565,7 @@ abstract class _$KitchenGenSinkModule extends Module {
         (topOutStructGenerator ??
             (({String? name}) =>
                 NamedNameableStruct(name ?? 'top_out_struct')));
-    topOutStruct = addTypedOutput('top_out_struct', topOutStructGenerator);
+    this.topOutStruct = addTypedOutput('top_out_struct', topOutStructGenerator);
 
     topOutStructCondIsPresent ??= topOutStructCondGenerator != null;
     topOutStructCondGenerator = topOutStructCondGenerator ??
@@ -574,15 +574,15 @@ abstract class _$KitchenGenSinkModule extends Module {
                 (({String? name}) =>
                     NamedNameableStruct(name ?? 'topOutStructCond'))
             : null);
-    topOutStructCond = topOutStructCondIsPresent
+    this.topOutStructCond = topOutStructCondIsPresent
         ? addTypedOutput('topOutStructCond', topOutStructCondGenerator!)
         : null;
 
-    topOutRequiredNonNameArgsStruct = addTypedOutput(
+    this.topOutRequiredNonNameArgsStruct = addTypedOutput(
         'topOutRequiredNonNameArgsStruct',
         topOutRequiredNonNameArgsStructGenerator);
 
-    topOutRequiredNonNameArgsStructCond =
+    this.topOutRequiredNonNameArgsStructCond =
         topOutRequiredNonNameArgsStructCondIsPresent
             ? addTypedOutput('topOutRequiredNonNameArgsStructCond',
                 topOutRequiredNonNameArgsStructCondGenerator)
@@ -590,7 +590,7 @@ abstract class _$KitchenGenSinkModule extends Module {
 
     topInOutSource =
         LogicNet(name: 'top_in_out', width: 3, naming: Naming.mergeable);
-    topInOut = addInOut('top_in_out', topInOutSource, width: 3);
+    this.topInOut = addInOut('top_in_out', topInOutSource, width: 3);
 
     topInOutCondSource = topInOutCondIsPresent
         ? LogicNet(
@@ -598,7 +598,7 @@ abstract class _$KitchenGenSinkModule extends Module {
             width: topInOutCondWidth,
             naming: Naming.mergeable)
         : null;
-    topInOutCond = topInOutCondIsPresent
+    this.topInOutCond = topInOutCondIsPresent
         ? addInOut('topInOutCond', topInOutCondSource!,
             width: topInOutCondWidth)
         : null;
@@ -609,7 +609,7 @@ abstract class _$KitchenGenSinkModule extends Module {
         4,
         numUnpackedDimensions: 1,
         naming: Naming.mergeable);
-    topInOutArray = addInOutArray('top_in_out_arr', topInOutArraySource,
+    this.topInOutArray = addInOutArray('top_in_out_arr', topInOutArraySource,
         dimensions: const [2, 3], elementWidth: 4, numUnpackedDimensions: 1);
 
     topInOutArrayUnspecifiedSource = LogicArray.net(
@@ -618,7 +618,7 @@ abstract class _$KitchenGenSinkModule extends Module {
         topInOutArrayUnspecifiedElementWidth,
         numUnpackedDimensions: topInOutArrayUnspecifiedNumUnpackedDimensions,
         naming: Naming.mergeable);
-    topInOutArrayUnspecified = addInOutArray(
+    this.topInOutArrayUnspecified = addInOutArray(
         'topInOutArrayUnspecified', topInOutArrayUnspecifiedSource,
         dimensions: topInOutArrayUnspecifiedDimensions,
         elementWidth: topInOutArrayUnspecifiedElementWidth,
@@ -632,7 +632,7 @@ abstract class _$KitchenGenSinkModule extends Module {
             numUnpackedDimensions: topInOutArrayCondNumUnpackedDimensions,
             naming: Naming.mergeable)
         : null;
-    topInOutArrayCond = topInOutArrayCondIsPresent
+    this.topInOutArrayCond = topInOutArrayCondIsPresent
         ? addInOutArray('topInOutArrayCond', topInOutArrayCondSource!,
             dimensions: topInOutArrayCondDimensions,
             elementWidth: topInOutArrayCondElementWidth,
@@ -640,15 +640,15 @@ abstract class _$KitchenGenSinkModule extends Module {
         : null;
 
     this.topInOutStructSource =
-        topInOutStructSource ?? (InOutStruct(name: 'top_in_out_struct'));
-    topInOutStruct =
+        topInOutStruct ?? (InOutStruct(name: 'top_in_out_struct'));
+    this.topInOutStruct =
         addTypedInOut('top_in_out_struct', this.topInOutStructSource);
 
-    topInOutStructCondIsPresent ??= topInOutStructCondSource != null;
+    topInOutStructCondIsPresent ??= topInOutStructCond != null;
     this.topInOutStructCondSource = topInOutStructCondIsPresent
-        ? topInOutStructCondSource ?? (InOutStruct(name: 'topInOutStructCond'))
+        ? topInOutStructCond ?? (InOutStruct(name: 'topInOutStructCond'))
         : null;
-    topInOutStructCond = topInOutStructCondIsPresent
+    this.topInOutStructCond = topInOutStructCondIsPresent
         ? addTypedInOut('topInOutStructCond', this.topInOutStructCondSource!)
         : null;
 
@@ -671,6 +671,8 @@ abstract class _$KitchenGenSinkModule extends Module {
 
     addInput('bot_in_named_renamed', botInNamedRenamed,
         width: botInNamedRenamedWidth ?? botInNamedRenamed.width);
+
+    addTypedInput('botTypedInput', botTypedInput);
   }
 }
 

@@ -145,6 +145,18 @@ class GenInfoExtracted extends GenInfo {
     // if we have no remaining indication that it's a net, its probably not
     isNet ??= false;
 
+    var logicType = annotationConst.getField('logicType')!.isNull
+        ? LogicType.fromTypeName(typeName)
+        : LogicType.values.firstWhere((e) =>
+            e.name == annotationConst.getField('logicType')!.variable2!.name3!);
+
+    // if something is unspecified, but it's obviously an array, just make it an
+    // array
+    if (logicType == LogicType.logic && typeName == 'LogicArray') {
+      logicType = LogicType.array;
+      structDefaultConstructorType = null;
+    }
+
     return GenInfoExtracted(
         name: name,
         logicName: logicName,
@@ -159,7 +171,8 @@ class GenInfoExtracted extends GenInfo {
         typeName: typeName,
         structDefaultConstructorType: structDefaultConstructorType,
         referenceName: referenceName,
-        isInitialized: isInitialized);
+        isInitialized: isInitialized,
+        logicType: logicType);
   }
 
   GenInfoExtracted({
@@ -177,8 +190,9 @@ class GenInfoExtracted extends GenInfo {
     required this.structDefaultConstructorType,
     required this.referenceName,
     required this.isInitialized,
+    required super.logicType,
   }) : super(
-          logicType: LogicType.fromTypeName(typeName),
+          // logicType: LogicType.fromTypeName(typeName),
           name: logicName,
         );
 
@@ -312,16 +326,16 @@ class GenInfoExtracted extends GenInfo {
     final typeName = field.type.getDisplayString().replaceAll('?', '');
 
     StructDefaultConstructorType? structDefaultConstructorType;
-    if (typeName != 'Logic' &&
-        typeName != 'LogicArray' &&
-        typeName != 'LogicNet') {
-      final element = field.type.element3;
+    // if (typeName != 'Logic' &&
+    //     typeName != 'LogicArray' &&
+    //     typeName != 'LogicNet') {
+    final element = field.type.element3;
 
-      if (element is ClassElement2) {
-        structDefaultConstructorType =
-            extractStructDefaultConstructorType(element);
-      }
+    if (element is ClassElement2) {
+      structDefaultConstructorType =
+          extractStructDefaultConstructorType(element);
     }
+    // }
 
     return GenInfoExtracted.ofAnnotationConst(
       annotationConst,
@@ -450,6 +464,10 @@ class GenInfoExtracted extends GenInfo {
     final name = param.name3!;
     final isNullable =
         param.type.nullabilitySuffix == NullabilitySuffix.question;
+
+    if (annotation.element2!.displayName.endsWith('.typed')) {
+      //TODO: need to handle it!
+    }
 
     final ParamType paramType;
     if (param.isOptionalPositional) {

@@ -231,7 +231,7 @@ with a blank line later too
   @InOut()
   late final LogicArray topInOutArrayUnspecified;
 
-  @InOut()
+  @InOut.array()
   late final LogicArray? topInOutArrayCond;
 
   @InOut.typed(name: 'top_in_out_struct', description: 'top in out struct desc')
@@ -240,8 +240,11 @@ with a blank line later too
   @InOut.typed()
   late final InOutStruct? topInOutStructCond;
 
-  //TODO: test typed annotated arg
+  //TODO: test typed annotated arg (in all cases top and bottom, incl on Logic, Array, etc.)
+
   //TODO: test output and inouts in annotated arguments
+
+  //TODO: test parameterized type for typed port
 
   KitchenGenSinkModule(
     @Input() super.botInPos,
@@ -254,6 +257,7 @@ with a blank line later too
       description: 'bot in named renamed desc',
     )
     required super.botInNamedRenamed,
+    @Input.typed() required super.botTypedInput,
     super.topInCondIsPresent = true,
     super.topInArrayCondIsPresent = true,
     super.topOutCondIsPresent = true,
@@ -270,7 +274,7 @@ with a blank line later too
     super.reserveDefinitionName,
     super.definitionName,
     super.botInPosWidth,
-    super.namedNameableStructSource,
+    super.namedNameableStruct,
     super.topOutWidth,
     super.topOutArrayUnspecifiedElementWidth,
     super.topOutArrayUnspecifiedDimensions,
@@ -282,11 +286,11 @@ with a blank line later too
     super.topInOutArrayCondIsPresent = true,
     super.topInOutStructCondIsPresent = true,
   }) : super(
-          requiredNonNameArgsStructSource: RequiredNonNameArgsStruct(
+          requiredNonNameArgsStruct: RequiredNonNameArgsStruct(
               aWidth: 9, name: 'specified_super_name'),
-          topTypedLogicInWidth: 4,
-          topTypedLogicArrayInElementWidth: 5,
-          requiredNonNameArgsStructCondSource: RequiredNonNameArgsStruct(
+          topTypedLogicArrayIn: LogicArray([1], 5),
+          topTypedLogicIn: Logic(width: 4),
+          requiredNonNameArgsStructCond: RequiredNonNameArgsStruct(
               aWidth: 9, name: 'specified_super_name'),
           topOutRequiredNonNameArgsStructCondGenerator:
               RequiredNonNameArgsStruct(aWidth: 9, name: 'specified_super_name')
@@ -295,8 +299,6 @@ with a blank line later too
               RequiredNonNameArgsStruct(aWidth: 9, name: 'specified_super_name')
                   .clone,
         );
-
-  //TODO: also need to test positional optional inputs
 }
 
 @GenModule()
@@ -346,6 +348,7 @@ void main() {
       botInNamed: Logic(),
       botInNamedOptional: Logic(),
       botInNamedRenamed: botInNamedRenamed,
+      botTypedInput: NoArgStruct(),
     );
 
     final dutAdjusted = KitchenGenSinkModule(
@@ -356,6 +359,7 @@ void main() {
       botInNamed: Logic(),
       botInNamedOptional: Logic(),
       botInNamedRenamed: Logic(width: 5),
+      botTypedInput: LogicArray([4, 3], 2),
       topInCondIsPresent: false,
       topOutCondIsPresent: false,
       topInArrayCondIsPresent: false,
@@ -367,7 +371,7 @@ void main() {
       reserveName: true,
       definitionName: 'adjusted_definition',
       reserveDefinitionName: true,
-      namedNameableStructSource: NamedNameableStruct('adjusted_named_named'),
+      namedNameableStruct: NamedNameableStruct('adjusted_named_named'),
       topOutWidth: 7,
       topOutArrayUnspecifiedElementWidth: 18,
       topOutArrayUnspecifiedDimensions: [7, 8, 9],
@@ -659,6 +663,15 @@ void main() {
     expect(genFileContents, contains('/// bot in named renamed desc'));
     expect(dut.botInNamedRenamed.srcConnection, botInNamedRenamed);
     expect(dut.botInNamedRenamed.name, 'bot_in_named_renamed');
+
+    expect(dut.botTypedInput.isInput, isTrue);
+    expect(dut.botTypedInput, isA<NoArgStruct>());
+    expect(dut.botTypedInput.elements.first.srcConnection,
+        dut.botTypedInputSource.elements.first);
+
+    expect(dutAdjusted.botTypedInput, isA<LogicArray>());
+    expect(dutAdjusted.botTypedInputSource, isA<LogicArray>());
+    expect(dutAdjusted.botTypedInput.width, 4 * 3 * 2);
   });
 
   test('opt pos gen module', () async {

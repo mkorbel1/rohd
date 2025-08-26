@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-// ignore_for_file: avoid_setters_without_getters, unused_element_parameter
+// ignore_for_file: avoid_setters_without_getters, unused_element_parameter, unnecessary_this, lines_longer_than_80_chars
 
 part of 'example_with_builder.dart';
 
@@ -43,7 +43,7 @@ abstract class _$Counter extends Module {
     int? resetWidth,
     int valWidth = 1,
   }) : super() {
-    val = addOutput('val', width: valWidth);
+    this.val = addOutput('val', width: valWidth);
 
     addInput('en', en, width: enWidth ?? en.width);
 

@@ -107,7 +107,10 @@ ElementAnnotation? extractAnnotation(
 /// Creates a string to put into the constructor args.
 String _constructorArguments(List<FormalParameter> params) {
   if (params.map((e) => e.name).toSet().length != params.length) {
-    throw ArgumentError('Duplicate parameter names found in constructor');
+    final duplicates = (params.map((e) => e.name).toList()..sort())
+        .where((name) => params.where((e) => e.name == name).length > 1);
+    throw ArgumentError('Duplicate parameter names found in constructor: '
+        '${duplicates.join(', ')}');
   }
 
   final requiredPositionalArgs = params
