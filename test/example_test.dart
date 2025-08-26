@@ -11,6 +11,7 @@ import 'package:rohd/rohd.dart';
 import 'package:test/test.dart';
 
 import '../example/example.dart' as counter;
+import '../example/example_with_builder.dart' as counter_with_builder;
 import '../example/fir_filter.dart' as fir_filter;
 import '../example/logic_array.dart' as logic_array;
 import '../example/oven_fsm.dart' as fsm;
@@ -23,6 +24,10 @@ void main() {
 
   test('counter example', () async {
     await counter.main(noPrint: true);
+  });
+
+  test('counter with builder example', () async {
+    await counter_with_builder.main(noPrint: true);
   });
 
   test('tree example', () async {
