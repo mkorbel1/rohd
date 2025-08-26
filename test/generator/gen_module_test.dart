@@ -268,6 +268,10 @@ with a blank line later too
     )
     required super.botInArraySpecd,
     @Input.typed() NamedNameableStruct? super.botInSpecificStructCond,
+    @InOut(description: 'bot in out desc') required super.botInOut,
+    @InOut.array(dimensions: [3, 4]) LogicArray? super.botInOutArray,
+    @InOut.typed(name: 'bot_in_out_struct')
+    required InOutStruct super.botInOutStruct,
     super.topInCondIsPresent = true,
     super.topInArrayCondIsPresent = true,
     super.topOutCondIsPresent = true,
@@ -364,6 +368,8 @@ void main() {
       botTypedInput: NoArgStruct(),
       botInArrayUnspec: LogicArray([2, 4], 3, numUnpackedDimensions: 1),
       botInArraySpecd: LogicArray([3, 5], 9, numUnpackedDimensions: 1),
+      botInOut: LogicNet(),
+      botInOutStruct: InOutStruct(),
     );
 
     final dutAdjusted = KitchenGenSinkModule(
@@ -404,6 +410,9 @@ void main() {
       botInArrayUnspec: LogicArray([2, 4], 3, numUnpackedDimensions: 1),
       botInArraySpecd: LogicArray([3, 5], 9, numUnpackedDimensions: 1),
       botInSpecificStructCond: NamedNameableStruct('asdf'),
+      botInOut: LogicNet(),
+      botInOutStruct: InOutStruct(),
+      botInOutArray: LogicArray.net([3, 4], 1, numUnpackedDimensions: 1),
     );
 
     await dut.build();
@@ -722,6 +731,57 @@ void main() {
         dutAdjusted.botInSpecificStructCondSource!.leafElements.first);
     expect(
         dutAdjusted.botInSpecificStructCond!.name, 'botInSpecificStructCond');
+
+    expect(dut.botInOut.isInOut, isTrue);
+    expect(dut.botInOut, isA<LogicNet>());
+    expect(dut.botInOut.isNet, isTrue);
+    expect(dut.botInOut.name, 'botInOut');
+    expect(dut.botInOut.width, 1);
+    expect(dut.botInOut.srcConnections.first, dut.botInOutSource);
+    expect(dut.botInOutSource, isA<LogicNet>());
+    expect(dut.botInOutSource.isNet, isTrue);
+    expect(genFileContents, contains('/// bot in out desc'));
+
+    expect(dutAdjusted.botInOut.isInOut, isTrue);
+    expect(dutAdjusted.botInOut, isA<LogicNet>());
+    expect(dutAdjusted.botInOut.isNet, isTrue);
+    expect(
+        dutAdjusted.botInOut.srcConnections.first, dutAdjusted.botInOutSource);
+
+    expect(dut.botInOutArray, isNull);
+    expect(dut.botInOutArraySource, isNull);
+
+    expect(dutAdjusted.botInOutArray, isNotNull);
+    expect(dutAdjusted.botInOutArraySource, isNotNull);
+    expect(dutAdjusted.botInOutArray!.isInOut, isTrue);
+    expect(dutAdjusted.botInOutArray!.isNet, isTrue);
+    expect(dutAdjusted.botInOutArray!, isA<LogicArray>());
+    expect(dutAdjusted.botInOutArray!.name, 'botInOutArray');
+    expect(dutAdjusted.botInOutArray!.elementWidth, 1);
+    expect(dutAdjusted.botInOutArray!.dimensions, [3, 4]);
+    expect(dutAdjusted.botInOutArray!.numUnpackedDimensions, 1);
+    expect(dutAdjusted.botInOutArray!.srcConnections.first,
+        dutAdjusted.botInOutArraySource!.leafElements.first);
+    expect(dutAdjusted.botInOutArraySource, isA<LogicArray>());
+    expect(dutAdjusted.botInOutArraySource!.isNet, isTrue);
+
+    expect(dut.botInOutStruct.isInOut, isTrue);
+    expect(dut.botInOutStruct.isNet, isTrue);
+    expect(dut.botInOutStruct, isA<InOutStruct>());
+    expect(dut.botInOutStruct.name, 'bot_in_out_struct');
+    expect(dut.botInOutStruct.elements.first.srcConnections.first,
+        dut.botInOutStructSource.leafElements.first);
+    expect(dut.botInOutStructSource, isA<InOutStruct>());
+    expect(dut.botInOutStructSource.isNet, isTrue);
+
+    expect(dutAdjusted.botInOutStruct.isInOut, isTrue);
+    expect(dutAdjusted.botInOutStruct.isNet, isTrue);
+    expect(dutAdjusted.botInOutStruct, isA<InOutStruct>());
+    expect(dutAdjusted.botInOutStruct.name, 'bot_in_out_struct');
+    expect(dutAdjusted.botInOutStruct.elements.first.srcConnections.first,
+        dutAdjusted.botInOutStructSource.leafElements.first);
+    expect(dutAdjusted.botInOutStructSource, isA<InOutStruct>());
+    expect(dutAdjusted.botInOutStructSource.isNet, isTrue);
   });
 
   test('opt pos gen module', () async {

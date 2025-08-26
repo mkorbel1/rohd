@@ -371,6 +371,27 @@ abstract class _$KitchenGenSinkModule extends Module {
   NamedNameableStruct? get botInSpecificStructCondSource =>
       tryInputSource('botInSpecificStructCond') as NamedNameableStruct?;
 
+  /// bot in out desc
+  @protected
+  Logic get botInOut => inOut('botInOut');
+
+  /// The [inOutSource] for the [botInOut] port.
+  Logic get botInOutSource => inOutSource('botInOut');
+
+  @protected
+  LogicArray? get botInOutArray => tryInOut('botInOutArray') as LogicArray?;
+
+  /// The [tryInOutSource] for the [botInOutArray] port.
+  LogicArray? get botInOutArraySource =>
+      tryInOutSource('botInOutArray') as LogicArray?;
+
+  @protected
+  InOutStruct get botInOutStruct => inOut('bot_in_out_struct') as InOutStruct;
+
+  /// The [inOutSource] for the [botInOutStruct] port.
+  InOutStruct get botInOutStructSource =>
+      inOutSource('bot_in_out_struct') as InOutStruct;
+
   _$KitchenGenSinkModule(
     Logic botInPos,
     Logic botInPosWidthed,
@@ -379,6 +400,8 @@ abstract class _$KitchenGenSinkModule extends Module {
     required LogicArray botInArrayUnspec,
     required Logic botInNamed,
     required Logic botInNamedRenamed,
+    required Logic botInOut,
+    required InOutStruct botInOutStruct,
     required Logic botTypedInput,
     required RequiredNonNameArgsStruct requiredNonNameArgsStruct,
     required RequiredNonNameArgsStruct requiredNonNameArgsStructCond,
@@ -394,6 +417,10 @@ abstract class _$KitchenGenSinkModule extends Module {
     int? botInNamedOptionalWidth,
     int? botInNamedRenamedWidth,
     int? botInNamedWidth,
+    LogicArray? botInOutArray,
+    int? botInOutArrayElementWidth,
+    int? botInOutArrayNumUnpackedDimensions,
+    int? botInOutWidth,
     int? botInPosNullableWidth,
     int? botInPosWidth,
     NamedNameableStruct? botInSpecificStructCond,
@@ -716,6 +743,18 @@ abstract class _$KitchenGenSinkModule extends Module {
     if (botInSpecificStructCond != null) {
       addTypedInput('botInSpecificStructCond', botInSpecificStructCond);
     }
+
+    addInOut('botInOut', botInOut, width: botInOutWidth ?? botInOut.width);
+
+    if (botInOutArray != null) {
+      addInOutArray('botInOutArray', botInOutArray,
+          dimensions: const [3, 4],
+          elementWidth: botInOutArrayElementWidth ?? botInOutArray.elementWidth,
+          numUnpackedDimensions: botInOutArrayNumUnpackedDimensions ??
+              botInOutArray.numUnpackedDimensions);
+    }
+
+    addTypedInOut('bot_in_out_struct', botInOutStruct);
   }
 }
 
