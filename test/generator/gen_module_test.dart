@@ -258,6 +258,15 @@ with a blank line later too
     )
     required super.botInNamedRenamed,
     @Input.typed() required super.botTypedInput,
+    @Input.array() required super.botInArrayUnspec,
+    @Input.array(
+      name: 'bot_in_array_specd',
+      description: 'bot in array specd desc',
+      elementWidth: 9,
+      dimensions: [3, 5],
+      numUnpackedDimensions: 1,
+    )
+    required super.botInArraySpecd,
     super.topInCondIsPresent = true,
     super.topInArrayCondIsPresent = true,
     super.topOutCondIsPresent = true,
@@ -298,6 +307,9 @@ with a blank line later too
           topOutRequiredNonNameArgsStructGenerator:
               RequiredNonNameArgsStruct(aWidth: 9, name: 'specified_super_name')
                   .clone,
+          botInArrayUnspecDimensions: [2, 4],
+          botInArrayUnspecElementWidth: 3,
+          botInArrayUnspecNumUnpackedDimensions: 1,
         );
 }
 
@@ -349,6 +361,8 @@ void main() {
       botInNamedOptional: Logic(),
       botInNamedRenamed: botInNamedRenamed,
       botTypedInput: NoArgStruct(),
+      botInArrayUnspec: LogicArray([2, 4], 3, numUnpackedDimensions: 1),
+      botInArraySpecd: LogicArray([3, 5], 9, numUnpackedDimensions: 1),
     );
 
     final dutAdjusted = KitchenGenSinkModule(
@@ -386,6 +400,8 @@ void main() {
       topInOutArrayUnspecifiedElementWidth: 15,
       topInOutArrayUnspecifiedDimensions: [8, 9],
       topInOutArrayUnspecifiedNumUnpackedDimensions: 1,
+      botInArrayUnspec: LogicArray([2, 4], 3, numUnpackedDimensions: 1),
+      botInArraySpecd: LogicArray([3, 5], 9, numUnpackedDimensions: 1),
     );
 
     await dut.build();
@@ -672,6 +688,24 @@ void main() {
     expect(dutAdjusted.botTypedInput, isA<LogicArray>());
     expect(dutAdjusted.botTypedInputSource, isA<LogicArray>());
     expect(dutAdjusted.botTypedInput.width, 4 * 3 * 2);
+
+    expect(dut.botInArrayUnspec.isInput, isTrue);
+    expect(dut.botInArrayUnspec.elementWidth, 3);
+    expect(dut.botInArrayUnspec.dimensions, [2, 4]);
+    expect(dut.botInArrayUnspec.numUnpackedDimensions, 1);
+    expect(dut.botInArrayUnspecSource, isA<LogicArray>());
+    expect(dut.botInArrayUnspec.leafElements.first.srcConnections.first,
+        dut.botInArrayUnspecSource.leafElements.first);
+
+    expect(dut.botInArraySpecd.isInput, isTrue);
+    expect(dut.botInArraySpecd.elementWidth, 9);
+    expect(dut.botInArraySpecd.dimensions, [3, 5]);
+    expect(dut.botInArraySpecd.numUnpackedDimensions, 1);
+    expect(dut.botInArraySpecdSource, isA<LogicArray>());
+    expect(dut.botInArraySpecd.leafElements.first.srcConnections.first,
+        dut.botInArraySpecdSource.leafElements.first);
+    expect(dut.botInArraySpecd.name, 'bot_in_array_specd');
+    expect(genFileContents, contains('/// bot in array specd desc'));
   });
 
   test('opt pos gen module', () async {

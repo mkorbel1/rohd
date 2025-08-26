@@ -49,9 +49,9 @@ abstract class _$GenIntfWithFancyStruct extends Interface<Enum> {
   @visibleForOverriding
   set a(MyFancyStruct a);
   _$GenIntfWithFancyStruct({
-    int aWidth = 1,
+    MyFancyStruct? a,
   }) : super() {
-    this.a = setPort(Logic(name: 'a', width: aWidth),
+    this.a = setPort(a ?? MyFancyStruct(name: 'a'),
         tags: const [ExampleDir.dir1], name: 'a');
   }
 }
@@ -64,15 +64,15 @@ abstract class _$GenIntfWithSimpleStruct extends Interface<ExampleDir> {
   @visibleForOverriding
   set c(MyStructWithPosName c);
   _$GenIntfWithSimpleStruct({
-    int aWidth = 1,
-    int bWidth = 1,
-    int cWidth = 1,
+    MyUnrenameableStruct? a,
+    MyStructWithNamedName? b,
+    MyStructWithPosName? c,
   }) : super() {
-    this.a = setPort(Logic(name: 'a', width: aWidth),
+    this.a = setPort(a ?? MyUnrenameableStruct(),
         tags: const [ExampleDir.dir1], name: 'a');
-    this.b = setPort(Logic(name: 'b', width: bWidth),
+    this.b = setPort(b ?? MyStructWithNamedName(name: 'b'),
         tags: const [ExampleDir.dir2], name: 'b');
-    this.c = setPort(Logic(name: 'c', width: cWidth),
+    this.c = setPort(c ?? MyStructWithPosName('c'),
         tags: const [ExampleDir.dir2], name: 'c');
   }
 }
@@ -81,9 +81,9 @@ abstract class _$GenIntfWithUnusableStructConstructor extends Interface<Enum> {
   @visibleForOverriding
   set reqarg(MyStructWithRequiredArgs reqarg);
   _$GenIntfWithUnusableStructConstructor({
-    int reqargWidth = 1,
+    required MyStructWithRequiredArgs reqarg,
   }) : super() {
-    this.reqarg = setPort(Logic(name: 'reqarg', width: reqargWidth),
-        tags: const [ExampleDir.dir1], name: 'reqarg');
+    this.reqarg =
+        setPort(reqarg, tags: const [ExampleDir.dir1], name: 'reqarg');
   }
 }

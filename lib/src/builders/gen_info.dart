@@ -138,6 +138,11 @@ class GenInfoExtracted extends GenInfo {
         ? null
         : annotationConst.getField('isNet')!.toBoolValue();
 
+    if (typeName.trim().isEmpty || typeName == 'dynamic') {
+      // assume it's a normal `Logic` if not specified on a parameter
+      typeName = 'Logic';
+    }
+
     if (typeName == 'LogicNet') {
       isNet = true;
     }
@@ -155,6 +160,16 @@ class GenInfoExtracted extends GenInfo {
     if (logicType == LogicType.logic && typeName == 'LogicArray') {
       logicType = LogicType.array;
       structDefaultConstructorType = null;
+    }
+
+    if (logicType == LogicType.array) {
+      // if it's an array, make sure the typeName matches
+      typeName = 'LogicArray';
+    } else if (logicType == LogicType.logic &&
+        typeName != 'Logic' &&
+        typeName != 'LogicNet') {
+      // if it's some sort of thing not a normal Logic, then make it typed
+      logicType = LogicType.typed;
     }
 
     return GenInfoExtracted(
@@ -225,13 +240,17 @@ class GenInfoExtracted extends GenInfo {
     return '?? $referenceName.$widthArgName';
   }
 
+  /// TODO
+  ///
+  /// If [isResolved] then it's a constant and no need to adjust with `??`.
   String _widthSettingWithReferenceAdjustment(
           String widthArgName, String widthVarName,
-          {required bool isNamed}) =>
+          {required bool isNamed, required bool isResolved}) =>
       [
         ',',
         if (isNamed) ' $widthArgName:',
-        ' $widthVarName${_referenceWidthAdjustment(widthArgName)}',
+        ' $widthVarName',
+        if (!isResolved) _referenceWidthAdjustment(widthArgName),
       ].join();
 
   /// Returns a string representation of the width configuration.
@@ -241,21 +260,25 @@ class GenInfoExtracted extends GenInfo {
   String widthString({required bool isLogicConstructor}) => switch (logicType) {
         LogicType.logic => switch (width) {
             null => _widthSettingWithReferenceAdjustment('width', widthName!,
-                isNamed: true),
+                isNamed: true, isResolved: width != null),
             1 => '',
             _ => ', width: $width',
           },
-        LogicType.array => _widthSettingWithReferenceAdjustment(
-              'dimensions',
-              dimensions == null ? dimensionsName! : 'const $dimensions',
-              isNamed: !isLogicConstructor,
-            ) +
+        LogicType.array => switch (dimensions) {
+              _ => _widthSettingWithReferenceAdjustment(
+                  'dimensions',
+                  dimensions == null ? dimensionsName! : 'const $dimensions',
+                  isNamed: !isLogicConstructor,
+                  isResolved: dimensions != null,
+                ),
+            } +
             switch (width) {
               1 => '',
               _ => _widthSettingWithReferenceAdjustment(
                   'elementWidth',
                   width == null ? widthName! : '$width',
                   isNamed: !isLogicConstructor,
+                  isResolved: width != null,
                 ),
             } +
             switch (numUnpackedDimensions) {
@@ -266,6 +289,7 @@ class GenInfoExtracted extends GenInfo {
                       ? numUnpackedDimensionsName!
                       : '$numUnpackedDimensions',
                   isNamed: true,
+                  isResolved: numUnpackedDimensions != null,
                 ),
             },
         LogicType.typed => '',
@@ -326,16 +350,11 @@ class GenInfoExtracted extends GenInfo {
     final typeName = field.type.getDisplayString().replaceAll('?', '');
 
     StructDefaultConstructorType? structDefaultConstructorType;
-    // if (typeName != 'Logic' &&
-    //     typeName != 'LogicArray' &&
-    //     typeName != 'LogicNet') {
     final element = field.type.element3;
-
     if (element is ClassElement2) {
       structDefaultConstructorType =
           extractStructDefaultConstructorType(element);
     }
-    // }
 
     return GenInfoExtracted.ofAnnotationConst(
       annotationConst,

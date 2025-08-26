@@ -348,10 +348,27 @@ abstract class _$KitchenGenSinkModule extends Module {
   /// The [inputSource] for the [botTypedInput] port.
   Logic get botTypedInputSource => inputSource('botTypedInput');
 
+  @protected
+  LogicArray get botInArrayUnspec => input('botInArrayUnspec') as LogicArray;
+
+  /// The [inputSource] for the [botInArrayUnspec] port.
+  LogicArray get botInArrayUnspecSource =>
+      inputSource('botInArrayUnspec') as LogicArray;
+
+  /// bot in array specd desc
+  @protected
+  LogicArray get botInArraySpecd => input('bot_in_array_specd') as LogicArray;
+
+  /// The [inputSource] for the [botInArraySpecd] port.
+  LogicArray get botInArraySpecdSource =>
+      inputSource('bot_in_array_specd') as LogicArray;
+
   _$KitchenGenSinkModule(
     Logic botInPos,
     Logic botInPosWidthed,
     Logic? botInPosNullable, {
+    required LogicArray botInArraySpecd,
+    required LogicArray botInArrayUnspec,
     required Logic botInNamed,
     required Logic botInNamedRenamed,
     required Logic botTypedInput,
@@ -362,6 +379,9 @@ abstract class _$KitchenGenSinkModule extends Module {
     required RequiredNonNameArgsStruct Function({String? name})
         topOutRequiredNonNameArgsStructGenerator,
     required LogicArray topTypedLogicArrayIn,
+    List<int>? botInArrayUnspecDimensions,
+    int? botInArrayUnspecElementWidth,
+    int? botInArrayUnspecNumUnpackedDimensions,
     Logic? botInNamedOptional,
     int? botInNamedOptionalWidth,
     int? botInNamedRenamedWidth,
@@ -673,6 +693,16 @@ abstract class _$KitchenGenSinkModule extends Module {
         width: botInNamedRenamedWidth ?? botInNamedRenamed.width);
 
     addTypedInput('botTypedInput', botTypedInput);
+
+    addInputArray('botInArrayUnspec', botInArrayUnspec,
+        dimensions: botInArrayUnspecDimensions ?? botInArrayUnspec.dimensions,
+        elementWidth:
+            botInArrayUnspecElementWidth ?? botInArrayUnspec.elementWidth,
+        numUnpackedDimensions: botInArrayUnspecNumUnpackedDimensions ??
+            botInArrayUnspec.numUnpackedDimensions);
+
+    addInputArray('bot_in_array_specd', botInArraySpecd,
+        dimensions: const [3, 5], elementWidth: 9, numUnpackedDimensions: 1);
   }
 }
 
