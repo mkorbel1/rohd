@@ -19,6 +19,31 @@ class NoArgStruct extends LogicStructure {
   NoArgStruct clone({String? name}) => NoArgStruct._(name: name);
 }
 
+enum SimpleDir { dir1, dir2, dirNet }
+
+class SimpleInterface extends Interface<SimpleDir> {
+  SimpleInterface() {
+    setPorts([Logic.port('simple1')], [SimpleDir.dir1]);
+    setPorts([Logic.port('simple2')], [SimpleDir.dir2]);
+    setPorts([LogicNet.port('simple_net')], [SimpleDir.dirNet]);
+  }
+}
+
+class SimplePairInterface extends PairInterface {
+  SimplePairInterface()
+      : super(
+            portsFromConsumer: [Logic.port('pairCons')],
+            portsFromProvider: [Logic.port('pairProv')]);
+}
+
+// TODO: test that super args for interface construction are passed if possible
+
+class ExtendedPairInterface extends SimplePairInterface {
+  ExtendedPairInterface() {
+    setPorts([Logic.port('pairCommon')], [PairDirection.commonInOuts]);
+  }
+}
+
 class NamedNameableStruct extends LogicStructure {
   NamedNameableStruct(String name) : super([Logic(name: 'a')], name: name);
 
@@ -254,10 +279,27 @@ with a blank line later too
 
   //TODO: test parameterized type for typed port
 
+  @Intf(inputTags: [SimpleDir.dir1], outputTags: [SimpleDir.dir2])
+  late final SimpleInterface topSimpleIntf;
+
+  @Intf(name: 'top_simple_intf_renamed', inOutTags: [SimpleDir.dirNet])
+  late final SimpleInterface? topSimpleIntfRenamedCond;
+
+  @PairIntf(PairRole.consumer, name: 'top_simple_pair_intf')
+  late final SimplePairInterface topSimplePairIntf;
+
+  @PairIntf(PairRole.consumer)
+  late final SimplePairInterface? topSimplePairIntfCond;
+
+  @PairIntf(PairRole.provider, name: 'top_extended_pair_intf')
+  late final ExtendedPairInterface topExtendedPairIntf;
+
   KitchenGenSinkModule(
     @Input() super.botInPos,
     @Input(width: 7) super.botInPosWidthed,
-    @Input() Logic? super.botInPosNullable, {
+    @Input() Logic? super.botInPosNullable,
+    // TODO: positional, named, and optional pos interfaces
+    {
     @Input() required super.botInNamed,
     @Input() Logic? super.botInNamedOptional,
     @Input(

@@ -73,13 +73,17 @@ class Intf<TagType extends Enum> {
   final List<TagType>? outputTags;
   final List<TagType>? inOutTags;
 
-  const Intf({this.inputTags, this.outputTags, this.inOutTags});
+  final String? name;
+
+  const Intf({this.name, this.inputTags, this.outputTags, this.inOutTags});
 }
 
 class PairIntf {
   final PairRole role;
 
-  const PairIntf(this.role);
+  final String? name;
+
+  const PairIntf(this.role, {this.name});
 }
 
 //TODO: do structs and interfaces need a net indication?

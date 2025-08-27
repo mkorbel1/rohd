@@ -408,6 +408,28 @@ class ModuleGenerator extends GeneratorForAnnotation<GenModule> {
     return portInfos;
   }
 
+  static List<Intf> _extractIntfsFromAnnotatedFields(Element2 element) {
+    final intfs = <Intf>[];
+    return intfs;
+  }
+
+  static List<PairIntf> _extractPairIntfsFromAnnotatedFields(Element2 element) {
+    final pairIntfs = <PairIntf>[];
+    return pairIntfs;
+  }
+
+  static List<Intf> _extractIntfsFromConstructor(
+      ConstructorElement2 constructor) {
+    final intfs = <Intf>[];
+    return intfs;
+  }
+
+  static List<PairIntf> _extractPairIntfsFromConstructor(
+      ConstructorElement2 constructor) {
+    final pairIntfs = <PairIntf>[];
+    return pairIntfs;
+  }
+
   @override
   String generateForAnnotatedElement(
       Element2 element, ConstantReader annotation, BuildStep buildStep) {
