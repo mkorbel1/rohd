@@ -68,7 +68,19 @@ class InOut extends GenInfo {
 }
 
 // TODO: annotation for adding interfaces to modules
-class Intf {}
+class Intf<TagType extends Enum> {
+  final List<TagType>? inputTags;
+  final List<TagType>? outputTags;
+  final List<TagType>? inOutTags;
+
+  const Intf({this.inputTags, this.outputTags, this.inOutTags});
+}
+
+class PairIntf {
+  final PairRole role;
+
+  const PairIntf(this.role);
+}
 
 //TODO: do structs and interfaces need a net indication?
 
@@ -116,13 +128,15 @@ class IntfPort<TagType extends Enum> extends GenInfo {
   }) : super(logicType: LogicType.typed, isNet: false);
 }
 
+class SubPairIntf {
+  final String? name;
+
+  final bool reverse;
+
+  const SubPairIntf({this.name, this.reverse = false});
+}
+
 class GenModule {
-  // final List<GenLogic>? inputs;
-  // final List<GenLogic>? outputs;
-  // final List<GenLogic>? inOuts;
-
-  // final Type? extendsModule; // TODO: add custom constructor?
-
   /// If specified, this constructor will be used as the base constructor
   /// for the generated module and it will extend the return type of this
   /// constructor.  This must be a non-factory constructor and the base class
@@ -131,28 +145,19 @@ class GenModule {
 
   //TODO: do we need interfaces in here too?
 
-  const GenModule(
-      {
-      // this.inputs, this.outputs, this.inOuts,
-      this.baseConstructor});
+  const GenModule({this.baseConstructor});
 }
 
 class GenInterface<T extends Enum> {
-  // final Type? extendsModule; // TODO: add custom constructor?
-
-  // final Map<T, List<GenLogic>>? ports;
-
   final Function? baseConstructor;
 
   const GenInterface({this.baseConstructor});
+
+  const GenInterface.pair() : baseConstructor = PairInterface.new;
 }
 
 class GenStruct {
   //TODO name?
 
-  // final List<GenLogic> fields;
-
-  const GenStruct(
-      // {required this.fields}
-      );
+  const GenStruct();
 }

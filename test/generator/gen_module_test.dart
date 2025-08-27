@@ -339,8 +339,6 @@ class OptionalPositionalModule extends _$OptionalPositionalModule {
             optPosInWidth);
 }
 
-//TODO: what happens with multiple constructors?
-
 void main() {
   group('simple module', () {
     for (final modBuilder in [ExampleModule.new, ExampleModuleWithGen.new]) {
