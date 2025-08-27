@@ -111,6 +111,16 @@ class GenSubMod extends _$GenSubMod {
 }
 
 @GenModule()
+class MultiConstructorMod extends _$MultiConstructorMod {
+  MultiConstructorMod({
+    @Input() required super.a,
+    Logic? b,
+  }) : super(b);
+
+  MultiConstructorMod.other(@Input() Logic? super.b, {required super.a});
+}
+
+@GenModule()
 class KitchenGenSinkModule extends _$KitchenGenSinkModule {
   @Input()
   late final Logic topIn;
@@ -211,8 +221,6 @@ with a blank line later too
 
   @Output.typed()
   late final RequiredNonNameArgsStruct? topOutRequiredNonNameArgsStructCond;
-
-  //TODO: also test output struct typed with name override
 
   @InOut(name: 'top_in_out', description: 'top in out desc', width: 3)
   late final LogicNet topInOut;

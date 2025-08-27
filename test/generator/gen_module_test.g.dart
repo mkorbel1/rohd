@@ -74,6 +74,37 @@ abstract class _$GenSubMod extends GenBaseMod {
   }
 }
 
+abstract class _$MultiConstructorMod extends Module {
+  @protected
+  Logic get a => input('a');
+
+  /// The [inputSource] for the [a] port.
+  Logic get aSource => inputSource('a');
+
+  @protected
+  Logic? get b => tryInput('b');
+
+  /// The [tryInputSource] for the [b] port.
+  Logic? get bSource => tryInputSource('b');
+
+  _$MultiConstructorMod(
+    Logic? b, {
+    required Logic a,
+    int? aWidth,
+    int? bWidth,
+    super.definitionName,
+    super.name = 'MultiConstructorMod_inst',
+    super.reserveDefinitionName,
+    super.reserveName,
+  }) : super() {
+    addInput('a', a, width: aWidth ?? a.width);
+
+    if (b != null) {
+      addInput('b', b, width: bWidth ?? b.width);
+    }
+  }
+}
+
 abstract class _$KitchenGenSinkModule extends Module {
   @protected
   @visibleForOverriding
