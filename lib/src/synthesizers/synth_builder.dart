@@ -65,6 +65,9 @@ class SynthBuilder {
       modulesToParse.addAll(moduleI.subModules);
     }
 
+    //TODO: when picking names, make it more clear if its definition or normal name or what
+    // (this should be moved into an issue maybe?)
+
     // go backwards to start from the bottom (...now we're here)
     // critical to go in this order for caching to work properly
     modulesToParse.reversed
