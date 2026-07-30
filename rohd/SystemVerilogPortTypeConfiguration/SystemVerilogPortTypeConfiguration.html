@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the replicate method from the LogicStructure class, for the Dart programming language.">
-  <title>replicate method - LogicStructure class - rohd library - Dart API</title>
+  <meta name="description" content="API docs for the SystemVerilogPortTypeConfiguration.new constructor from Class SystemVerilogPortTypeConfiguration from the rohd library, for the Dart programming language.">
+  <title>SystemVerilogPortTypeConfiguration.new constructor - SystemVerilogPortTypeConfiguration - rohd library - Dart API</title>
 
 
   
@@ -26,10 +26,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd</a></li>
     <li><a href="../../rohd/">rohd.dart</a></li>
-    <li><a href="../../rohd/LogicStructure-class.html">LogicStructure</a></li>
-    <li class="self-crumb">replicate method</li>
+    <li><a href="../../rohd/SystemVerilogPortTypeConfiguration-class.html">SystemVerilogPortTypeConfiguration</a></li>
+    <li class="self-crumb">SystemVerilogPortTypeConfiguration.new const constructor</li>
   </ol>
-  <div class="self-name">replicate</div>
+  <div class="self-name">SystemVerilogPortTypeConfiguration.new</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -43,47 +43,35 @@
   </button>
 </header>
 <main>
-<div
-    id="dartdoc-main-content"
-    class="main-content"
-    data-above-sidebar="rohd&#47;LogicStructure-class-sidebar.html"
-    data-below-sidebar="">
-    <div>
-<h1><span class="kind-method">replicate</span> method 
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd&#47;SystemVerilogPortTypeConfiguration-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">SystemVerilogPortTypeConfiguration</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
-      
-  <div>
-    <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/3.12.2/dart-core/override-constant.html">override</a></li>
-    </ol>
-  </div>
-<span class="returntype"><a href="../../rohd/Logic-class.html">Logic</a></span>
-<span class="name ">replicate</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="replicate-param-multiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.12.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">multiplier</span></span></li>
-</ol>)
-
-      <div class="features"><span class="feature">override</span></div>
-
+      const
+      <span class="name ">SystemVerilogPortTypeConfiguration</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-objectType"><span class="type-annotation"><a href="../../rohd/SystemVerilogPortType.html">SystemVerilogPortType</a></span> <span class="parameter-name">objectType</span> = <span class="default-value">SystemVerilogPortType.explicit</span>, </span></li>
+<li><span class="parameter" id="param-dataType"><span class="type-annotation"><a href="../../rohd/SystemVerilogPortType.html">SystemVerilogPortType</a></span> <span class="parameter-name">dataType</span> = <span class="default-value">SystemVerilogPortType.explicit</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Returns a replicated signal using <a href="../../rohd/ReplicationOp-class.html">ReplicationOp</a> with new width =
-this.width * <code>multiplier</code></p>
-<p>The input <code>multiplier</code> cannot be negative or 0; an exception will be
-thrown, otherwise.</p>
-<p>If <code>multiplier</code> is 1, then this signal is returned directly, since
-replicating once is a no-op and would otherwise generate a redundant
-<code>1{...}</code> in the output SystemVerilog.</p>
-<p>If <a href="../../rohd/LogicStructure/isNet.html">isNet</a>, then the result will also be a net.</p>
+  <p>Creates a new configuration for types in a SystemVerilog port
+declaration.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">@override
-Logic replicate(int multiplier) =&gt; packed.replicate(multiplier);</code></pre>
+  <pre class="language-dart"><code class="language-dart">const SystemVerilogPortTypeConfiguration({
+  this.objectType = SystemVerilogPortType.explicit,
+  this.dataType = SystemVerilogPortType.explicit,
+});</code></pre>
 </section>
 
 
@@ -98,15 +86,15 @@ Logic replicate(int multiplier) =&gt; packed.replicate(multiplier);</code></pre>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd</a></li>
     <li><a href="../../rohd/">rohd</a></li>
-    <li><a href="../../rohd/LogicStructure-class.html">LogicStructure</a></li>
-    <li class="self-crumb">replicate method</li>
+    <li><a href="../../rohd/SystemVerilogPortTypeConfiguration-class.html">SystemVerilogPortTypeConfiguration</a></li>
+    <li class="self-crumb">SystemVerilogPortTypeConfiguration.new const constructor</li>
 </ol>
 
-    <h5>LogicStructure class</h5>
+    <h5>SystemVerilogPortTypeConfiguration class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-->
+  </div><!--/.sidebar-offcanvas-left-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
-</div><!--/.sidebar-offcanvas-->
+  </div><!--/.sidebar-offcanvas-->
 </main>
 <footer>
   <span class="no-break">

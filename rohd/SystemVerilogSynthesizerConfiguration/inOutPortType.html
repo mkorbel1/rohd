@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the replicate method from the LogicStructure class, for the Dart programming language.">
-  <title>replicate method - LogicStructure class - rohd library - Dart API</title>
+  <meta name="description" content="API docs for the inOutPortType property from the SystemVerilogSynthesizerConfiguration class, for the Dart programming language.">
+  <title>inOutPortType property - SystemVerilogSynthesizerConfiguration class - rohd library - Dart API</title>
 
 
   
@@ -26,10 +26,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd</a></li>
     <li><a href="../../rohd/">rohd.dart</a></li>
-    <li><a href="../../rohd/LogicStructure-class.html">LogicStructure</a></li>
-    <li class="self-crumb">replicate method</li>
+    <li><a href="../../rohd/SystemVerilogSynthesizerConfiguration-class.html">SystemVerilogSynthesizerConfiguration</a></li>
+    <li class="self-crumb">inOutPortType property</li>
   </ol>
-  <div class="self-name">replicate</div>
+  <div class="self-name">inOutPortType</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -46,50 +46,36 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="rohd&#47;LogicStructure-class-sidebar.html"
+    data-above-sidebar="rohd&#47;SystemVerilogSynthesizerConfiguration-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">replicate</span> method 
+<h1><span class="kind-property">inOutPortType</span> property 
 </h1></div>
 
-    <section class="multi-line-signature">
-      
-  <div>
-    <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/3.12.2/dart-core/override-constant.html">override</a></li>
-    </ol>
-  </div>
-<span class="returntype"><a href="../../rohd/Logic-class.html">Logic</a></span>
-<span class="name ">replicate</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="replicate-param-multiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.12.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">multiplier</span></span></li>
-</ol>)
-
-      <div class="features"><span class="feature">override</span></div>
-
-    </section>
     
+      <section class="multi-line-signature">
+        
+        <a href="../../rohd/SystemVerilogPortTypeConfiguration-class.html">SystemVerilogPortTypeConfiguration</a>
+        <span class="name ">inOutPortType</span>
+        <div class="features"><span class="feature">final</span></div>
+
+      </section>
+      
 <section class="desc markdown">
-  <p>Returns a replicated signal using <a href="../../rohd/ReplicationOp-class.html">ReplicationOp</a> with new width =
-this.width * <code>multiplier</code></p>
-<p>The input <code>multiplier</code> cannot be negative or 0; an exception will be
-thrown, otherwise.</p>
-<p>If <code>multiplier</code> is 1, then this signal is returned directly, since
-replicating once is a no-op and would otherwise generate a redundant
-<code>1{...}</code> in the output SystemVerilog.</p>
-<p>If <a href="../../rohd/LogicStructure/isNet.html">isNet</a>, then the result will also be a net.</p>
+  <p>Type configuration for inout ports.</p>
 </section>
 
-
-    
+      
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">@override
-Logic replicate(int multiplier) =&gt; packed.replicate(multiplier);</code></pre>
+  <pre class="language-dart"><code class="language-dart">final SystemVerilogPortTypeConfiguration inOutPortType;</code></pre>
 </section>
 
 
-  </div> <!-- /.main-content -->
-  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+    
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
@@ -98,14 +84,14 @@ Logic replicate(int multiplier) =&gt; packed.replicate(multiplier);</code></pre>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd</a></li>
     <li><a href="../../rohd/">rohd</a></li>
-    <li><a href="../../rohd/LogicStructure-class.html">LogicStructure</a></li>
-    <li class="self-crumb">replicate method</li>
+    <li><a href="../../rohd/SystemVerilogSynthesizerConfiguration-class.html">SystemVerilogSynthesizerConfiguration</a></li>
+    <li class="self-crumb">inOutPortType property</li>
 </ol>
 
-    <h5>LogicStructure class</h5>
-    <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-->
-  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>SystemVerilogSynthesizerConfiguration class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
 </main>
 <footer>
